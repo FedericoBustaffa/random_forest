@@ -5,15 +5,62 @@
       "-Wall",
       "-std=c++20",
       "-I./include/",
-      "-O2",
-      "-march=native",
       "-c",
       "-o",
-      "build/main.o",
-      "src/main.cpp"
+      "build/decision_tree.o",
+      "src/decision_tree.cpp"
     ],
     "directory": "/home/federico/dev/cpp/prf",
-    "file": "/home/federico/dev/cpp/prf/src/main.cpp",
-    "output": "/home/federico/dev/cpp/prf/build/main.o"
+    "file": "/home/federico/dev/cpp/prf/src/decision_tree.cpp",
+    "output": "/home/federico/dev/cpp/prf/build/decision_tree.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-Wall",
+      "-std=c++20",
+      "-I./include/",
+      "-c",
+      "-o",
+      "build/random_forest.o",
+      "src/random_forest.cpp"
+    ],
+    "directory": "/home/federico/dev/cpp/prf",
+    "file": "/home/federico/dev/cpp/prf/src/random_forest.cpp",
+    "output": "/home/federico/dev/cpp/prf/build/random_forest.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-Wall",
+      "-std=c++20",
+      "-I./include/",
+      "build/decision_tree.o",
+      "build/random_forest.o",
+      "-o",
+      "test/rf_seq.out",
+      "test/rf_seq.cpp"
+    ],
+    "directory": "/home/federico/dev/cpp/prf",
+    "file": "/home/federico/dev/cpp/prf/test/rf_seq.cpp",
+    "output": "/home/federico/dev/cpp/prf/test/rf_seq.out"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-Wall",
+      "-std=c++20",
+      "-I./include/",
+      "build/decision_tree.o",
+      "build/random_forest.o",
+      "-o",
+      "test/dt_seq.out",
+      "test/dt_seq.cpp"
+    ],
+    "directory": "/home/federico/dev/cpp/prf",
+    "file": "/home/federico/dev/cpp/prf/test/dt_seq.cpp",
+    "output": "/home/federico/dev/cpp/prf/test/dt_seq.out"
   }
 ]

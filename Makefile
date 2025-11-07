@@ -36,11 +36,12 @@ else
 endif
 
 # link libraries
-LIBS = -pthread
+LIBS =
 
 # specify source directory
 SOURCE_DIR = ./src
 SOURCES = $(wildcard $(SOURCE_DIR)/*.cpp)
+TESTS = $(wildcard test/*.cpp)
 
 # build directory containing .o and .d files
 BUILD_DIR = build
@@ -53,18 +54,18 @@ OBJECTS = $(patsubst $(SOURCE_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SOURCES))
 
 .PHONY: all clean-fast clean recompile
 
-TARGET = decision_tree.out
+TARGETS = $(patsubst test/%.cpp, test/%.out, $(TESTS))
 
-all: $(BUILD_DIR) $(TARGET)
+all: $(BUILD_DIR) test/$(TARGETS)
 
 $(BUILD_DIR):
 	@mkdir -p $@
 
-$(TARGET): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $^ -o $@ $(LIBS)
+test/%.out: $(OBJECTS) test/%.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEFINES) $^ -o $@
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp
-	$(CXX) $(FLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEFINES) $(DEPSFLAGS) -c $< -o $@
 
 -include $(DEPS)
 
@@ -72,6 +73,6 @@ clean-fast:
 	-rm -rf $(BUILD_DIR)
 
 clean: clean-fast
-	-rm -rf $(TARGET)
+	-rm -rf $(TARGETS)
 
 recompile: clean all
