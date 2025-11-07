@@ -23,7 +23,6 @@ DEFINES =
 FLAGS = $(CXXFLAGS)
 FLAGS += $(INCLUDES)
 FLAGS += $(DEFINES)
-FLAGS += $(DEPSFLAGS)
 
 # default mode is RELEASE
 BUILD_TYPE ?= RELEASE
@@ -62,10 +61,10 @@ $(BUILD_DIR):
 	@mkdir -p $@
 
 test/%.out: $(OBJECTS) test/%.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEFINES) $^ -o $@
+	$(CXX) $(FLAGS) $^ -o $@
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEFINES) $(DEPSFLAGS) -c $< -o $@
+	$(CXX) $(FLAGS) $(DEPSFLAGS) -c $< -o $@
 
 -include $(DEPS)
 
