@@ -1,10 +1,8 @@
 #include "csv.hpp"
 
+#include <fstream>
 #include <sstream>
 #include <string>
-
-namespace csv
-{
 
 std::vector<std::string> readline(std::ifstream& file)
 {
@@ -29,7 +27,7 @@ std::vector<std::string> readline(const std::string& filepath)
     return readline(file);
 }
 
-dataframe read(std::ifstream& file, const std::vector<std::string>& headers)
+dataframe read_csv(std::ifstream& file, const std::vector<std::string>& headers)
 {
     std::vector<std::string> buffer; // to build the dataframe
     std::vector<std::string> line;
@@ -46,19 +44,17 @@ dataframe read(std::ifstream& file, const std::vector<std::string>& headers)
     return dataframe(buffer, headers);
 }
 
-dataframe read(const std::string& filepath,
-               const std::vector<std::string>& headers)
+dataframe read_csv(const std::string& filepath,
+                   const std::vector<std::string>& headers)
 {
     std::ifstream file(filepath);
-    return read(file, headers);
+    return read_csv(file, headers);
 }
 
-dataframe read(const std::string& filepath)
+dataframe read_csv(const std::string& filepath)
 {
     std::ifstream file(filepath);
     std::vector<std::string> headers = readline(file);
 
-    return read(file, headers);
+    return read_csv(file, headers);
 }
-
-}; // namespace csv
