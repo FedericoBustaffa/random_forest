@@ -14,7 +14,7 @@ OPTFLAGS = -O2 -march=native
 DEPSFLAGS = -MMD -MP
 
 # specify include directories with -I<dir>
-INCLUDES = -I./include/
+INCLUDES = -I./include/ -I./csv-parser/single_include/
 
 # specify preprocessor definitions
 DEFINES = 
