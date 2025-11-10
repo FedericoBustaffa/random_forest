@@ -29,17 +29,24 @@ std::vector<std::string> readline(const std::string& filepath)
 
 dataframe read_csv(std::ifstream& file, const std::vector<std::string>& headers)
 {
-    std::vector<std::string> buffer; // to build the dataframe
-    std::vector<std::string> line;
-    while (true)
+    // read the first line to get the number of columns
+    std::vector<std::string> line = readline(file);
+
+    // vector of columns
+    std::vector<std::vector<std::string>> buffer(line.size());
+
+    // fill the first row
+    for (size_t i = 0; i < line.size(); i++)
+        buffer[i].push_back(line[i]);
+
+    // fill the rest of the table
+    do
     {
         line = readline(file);
-        if (line.empty())
-            break;
-
-        for (const auto& word : line)
-            buffer.push_back(word);
-    }
+        if (!line.empty())
+            for (size_t i = 0; i < line.size(); i++)
+                buffer[i].push_back(line[i]);
+    } while (!line.empty());
 
     return dataframe(buffer, headers);
 }

@@ -4,40 +4,31 @@
 #include <string>
 #include <vector>
 
+#include "field.hpp"
+
 class dataframe
 {
 public:
-    enum class field
-    {
-        numerical,
-        categorical
-    };
-
-public:
-    dataframe(const std::vector<std::string>& content,
+    dataframe(const std::vector<std::vector<std::string>>& content,
               const std::vector<std::string>& headers);
 
-    inline size_t rows() const { return m_rows; }
+    inline size_t rows() const { return m_fields[0].size(); }
 
-    inline size_t columns() const { return m_cols; }
+    inline size_t columns() const { return m_fields.size(); }
 
-    inline bool empty() const { return m_content.empty(); }
+    inline bool empty() const { return m_fields.empty(); }
 
-    inline const std::vector<std::string>& headers() const { return m_headers; }
+    inline std::vector<std::string_view> headers() const { return m_headers; }
 
-    inline const std::vector<field>& fields() const { return m_fields; }
+    inline std::vector<field> fields() const { return m_fields; }
 
-    std::vector<std::string_view> operator[](const std::string& header) const;
-
-    std::vector<double> to_vector() const;
+    field operator[](const std::string_view& header) const;
 
     ~dataframe();
 
 private:
-    size_t m_rows, m_cols;
-    std::vector<std::string> m_headers;
+    std::vector<std::string_view> m_headers;
     std::vector<field> m_fields;
-    std::vector<std::string> m_content;
 };
 
 #endif

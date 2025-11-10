@@ -18,19 +18,13 @@ int main(int argc, const char** argv)
     std::cout << "--- info ---" << std::endl;
     std::cout << "shape: (" << df.rows() << ", " << df.columns() << ")"
               << std::endl;
-    for (size_t i = 0; i < headers.size(); i++)
-    {
-        std::cout << headers[i] << ": " << std::flush;
-        if (df.fields()[i] == dataframe::field::numerical)
-            std::cout << "numerical" << std::endl;
-        if (df.fields()[i] == dataframe::field::categorical)
-            std::cout << "categorical" << std::endl;
-    }
 
-    // for (const auto& v : df["sepal_length"])
-    //     std::cout << v << std::endl;
+    for (const auto& h : df.headers())
+        std::cout << h << ": " << df[h].type() << std::endl;
 
-    std::vector<double> vec = df.to_vector();
+    auto v = df["label"].as_double();
+    for (const auto& i : v)
+        std::cout << i << std::endl;
 
     return 0;
 }
