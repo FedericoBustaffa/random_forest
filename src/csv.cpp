@@ -10,7 +10,7 @@
 bool readline(std::ifstream& file, std::vector<std::string>& line)
 {
     std::string stringline;
-    if (!std::getline(file, stringline))
+    if (!std::getline(file, stringline) || stringline.empty())
         return false;
 
     std::stringstream ss;
