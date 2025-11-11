@@ -1,11 +1,12 @@
-#include "field.hpp"
+#include "column.hpp"
 
 #include <algorithm>
 #include <regex>
 
 #include "utils.hpp"
 
-field::field(const std::string& header, const std::vector<std::string>& content)
+column::column(const std::string& header,
+               const std::vector<std::string>& content)
     : m_header(header), m_content(content)
 {
     // auto type deduction
@@ -29,7 +30,7 @@ field::field(const std::string& header, const std::vector<std::string>& content)
     }
 }
 
-double field::get(size_t i)
+double column::get(size_t i)
 {
     if (m_type == datatype::categorical)
         return m_dict[m_content[i]];
@@ -37,7 +38,7 @@ double field::get(size_t i)
         return std::stod(m_content[i]);
 }
 
-std::vector<double> field::to_vec() const
+std::vector<double> column::to_vec() const
 {
     if (m_type == datatype::categorical)
         return encode(m_content);
@@ -45,4 +46,4 @@ std::vector<double> field::to_vec() const
     return convert(m_content);
 }
 
-field::~field() {}
+column::~column() {}

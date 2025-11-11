@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "field.hpp"
+#include "column.hpp"
 
 class dataview
 {
@@ -29,11 +29,11 @@ public:
 
     inline const std::vector<std::string>& headers() const { return m_headers; }
 
-    inline std::vector<field> fields() const { return m_fields; }
+    inline std::vector<column> fields() const { return m_fields; }
 
-    inline field operator[](size_t i) const { return m_fields[i]; }
+    inline column operator[](size_t i) const { return m_fields[i]; }
 
-    field operator[](const std::string_view& header) const;
+    column operator[](const std::string_view& header) const;
 
     std::vector<double> to_vec() const;
 
@@ -41,7 +41,7 @@ public:
 
 private:
     std::vector<std::string> m_headers;
-    std::vector<field> m_fields;
+    std::vector<column> m_fields;
 };
 
 #endif

@@ -11,7 +11,7 @@ dataframe::dataframe(const std::vector<std::vector<std::string>>& content,
         m_fields.emplace_back(headers[i], content[i]);
 }
 
-field dataframe::operator[](const std::string_view& header) const
+column dataframe::operator[](const std::string_view& header) const
 {
     auto h = std::find(m_headers.begin(), m_headers.end(), header);
     if (h == m_headers.end())

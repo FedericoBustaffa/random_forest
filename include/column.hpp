@@ -1,12 +1,12 @@
-#ifndef FIELD_HPP
-#define FIELD_HPP
+#ifndef COLUMN_HPP
+#define COLUMN_HPP
 
 #include <ostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-class field
+class column
 {
 public:
     enum class datatype
@@ -16,7 +16,7 @@ public:
     };
 
 public:
-    field(const std::string& header, const std::vector<std::string>& content);
+    column(const std::string& header, const std::vector<std::string>& content);
 
     inline datatype type() const { return m_type; }
 
@@ -33,7 +33,7 @@ public:
 
     std::vector<double> to_vec() const;
 
-    ~field();
+    ~column();
 
 private:
     datatype m_type;
@@ -42,9 +42,9 @@ private:
     std::unordered_map<std::string, double> m_dict;
 };
 
-inline std::ostream& operator<<(std::ostream& os, field::datatype dt)
+inline std::ostream& operator<<(std::ostream& os, column::datatype dt)
 {
-    if (dt == field::datatype::numerical)
+    if (dt == column::datatype::numerical)
         os << "numerical";
     else
         os << "categorical";
