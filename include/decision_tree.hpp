@@ -16,6 +16,9 @@ public:
     ~decision_tree();
 
 private:
+    double entropy(const std::vector<double>& y);
+
+private:
 };
 
 #endif

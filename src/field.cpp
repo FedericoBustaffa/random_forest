@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <regex>
 
-#include <iostream>
-
 #include "utils.hpp"
 
 field::field(const std::string& header, const std::vector<std::string>& content)
@@ -20,6 +18,7 @@ field::field(const std::string& header, const std::vector<std::string>& content)
     {
         m_type = datatype::categorical;
 
+        // build a mapping between categorical string and intger
         std::vector<std::string> uniques = content;
         std::sort(uniques.begin(), uniques.end());
         uniques.erase(std::unique(uniques.begin(), uniques.end()),

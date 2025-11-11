@@ -7,16 +7,15 @@ int main(int argc, const char** argv)
 {
     if (argc != 2)
     {
-        std::cout << "USAGE: " << argv[0] << " <filepath>" << std::endl;
+        std::printf("USAGE: %s <filepath>\n", argv[0]);
         return 1;
     }
 
     dataframe df = read_csv(argv[1], {"sepal_length", "sepal_width",
                                       "petal_length", "petal_width", "class"});
 
-    std::cout << "--- info ---" << std::endl;
-    std::cout << "shape: (" << df.nrows() << ", " << df.ncolumns() << ")"
-              << std::endl;
+    std::printf("--- info ---\n");
+    std::printf("shape: (%lu, %lu)", df.nrows(), df.ncolumns());
 
     for (const auto& h : df.headers())
         std::cout << h << ": " << df[h].type() << std::endl;
@@ -25,7 +24,7 @@ int main(int argc, const char** argv)
     for (size_t i = 0; i < X.size(); i++)
     {
         for (size_t j = 0; j < X[i].size(); j++)
-            std::cout << X[i][j] << " " << std::flush;
+            std::printf("%.2f ", X[i][j]);
         std::cout << std::endl;
     }
 
