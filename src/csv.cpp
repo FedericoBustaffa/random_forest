@@ -1,11 +1,16 @@
-#include "csv.hpp"
+#include "utils.hpp"
 
-#include <cassert>
 #include <fstream>
+#include <regex>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 
-#include <iostream>
+enum class DataType
+{
+    Numerical,
+    Categorical
+};
 
 bool readline(std::ifstream& file, std::vector<std::string>& line)
 {
@@ -24,41 +29,95 @@ bool readline(std::ifstream& file, std::vector<std::string>& line)
     return true;
 }
 
-bool readline(const std::string& filepath, std::vector<std::string>& line)
+std::pair<Tensor, Tensor> read_csv(const std::string& filepath,
+                                   bool has_headers)
 {
     std::ifstream file(filepath);
-    return readline(file, line);
-}
 
-DataFrame read_csv(std::ifstream& file, const std::vector<std::string>& headers)
-{
-    // the dataframe content
-    std::vector<std::string> content;
-
-    // fill the table
+    // just read headers and discard them if present
     std::vector<std::string> line;
-    while (readline(file, line))
+    if (has_headers)
+        readline(file, line);
+
+    // read the first line to check which column needs numerical conversion
+    readline(file, line);
+    std::vector<DataType> datatypes;
+    std::unordered_map<size_t, std::unordered_map<std::string, double>>
+        dictionaries;
+
+    // columns counter
+    size_t cols = line.size();
+
+    // regex to capture every possible numerical type
+    std::regex numerical(
+        R"(^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)([eE][+-]?[0-9]+)?$)");
+
+    size_t rows = 1;              // rows counter;
+    std::vector<double> features; // assume first n-1 columns are features
+    std::vector<double> targets;  // assume the last column as targets
+
+    // setup dictionaries for on the fly conversion and insert first line
+    for (size_t i = 0; i < line.size() - 1; i++)
     {
-        assert(line.size() == headers.size());
-        for (size_t i = 0; i < line.size(); i++)
-            content.push_back(line[i]);
+        // infer columns types
+        if (std::regex_search(line[i], numerical))
+        {
+            datatypes.push_back(DataType::Numerical);
+            features.push_back(std::stod(line[i]));
+        }
+        else
+        {
+            datatypes.push_back(DataType::Categorical);
+            dictionaries[i] = {};
+            dictionaries[i][line[i]] = 0.0;
+            features.push_back(dictionaries[i][line[i]]);
+        }
     }
 
-    return DataFrame(content, headers);
-}
+    // infer target type
+    if (std::regex_search(line[cols - 1], numerical))
+    {
+        datatypes.push_back(DataType::Numerical);
+        targets.push_back(std::stod(line[cols - 1]));
+    }
+    else
+    {
+        datatypes.push_back(DataType::Categorical);
+        dictionaries[cols - 1] = {};
+        dictionaries[cols - 1][line[cols - 1]] = 0.0;
+        targets.push_back(dictionaries[cols - 1][line[cols - 1]]);
+    }
 
-DataFrame read_csv(const std::string& filepath,
-                   const std::vector<std::string>& headers)
-{
-    std::ifstream file(filepath);
-    return read_csv(file, headers);
-}
+    // read and convert the file on the file
+    // in the end it retains only a numerical copy of the CSV
+    while (readline(file, line))
+    {
+        for (size_t i = 0; i < line.size() - 1; i++)
+        {
+            if (datatypes[i] == DataType::Numerical)
+                features.push_back(std::stod(line[i]));
+            else
+            {
+                if (!dictionaries[i].contains(line[i]))
+                    dictionaries[i][line[i]] = dictionaries[i].size();
 
-DataFrame read_csv(const std::string& filepath)
-{
-    std::ifstream file(filepath);
-    std::vector<std::string> headers;
-    readline(file, headers);
+                features.push_back(dictionaries[i][line[i]]);
+            }
+        }
 
-    return read_csv(file, headers);
+        if (datatypes[cols - 1] == DataType::Numerical)
+            targets.push_back(std::stod(line[cols - 1]));
+        else
+        {
+            if (!dictionaries[cols - 1].contains(line[cols - 1]))
+                dictionaries[cols - 1][line[cols - 1]] =
+                    dictionaries[cols - 1].size();
+
+            targets.push_back(dictionaries[cols - 1][line[cols - 1]]);
+        }
+        rows++;
+    }
+
+    return {Tensor(features.data(), {rows, cols - 1}),
+            Tensor(targets.data(), {rows})};
 }

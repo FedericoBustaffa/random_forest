@@ -1,24 +1,21 @@
 #ifndef DECISION_TREE_HPP
 #define DECISION_TREE_HPP
 
-#include <vector>
-
-#include "matrix.hpp"
-#include "vector.hpp"
+#include "tensor.hpp"
 
 class DecisionTree
 {
 public:
     DecisionTree();
 
-    void fit(const Matrix& X, const Vector& y);
+    void fit(const Tensor& X, const Tensor& y);
 
-    Vector predict(const Matrix& X);
+    // Tensor predict(const Tensor& X);
 
     ~DecisionTree();
 
 private:
-    double entropy(const Vector& y);
+    double entropy(const Tensor& y);
 
 private:
 };

@@ -3,12 +3,24 @@
 
 #include <vector>
 
+class TensorView;
+
 class Tensor
 {
 public:
-    Tensor(const std::vector<double>& data, const std::vector<size_t>& shape);
+    Tensor(double scalar);
 
-    inline double get(size_t i) const { return m_Data[i]; }
+    Tensor(const double* data, const std::vector<size_t>& shape);
+
+    Tensor(const Tensor& other);
+
+    Tensor(Tensor&& other);
+
+    inline const std::vector<size_t>& shape() const { return m_Shape; }
+
+    inline size_t size() const { return m_Size; }
+
+    operator double() const;
 
     Tensor operator[](size_t i) const;
 
@@ -16,8 +28,8 @@ public:
 
 private:
     std::vector<size_t> m_Shape;
-    size_t m_Stride;
     size_t m_Size;
+    size_t m_Stride;
     double* m_Data;
 };
 

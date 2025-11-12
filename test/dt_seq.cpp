@@ -1,7 +1,7 @@
 #include <cstdio>
 
-#include "csv.hpp"
 #include "decision_tree.hpp"
+#include "utils.hpp"
 
 int main(int argc, const char** argv)
 {
@@ -11,17 +11,12 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    std::vector<std::string> headers = {"sepal_length", "sepal_width",
-                                        "petal_length", "petal_width", "class"};
+    auto [X, y] = read_csv(argv[1]);
 
-    std::string filepath(argv[1]);
-    DataFrame df = read_csv(filepath, headers);
-
-    auto [X, y] = df.toData();
     DecisionTree tree;
     tree.fit(X, y);
-    // std::vector<double> predictions = tree.predict(X);
-    // std::printf("accuracy: %.2f\n", accuracy(predictions, y));
+    // Tensor predictions = tree.predict(X);
+    std::printf("accuracy: %.2f\n", accuracy(y, y));
 
     return 0;
 }

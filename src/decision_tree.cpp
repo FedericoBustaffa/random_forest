@@ -1,12 +1,11 @@
 #include "decision_tree.hpp"
 
 #include <cmath>
-#include <cstdio>
 #include <unordered_map>
 
 DecisionTree::DecisionTree() {}
 
-double DecisionTree::entropy(const Vector& y)
+double DecisionTree::entropy(const Tensor& y)
 {
     std::unordered_map<double, double> counters;
     for (size_t i = 0; i < y.size(); i++)
@@ -22,7 +21,7 @@ double DecisionTree::entropy(const Vector& y)
     return e;
 }
 
-void DecisionTree::fit(const Matrix& X, const Vector& y)
+void DecisionTree::fit(const Tensor& X, const Tensor& y)
 {
     // 1. sort by feature
     // 2. candidate thresholds
@@ -31,6 +30,6 @@ void DecisionTree::fit(const Matrix& X, const Vector& y)
     // 5. split
 }
 
-Vector DecisionTree::predict(const Matrix& X) { return Vector(nullptr, 0); }
+// Tensor DecisionTree::predict(const Tensor& X) { return {}; }
 
 DecisionTree::~DecisionTree() {}
