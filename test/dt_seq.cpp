@@ -17,13 +17,10 @@ int main(int argc, const char** argv)
     std::string filepath(argv[1]);
     DataFrame df = read_csv(filepath, headers);
 
-    // DataView features = df.slice(0, 4);
-    // DataView targets = df.slice(4);
-
-    // decision_tree tree;
-    // tree.fit(X, y);
+    auto [X, y] = df.toData();
+    DecisionTree tree;
+    tree.fit(X, y);
     // std::vector<double> predictions = tree.predict(X);
-    //
     // std::printf("accuracy: %.2f\n", accuracy(predictions, y));
 
     return 0;

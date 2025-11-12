@@ -3,28 +3,16 @@
 
 #include <ostream>
 #include <string>
+#include <utility>
 #include <vector>
+
+#include "matrix.hpp"
+#include "vector.hpp"
 
 enum class DataType
 {
     numerical,
     categorical
-};
-
-class DataView
-{
-public:
-    DataView();
-
-    ~DataView();
-
-private:
-    size_t m_RowBegin, m_ColumnBegin;
-    size_t m_RowEnd, m_ColumnEnd;
-
-    std::vector<std::string>* m_Headers;
-    std::vector<DataType>* m_DataTypes;
-    std::vector<std::string>* m_View;
 };
 
 class DataFrame
@@ -35,7 +23,7 @@ public:
 
     inline size_t rows() const { return m_Rows; }
 
-    inline size_t columns() const { return m_Columns; }
+    inline size_t columns() const { return m_Cols; }
 
     inline const std::vector<std::string>& headers() const { return m_Headers; }
 
@@ -46,12 +34,12 @@ public:
 
     inline const std::vector<std::string>& content() const { return m_Content; }
 
-    std::vector<double> toTensor() const;
+    std::pair<Matrix, Vector> toData() const;
 
     ~DataFrame();
 
 private:
-    size_t m_Rows, m_Columns;
+    size_t m_Rows, m_Cols;
     std::vector<std::string> m_Headers;
     std::vector<DataType> m_DataTypes;
     std::vector<std::string> m_Content;

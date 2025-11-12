@@ -5,8 +5,27 @@
       "-Wall",
       "-std=c++20",
       "-I./include/",
-      "-g",
-      "-DDEBUG",
+      "-O2",
+      "-march=native",
+      "-DNDEBUG",
+      "-c",
+      "-o",
+      "build/csv.o",
+      "src/csv.cpp"
+    ],
+    "directory": "/home/federico/dev/cpp/prf",
+    "file": "/home/federico/dev/cpp/prf/src/csv.cpp",
+    "output": "/home/federico/dev/cpp/prf/build/csv.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-Wall",
+      "-std=c++20",
+      "-I./include/",
+      "-O2",
+      "-march=native",
+      "-DNDEBUG",
       "-c",
       "-o",
       "build/dataframe.o",
@@ -22,42 +41,9 @@
       "-Wall",
       "-std=c++20",
       "-I./include/",
-      "-g",
-      "-DDEBUG",
-      "-c",
-      "-o",
-      "build/vector.o",
-      "src/vector.cpp"
-    ],
-    "directory": "/home/federico/dev/cpp/prf",
-    "file": "/home/federico/dev/cpp/prf/src/vector.cpp",
-    "output": "/home/federico/dev/cpp/prf/build/vector.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-Wall",
-      "-std=c++20",
-      "-I./include/",
-      "-g",
-      "-DDEBUG",
-      "-c",
-      "-o",
-      "build/field.o",
-      "src/field.cpp"
-    ],
-    "directory": "/home/federico/dev/cpp/prf",
-    "file": "/home/federico/dev/cpp/prf/src/field.cpp",
-    "output": "/home/federico/dev/cpp/prf/build/field.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-Wall",
-      "-std=c++20",
-      "-I./include/",
-      "-g",
-      "-DDEBUG",
+      "-O2",
+      "-march=native",
+      "-DNDEBUG",
       "-c",
       "-o",
       "build/utils.o",
@@ -73,8 +59,45 @@
       "-Wall",
       "-std=c++20",
       "-I./include/",
-      "-g",
-      "-DDEBUG",
+      "-O2",
+      "-march=native",
+      "-DNDEBUG",
+      "-c",
+      "-o",
+      "build/matrix.o",
+      "src/matrix.cpp"
+    ],
+    "directory": "/home/federico/dev/cpp/prf",
+    "file": "/home/federico/dev/cpp/prf/src/matrix.cpp",
+    "output": "/home/federico/dev/cpp/prf/build/matrix.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-Wall",
+      "-std=c++20",
+      "-I./include/",
+      "-O2",
+      "-march=native",
+      "-DNDEBUG",
+      "-c",
+      "-o",
+      "build/data.o",
+      "src/data.cpp"
+    ],
+    "directory": "/home/federico/dev/cpp/prf",
+    "file": "/home/federico/dev/cpp/prf/src/data.cpp",
+    "output": "/home/federico/dev/cpp/prf/build/data.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-Wall",
+      "-std=c++20",
+      "-I./include/",
+      "-O2",
+      "-march=native",
+      "-DNDEBUG",
       "-c",
       "-o",
       "build/decision_tree.o",
@@ -90,61 +113,16 @@
       "-Wall",
       "-std=c++20",
       "-I./include/",
-      "-g",
-      "-DDEBUG",
+      "-O2",
+      "-march=native",
+      "-DNDEBUG",
       "-c",
       "-o",
-      "build/csv.o",
-      "src/csv.cpp"
-    ],
-    "directory": "/home/federico/dev/cpp/prf",
-    "file": "/home/federico/dev/cpp/prf/src/csv.cpp",
-    "output": "/home/federico/dev/cpp/prf/build/csv.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-c",
-      "-Wall",
-      "-std=c++20",
-      "-I./include/",
-      "-g",
-      "-DDEBUG",
-      "build/csv.o",
-      "build/dataframe.o",
-      "build/decision_tree.o",
-      "build/field.o",
-      "build/utils.o",
       "build/vector.o",
-      "-o",
-      "test/csv.out",
-      "test/csv.cpp"
+      "src/vector.cpp"
     ],
     "directory": "/home/federico/dev/cpp/prf",
-    "file": "/home/federico/dev/cpp/prf/test/csv.cpp",
-    "output": "/home/federico/dev/cpp/prf/test/csv.out"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-c",
-      "-Wall",
-      "-std=c++20",
-      "-I./include/",
-      "-g",
-      "-DDEBUG",
-      "build/csv.o",
-      "build/dataframe.o",
-      "build/decision_tree.o",
-      "build/field.o",
-      "build/utils.o",
-      "build/vector.o",
-      "-o",
-      "test/decision_tree.out",
-      "test/decision_tree.cpp"
-    ],
-    "directory": "/home/federico/dev/cpp/prf",
-    "file": "/home/federico/dev/cpp/prf/test/decision_tree.cpp",
-    "output": "/home/federico/dev/cpp/prf/test/decision_tree.out"
+    "file": "/home/federico/dev/cpp/prf/src/vector.cpp",
+    "output": "/home/federico/dev/cpp/prf/build/vector.o"
   }
 ]

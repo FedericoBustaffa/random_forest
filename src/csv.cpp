@@ -33,7 +33,7 @@ bool readline(const std::string& filepath, std::vector<std::string>& line)
 DataFrame read_csv(std::ifstream& file, const std::vector<std::string>& headers)
 {
     // the dataframe content
-    std::vector<std::string> buffer;
+    std::vector<std::string> content;
 
     // fill the table
     std::vector<std::string> line;
@@ -41,10 +41,10 @@ DataFrame read_csv(std::ifstream& file, const std::vector<std::string>& headers)
     {
         assert(line.size() == headers.size());
         for (size_t i = 0; i < line.size(); i++)
-            buffer.push_back(line[i]);
+            content.push_back(line[i]);
     }
 
-    return DataFrame(buffer, headers);
+    return DataFrame(content, headers);
 }
 
 DataFrame read_csv(const std::string& filepath,

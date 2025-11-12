@@ -1,22 +1,22 @@
 #ifndef DECISION_TREE_HPP
 #define DECISION_TREE_HPP
 
-#include <vector>
+#include "matrix.hpp"
+#include "vector.hpp"
 
 class DecisionTree
 {
 public:
     DecisionTree();
 
-    void fit(const std::vector<std::vector<double>>& X,
-             const std::vector<double>& y);
+    void fit(const Matrix& X, const Vector& y);
 
-    std::vector<double> predict(const std::vector<std::vector<double>>& X);
+    Vector predict(const Matrix& X);
 
     ~DecisionTree();
 
 private:
-    double entropy(const std::vector<double>& y);
+    double entropy(const Vector& y);
 
 private:
 };

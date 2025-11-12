@@ -4,20 +4,16 @@
 
 #include "utils.hpp"
 
-// ---------------------------------------
-// -------------- DataFrame --------------
-// ---------------------------------------
-
 DataFrame::DataFrame(const std::vector<std::string>& content,
                      const std::vector<std::string>& headers)
-    : m_Rows(content.size() / headers.size()), m_Columns(headers.size()),
+    : m_Rows(content.size() / headers.size()), m_Cols(headers.size()),
       m_Headers(std::move(headers)), m_Content(std::move(content))
 {
     // numerical fields regex
     std::regex numerical(
         R"(^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)([eE][+-]?[0-9]+)?$)");
 
-    for (size_t i = 0; i < m_Columns; i++)
+    for (size_t i = 0; i < m_Cols; i++)
     {
         // infer columns types
         if (std::regex_search(content[i], numerical))
@@ -27,11 +23,14 @@ DataFrame::DataFrame(const std::vector<std::string>& content,
     }
 }
 
-std::vector<double> DataFrame::toTensor() const
+std::pair<Matrix, Vector> DataFrame::toData() const
 {
-    std::vector<double> v(m_Content.size());
+    std::vector<double> features(m_Rows * (m_Cols - 1));
+    std::vector<double> targets(m_Rows);
+
     std::vector<double> tmp;
-    for (size_t i = 0; i < m_Columns; i++)
+
+    for (size_t i = 0; i < m_Cols - 1; i++)
     {
         if (m_DataTypes[i] == DataType::categorical)
             tmp = encode(this, i);
@@ -39,10 +38,18 @@ std::vector<double> DataFrame::toTensor() const
             tmp = convert(this, i);
 
         for (size_t j = 0; j < m_Rows; j++)
-            v[j * m_Columns + i] = tmp[j];
+            features[j * (m_Cols - 1) + i] = tmp[j];
     }
 
-    return v;
+    if (m_DataTypes[m_Cols - 1] == DataType::categorical)
+        targets = encode(this, m_Cols - 1);
+    else if (m_DataTypes[m_Cols - 1] == DataType::numerical)
+        targets = convert(this, m_Cols - 1);
+
+    Matrix feature_matrix(features.data(), m_Rows, m_Cols - 1);
+    Vector target_vector(targets.data(), m_Rows);
+
+    return {feature_matrix, target_vector};
 }
 
 DataFrame::~DataFrame() {}
