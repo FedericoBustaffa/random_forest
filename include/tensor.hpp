@@ -6,15 +6,17 @@
 class Tensor
 {
 public:
-    Tensor(double scalar);
-
     Tensor(const double* data, const std::vector<size_t>& shape);
+
+    Tensor(double scalar);
 
     Tensor(const Tensor& other);
 
     Tensor(Tensor&& other);
 
     inline const std::vector<size_t>& shape() const { return m_Shape; }
+
+    inline const size_t ndim() const { return m_Shape.size(); }
 
     inline size_t size() const { return m_Size; }
 
@@ -31,7 +33,7 @@ public:
 private:
     std::vector<size_t> m_Shape;
     size_t m_Size;
-    size_t m_Stride;
+    std::vector<size_t> m_Strides;
     double* m_Data;
 };
 

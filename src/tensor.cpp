@@ -3,41 +3,41 @@
 #include <cstring>
 #include <stdexcept>
 
-Tensor::Tensor(double scalar)
-{
-    m_Data = new double[1];
-    *m_Data = scalar;
-}
-
 Tensor::Tensor(const double* data, const std::vector<size_t>& shape)
-    : m_Shape(shape)
+    : m_Shape(shape), m_Strides(shape.size())
 {
+    // compute the total size of the tensor
     m_Size = 1;
     for (const auto& d : shape)
         m_Size *= d;
 
-    m_Stride = 1;
-    for (size_t j = 1; j < m_Shape.size(); j++)
-        m_Stride *= m_Shape[j];
+    m_Strides.back() = 1;
+
+    for (int j = m_Strides.size() - 2; j >= 0; j--)
+        m_Strides[j] = m_Strides[j + 1] * m_Shape[j + 1];
 
     m_Data = new double[m_Size];
     std::memcpy(m_Data, data, m_Size * sizeof(double));
 }
 
+Tensor::Tensor(double scalar) : m_Shape({}), m_Size(1), m_Strides({})
+{
+    m_Data = new double[1];
+    m_Data[0] = scalar;
+}
+
 Tensor::Tensor(const Tensor& other)
-    : m_Shape(other.m_Shape), m_Size(other.m_Size), m_Stride(other.m_Stride)
+    : m_Shape(other.m_Shape), m_Size(other.m_Size), m_Strides(other.m_Strides)
 {
     m_Data = new double[m_Size];
     std::memcpy(m_Data, other.m_Data, m_Size * sizeof(double));
 }
 
 Tensor::Tensor(Tensor&& other)
-    : m_Shape(other.m_Shape), m_Size(other.m_Size), m_Stride(other.m_Stride),
-      m_Data(other.m_Data)
+    : m_Shape(std::move(other.m_Shape)), m_Size(other.m_Size),
+      m_Strides(std::move(other.m_Strides)), m_Data(other.m_Data)
 {
-    other.m_Shape.clear();
     other.m_Size = 0;
-    other.m_Stride = 0;
     other.m_Data = nullptr;
 }
 
@@ -45,25 +45,23 @@ void Tensor::operator=(const Tensor& other)
 {
     m_Shape = other.m_Shape;
     m_Size = other.m_Size;
-    m_Stride = other.m_Stride;
+    m_Strides = other.m_Strides;
 
     delete[] m_Data;
     m_Data = new double[m_Size];
-    std::memcpy(m_Data, other.m_Data, m_Size);
+    std::memcpy(m_Data, other.m_Data, m_Size * sizeof(double));
 }
 
 void Tensor::operator=(Tensor&& other)
 {
-    m_Shape = other.m_Shape;
+    m_Shape = std::move(other.m_Shape);
     m_Size = other.m_Size;
-    m_Stride = other.m_Stride;
+    m_Strides = std::move(other.m_Strides);
 
     delete[] m_Data;
     m_Data = other.m_Data;
 
-    other.m_Shape.clear();
     other.m_Size = 0;
-    other.m_Stride = 0;
     other.m_Data = nullptr;
 }
 
@@ -77,12 +75,11 @@ Tensor Tensor::operator[](size_t i) const
         return Tensor(m_Data[i]); // scalar
 
     std::vector<size_t> shape(m_Shape.begin() + 1, m_Shape.end());
+    std::vector<size_t> strides(m_Strides.begin() + 1, m_Strides.end());
 
-    std::vector<double> data;
-    for (size_t j = 0; j < m_Shape[1]; j++)
-        data.push_back(m_Data[i * m_Stride + j]);
+    const double* data = m_Data + i * m_Strides[0];
 
-    return Tensor(data.data(), shape);
+    return Tensor(data, shape);
 }
 
 Tensor::~Tensor() { delete[] m_Data; }
