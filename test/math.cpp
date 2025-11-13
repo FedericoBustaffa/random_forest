@@ -13,22 +13,23 @@ int main(int argc, const char** argv)
     for (size_t i = 0; i < 16; i++)
         data.push_back(dist(rng));
 
-    Tensor m(data.data(), {4, 4});
-    std::printf("matrix\n");
-    for (size_t i = 0; i < 4; i++)
-    {
-        for (size_t j = 0; j < 4; j++)
-            std::printf("%.2f ", (double)m[i][j]);
-        std::printf("\n");
-    }
+    double x = 10.0;
+    Tensor s(&x, {});
+    std::printf("scalar: %.2f\n", (double)s);
 
-    Tensor v = m[1];
+    Tensor v(data.data(), {16});
     std::printf("vector\n");
-    for (size_t i = 0; i < 4; i++)
+    for (size_t i = 0; i < v.size(); i++)
         std::printf("%.2f\n", (double)v[i]);
 
-    Tensor s = v[3];
-    std::printf("scalar: %.2f\n", (double)s);
+    Tensor m(data.data(), {4, 4});
+    std::printf("matrix\n");
+    for (size_t i = 0; i < m.shape()[0]; i++)
+    {
+        for (size_t j = 0; j < m.shape()[1]; j++)
+            std::printf("%.2f ", (double)(m[i][j]));
+        std::printf("\n");
+    }
 
     return 0;
 }
