@@ -41,7 +41,31 @@ Tensor::Tensor(Tensor&& other)
     other.m_Data = nullptr;
 }
 
-Tensor::operator double() const { return *m_Data; }
+void Tensor::operator=(const Tensor& other)
+{
+    m_Shape = other.m_Shape;
+    m_Size = other.m_Size;
+    m_Stride = other.m_Stride;
+
+    delete[] m_Data;
+    m_Data = new double[m_Size];
+    std::memcpy(m_Data, other.m_Data, m_Size);
+}
+
+void Tensor::operator=(Tensor&& other)
+{
+    m_Shape = other.m_Shape;
+    m_Size = other.m_Size;
+    m_Stride = other.m_Stride;
+
+    delete[] m_Data;
+    m_Data = other.m_Data;
+
+    other.m_Shape.clear();
+    other.m_Size = 0;
+    other.m_Stride = 0;
+    other.m_Data = nullptr;
+}
 
 Tensor Tensor::operator[](size_t i) const
 {

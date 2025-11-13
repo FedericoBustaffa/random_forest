@@ -3,8 +3,6 @@
 
 #include <vector>
 
-class TensorView;
-
 class Tensor
 {
 public:
@@ -20,7 +18,11 @@ public:
 
     inline size_t size() const { return m_Size; }
 
-    operator double() const;
+    void operator=(const Tensor& other);
+
+    void operator=(Tensor&& other);
+
+    inline operator double() const { return *m_Data; }
 
     Tensor operator[](size_t i) const;
 
