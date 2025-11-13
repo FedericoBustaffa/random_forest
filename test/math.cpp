@@ -2,6 +2,7 @@
 #include <random>
 
 #include "tensor.hpp"
+#include "utils.hpp"
 
 int main(int argc, const char** argv)
 {
@@ -30,6 +31,16 @@ int main(int argc, const char** argv)
             std::printf("%.2f ", (double)(m[i][j]));
         std::printf("\n");
     }
+
+    std::printf("argsorted\n");
+    std::vector<size_t> indices = argsort(v);
+    for (size_t i : indices)
+        std::printf("%.2f\n", (double)v[i]);
+
+    TensorView col = m(0, 0);
+    std::printf("sliced\n");
+    for (size_t i = 0; i < col.size(); i++)
+        std::printf("%.2f\n", (double)col[i]);
 
     return 0;
 }

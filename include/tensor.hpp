@@ -12,11 +12,11 @@ public:
 
     Tensor(const Tensor& other);
 
-    Tensor(Tensor&& other);
+    Tensor(Tensor&& other) noexcept;
 
     Tensor& operator=(const Tensor& other);
 
-    Tensor& operator=(Tensor&& other);
+    Tensor& operator=(Tensor&& other) noexcept;
 
     ~Tensor();
 

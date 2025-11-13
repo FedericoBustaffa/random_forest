@@ -10,7 +10,7 @@ public:
 
     TensorView(const TensorView& other);
 
-    TensorView(TensorView&& other);
+    TensorView(TensorView&& other) noexcept;
 
     virtual inline const std::vector<size_t>& shape() const { return m_Shape; }
 
@@ -22,9 +22,11 @@ public:
 
     TensorView& operator=(const TensorView& other);
 
-    TensorView& operator=(TensorView&& other);
+    TensorView& operator=(TensorView&& other) noexcept;
 
     virtual TensorView operator[](size_t i) const;
+
+    virtual TensorView operator()(size_t i, size_t axis = 0) const;
 
     virtual ~TensorView();
 

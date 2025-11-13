@@ -26,12 +26,12 @@
       "-DDEBUG",
       "-c",
       "-o",
-      "build/decision_tree.o",
-      "src/decision_tree.cpp"
+      "build/tensor_view.o",
+      "src/tensor_view.cpp"
     ],
     "directory": "/home/federico/dev/cpp/prf",
-    "file": "/home/federico/dev/cpp/prf/src/decision_tree.cpp",
-    "output": "/home/federico/dev/cpp/prf/build/decision_tree.o"
+    "file": "/home/federico/dev/cpp/prf/src/tensor_view.cpp",
+    "output": "/home/federico/dev/cpp/prf/build/tensor_view.o"
   },
   {
     "arguments": [
@@ -70,23 +70,19 @@
   {
     "arguments": [
       "/usr/bin/g++",
-      "-c",
       "-Wall",
       "-std=c++20",
       "-I./include/",
       "-g",
       "-DDEBUG",
-      "build/csv.o",
-      "build/decision_tree.o",
-      "build/tensor.o",
-      "build/utils.o",
+      "-c",
       "-o",
-      "test/math.out",
-      "test/math.cpp"
+      "build/decision_tree.o",
+      "src/decision_tree.cpp"
     ],
     "directory": "/home/federico/dev/cpp/prf",
-    "file": "/home/federico/dev/cpp/prf/test/math.cpp",
-    "output": "/home/federico/dev/cpp/prf/test/math.out"
+    "file": "/home/federico/dev/cpp/prf/src/decision_tree.cpp",
+    "output": "/home/federico/dev/cpp/prf/build/decision_tree.o"
   },
   {
     "arguments": [
@@ -100,6 +96,7 @@
       "build/csv.o",
       "build/decision_tree.o",
       "build/tensor.o",
+      "build/tensor_view.o",
       "build/utils.o",
       "-o",
       "test/dt_seq.out",
@@ -121,6 +118,29 @@
       "build/csv.o",
       "build/decision_tree.o",
       "build/tensor.o",
+      "build/tensor_view.o",
+      "build/utils.o",
+      "-o",
+      "test/math.out",
+      "test/math.cpp"
+    ],
+    "directory": "/home/federico/dev/cpp/prf",
+    "file": "/home/federico/dev/cpp/prf/test/math.cpp",
+    "output": "/home/federico/dev/cpp/prf/test/math.out"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-Wall",
+      "-std=c++20",
+      "-I./include/",
+      "-g",
+      "-DDEBUG",
+      "build/csv.o",
+      "build/decision_tree.o",
+      "build/tensor.o",
+      "build/tensor_view.o",
       "build/utils.o",
       "-o",
       "test/file.out",

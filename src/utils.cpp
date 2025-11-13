@@ -1,5 +1,19 @@
 #include "utils.hpp"
 
+#include <algorithm>
+#include <numeric>
+
+std::vector<size_t> argsort(const Tensor& t)
+{
+    std::vector<size_t> indices(t.size());
+    std::iota(indices.begin(), indices.end(), 0);
+
+    auto compare = [&t](const auto& a, const auto& b) { return t[a] < t[b]; };
+    std::sort(indices.begin(), indices.end(), compare);
+
+    return indices;
+}
+
 double accuracy(const Tensor& predictions, const Tensor& correct)
 {
     double counter = 0.0;
