@@ -15,8 +15,8 @@ int main(int argc, const char** argv)
 
     DecisionTree tree;
     tree.fit(X, y);
-    // Tensor predictions = tree.predict(X);
-    std::printf("accuracy: %.2f\n", accuracy(y, y));
+    // TensorView predictions = tree.predict(X);
+    // std::printf("accuracy: %.2f\n", accuracy(predictions, y));
 
     return 0;
 }
