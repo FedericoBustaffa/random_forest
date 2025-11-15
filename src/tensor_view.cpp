@@ -2,8 +2,18 @@
 
 #include <stdexcept>
 
+TensorView::TensorView(const double* data, const std::vector<size_t>& shape,
+                       const std::vector<size_t>& strides)
+    : m_Shape(shape), m_Strides(strides), m_View(data)
+{
+    // compute the total size of the tensor
+    m_Size = 1;
+    for (const auto& d : shape)
+        m_Size *= d;
+}
+
 TensorView::TensorView(const double* data, const std::vector<size_t>& shape)
-    : m_Shape(shape), m_Strides(m_Shape.size(), 0)
+    : m_Shape(shape), m_Strides(shape.size(), 0), m_View(data)
 {
     // compute the total size of the tensor
     m_Size = 1;
@@ -22,9 +32,6 @@ TensorView::TensorView(const double* data, const std::vector<size_t>& shape)
                 m_Strides[i] = m_Strides[i + 1] * m_Shape[i + 1];
         }
     }
-
-    // view on the actual data
-    m_View = data;
 }
 
 TensorView::TensorView(const TensorView& other)
@@ -61,29 +68,31 @@ TensorView& TensorView::operator=(TensorView&& other) noexcept
     return *this;
 }
 
-TensorView TensorView::operator[](size_t i) const
+TensorView TensorView::operator[](size_t idx) const
 {
-    // try to use [] on a scalar
     if (m_Shape.empty())
         throw std::runtime_error("scalar is not supscriptable");
 
     std::vector<size_t> new_shape(m_Shape.begin() + 1, m_Shape.end());
-    const double* new_view = m_View + i * m_Strides[0];
+    const double* new_view = m_View + idx * m_Strides[0];
 
     return TensorView(new_view, new_shape);
 }
 
-TensorView TensorView::operator()(size_t i, size_t axis) const
+TensorView TensorView::operator()(size_t idx, size_t axis) const
 {
-    // try to use [] on a scalar
-    // if (m_Shape.empty())
-    //     throw std::runtime_error("scalar is not supscriptable");
-    //
-    // std::vector<size_t> new_shape = m_Shape;
-    // new_shape[axis] = 1;
-    // const double* new_view = m_View + i * m_Strides[axis];
+    if (m_Shape.empty())
+        throw std::runtime_error("scalar is not supscriptable");
 
-    return TensorView(new_view, new_shape);
+    std::vector<size_t> new_shape = m_Shape;
+    new_shape.erase(new_shape.begin() + axis);
+
+    std::vector<size_t> new_strides = m_Strides;
+    new_strides.erase(new_strides.begin() + axis);
+
+    const double* new_view = m_View + idx * m_Strides[axis];
+
+    return TensorView(new_view, new_shape, new_strides);
 }
 
 TensorView::~TensorView() {}

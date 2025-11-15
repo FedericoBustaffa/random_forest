@@ -10,8 +10,8 @@
 std::pair<Tensor, Tensor> read_csv(const std::string& filepath,
                                    bool has_headers = false);
 
-std::vector<size_t> argsort(const Tensor& t);
+std::vector<size_t> argsort(const TensorView& t);
 
-double accuracy(const Tensor& predictions, const Tensor& correct);
+double accuracy(const TensorView& predictions, const TensorView& correct);
 
 #endif

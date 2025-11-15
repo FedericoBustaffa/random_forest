@@ -6,6 +6,9 @@
 class TensorView
 {
 public:
+    TensorView(const double* data, const std::vector<size_t>& shape,
+               const std::vector<size_t>& strides);
+
     TensorView(const double* data, const std::vector<size_t>& shape);
 
     TensorView(const TensorView& other);
@@ -24,9 +27,9 @@ public:
 
     TensorView& operator=(TensorView&& other) noexcept;
 
-    virtual TensorView operator[](size_t i) const;
+    virtual TensorView operator[](size_t idx) const;
 
-    virtual TensorView operator()(size_t i, size_t axis = 0) const;
+    virtual TensorView operator()(size_t idx, size_t axis = 0) const;
 
     virtual ~TensorView();
 

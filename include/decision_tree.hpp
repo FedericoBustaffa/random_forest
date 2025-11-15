@@ -8,14 +8,17 @@ class DecisionTree
 public:
     DecisionTree();
 
-    void fit(const Tensor& X, const Tensor& y);
+    void fit(const TensorView& X, const TensorView& y);
 
     // Tensor predict(const Tensor& X);
 
     ~DecisionTree();
 
 private:
-    double entropy(const Tensor& y);
+    double entropy(const TensorView& y);
+
+    double information_gain(const TensorView& X, size_t feature,
+                            double threshold);
 
 private:
 };

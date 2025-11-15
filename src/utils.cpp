@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <numeric>
 
-std::vector<size_t> argsort(const Tensor& t)
+std::vector<size_t> argsort(const TensorView& t)
 {
     std::vector<size_t> indices(t.size());
     std::iota(indices.begin(), indices.end(), 0);
@@ -14,7 +14,7 @@ std::vector<size_t> argsort(const Tensor& t)
     return indices;
 }
 
-double accuracy(const Tensor& predictions, const Tensor& correct)
+double accuracy(const TensorView& predictions, const TensorView& correct)
 {
     double counter = 0.0;
     for (size_t i = 0; i < predictions.size(); i++)

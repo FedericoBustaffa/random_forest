@@ -37,7 +37,7 @@ int main(int argc, const char** argv)
     for (size_t i : indices)
         std::printf("%.2f\n", (double)v[i]);
 
-    TensorView col = m(0, 0);
+    TensorView col = m(2, 1);
     std::printf("sliced\n");
     for (size_t i = 0; i < col.size(); i++)
         std::printf("%.2f\n", (double)col[i]);
