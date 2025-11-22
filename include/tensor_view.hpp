@@ -7,7 +7,6 @@ class TensorView
 {
 public:
     TensorView(const double* data, const std::vector<size_t>& shape,
-               const std::vector<size_t>& indices,
                const std::vector<size_t>& strides);
 
     TensorView(const double* data, const std::vector<size_t>& shape);
@@ -30,17 +29,12 @@ public:
 
     virtual TensorView operator[](size_t idx) const;
 
-    virtual TensorView operator[](const std::vector<size_t>& indices) const;
-
-    virtual TensorView operator[](const std::vector<bool>& mask) const;
-
     virtual TensorView operator()(size_t idx, size_t axis = 0) const;
 
     virtual ~TensorView();
 
 protected:
     std::vector<size_t> m_Shape;
-    std::vector<size_t> m_Indices;
     std::vector<size_t> m_Strides;
 
     size_t m_Size;

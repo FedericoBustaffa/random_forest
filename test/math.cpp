@@ -19,7 +19,7 @@ int main(int argc, const char** argv)
     std::printf("scalar: %.2f\n", (double)s);
 
     Tensor v(data.data(), {4});
-    std::printf("vector: [");
+    std::printf("vector: [ ");
     for (size_t i = 0; i < v.size(); i++)
         std::printf("%.2f ", (double)v[i]);
     std::printf("]\n");
@@ -33,25 +33,17 @@ int main(int argc, const char** argv)
         std::printf("\n");
     }
 
-    std::printf("argsorted\n");
+    std::printf("argsorted: [ ");
     std::vector<size_t> indices = argsort(v);
-    TensorView sorted = v[indices];
-    for (size_t i = 0; i < sorted.size(); i++)
-        std::printf("%.2f\n", (double)sorted[i]);
+    for (size_t i = 0; i < v.size(); i++)
+        std::printf("%.2f ", (double)v[indices[i]]);
+    std::printf("]\n");
 
     TensorView col = m(0, 1);
-    std::printf("sliced\n");
+    std::printf("sliced: [ ");
     for (size_t i = 0; i < col.size(); i++)
-        std::printf("%.2f\n", (double)col[i]);
-
-    std::vector<bool> mask;
-    for (size_t i = 0; i < v.size(); i++)
-        mask.push_back(v[i] < 0.5);
-
-    TensorView masked = v[mask];
-    std::printf("masked\n");
-    for (size_t i = 0; i < masked.size(); i++)
-        std::printf("%.2f\n", (double)masked[i]);
+        std::printf("%.2f ", (double)col[i]);
+    std::printf("]\n");
 
     return 0;
 }
