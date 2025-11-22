@@ -23,13 +23,14 @@ double DecisionTree::entropy(const TensorView& y)
     return e;
 }
 
-double DecisionTree::information_gain(const TensorView& feature,
-                                      const TensorView& y, double threshold)
+double DecisionTree::informationGain(const TensorView& feature,
+                                     const TensorView& y, double threshold)
 {
     double e = entropy(y);
 
     std::vector<double> s1;
     std::vector<double> s2;
+
     for (size_t i = 0; i < y.size(); i++)
     {
         if (y[feature[i]] <= threshold)
@@ -48,14 +49,12 @@ double DecisionTree::information_gain(const TensorView& feature,
     return gain;
 }
 
-void DecisionTree::split(size_t feature, double threshold)
+DecisionTree::Node* DecisionTree::grow(Node* node, const TensorView& X,
+                                       const TensorView& y)
 {
-    Node n(feature, threshold);
-    nodes.push_back(n);
-}
+    if (entropy(y) == 0)
+        return nullptr;
 
-void DecisionTree::fit(const TensorView& X, const TensorView& y)
-{
     size_t n_features = X.shape()[1];
     double best_threshold, best_gain = 0;
     size_t best_feature;
@@ -74,7 +73,7 @@ void DecisionTree::fit(const TensorView& X, const TensorView& y)
             {
                 threshold = (X[indices[j - 1]] + X[indices[j]]) / 2.0;
 
-                gain = information_gain(X(i), y, threshold);
+                gain = informationGain(X(i), y, threshold);
                 if (gain > best_gain)
                 {
                     best_gain = gain;
@@ -85,10 +84,29 @@ void DecisionTree::fit(const TensorView& X, const TensorView& y)
         }
     }
 
-    // perform a split
-    split(best_feature, best_threshold);
+    node = new Node(best_feature, best_threshold);
+    // node->m_Left = grow(node->m_Left, X, y);
+    // node->m_Right = grow(node->m_Right, X, y);
+
+    return node;
+}
+
+void DecisionTree::fit(const TensorView& X, const TensorView& y)
+{
+    m_Root = grow(m_Root, X, y);
 }
 
 // Tensor DecisionTree::predict(const Tensor& X) { return ; }
 
-DecisionTree::~DecisionTree() {}
+void DecisionTree::deallocate(Node* node)
+{
+    if (node == nullptr)
+        return;
+
+    deallocate(node->m_Left);
+    deallocate(node->m_Right);
+
+    delete node;
+}
+
+DecisionTree::~DecisionTree() { deallocate(m_Root); }

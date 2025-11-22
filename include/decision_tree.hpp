@@ -1,8 +1,6 @@
 #ifndef DECISION_TREE_HPP
 #define DECISION_TREE_HPP
 
-#include <vector>
-
 #include "tensor_view.hpp"
 
 class DecisionTree
@@ -15,14 +13,6 @@ public:
     // TensorView predict(const TensorView& X);
 
     ~DecisionTree();
-
-private:
-    double entropy(const TensorView& y);
-
-    double information_gain(const TensorView& feature, const TensorView& y,
-                            double threshold);
-
-    void split(size_t feature, double threshold);
 
 private:
     struct Node
@@ -40,7 +30,17 @@ private:
     };
 
 private:
-    std::vector<Node> nodes;
+    double entropy(const TensorView& y);
+
+    double informationGain(const TensorView& feature, const TensorView& y,
+                           double threshold);
+
+    Node* grow(Node* node, const TensorView& X, const TensorView& y);
+
+    void deallocate(Node* node);
+
+private:
+    Node* m_Root;
 };
 
 #endif
