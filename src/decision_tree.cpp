@@ -33,7 +33,7 @@ double DecisionTree::informationGain(const TensorView& feature,
 
     for (size_t i = 0; i < y.size(); i++)
     {
-        if (y[feature[i]] <= threshold)
+        if (feature[i] <= threshold)
             s1.push_back(y);
         else
             s2.push_back(y);
