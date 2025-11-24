@@ -1,6 +1,7 @@
 #include "decision_tree.hpp"
 
 #include <cmath>
+#include <iostream>
 #include <unordered_map>
 
 #include "mask.hpp"
@@ -10,9 +11,6 @@ DecisionTree::DecisionTree() {}
 
 double DecisionTree::entropy(const VectorView& y)
 {
-    if (y.size() == 0)
-        return 0.0;
-
     std::unordered_map<unsigned int, double> counters;
     for (size_t i = 0; i < y.size(); i++)
         counters[(unsigned int)y[i]] += 1.0;
@@ -49,8 +47,11 @@ double DecisionTree::informationGain(const VectorView& x, const VectorView& y,
 DecisionTree::Node* DecisionTree::grow(Node* node, const MatrixView& X,
                                        const VectorView& y)
 {
-    if (entropy(y) == 0.0)
+    if (y.size() == 0)
         return nullptr;
+
+    if (entropy(y) == 0.0)
+        return new Node(0, 0, y[0]);
 
     size_t n_features = X.cols();
     double best_threshold = 0;
@@ -86,28 +87,29 @@ DecisionTree::Node* DecisionTree::grow(Node* node, const MatrixView& X,
     node = new Node(best_feature, best_threshold);
     Mask mask = X(best_feature) <= best_threshold;
 
+    std::cout << "best feature: " << best_feature << std::endl;
+    std::cout << "best threshold: " << best_threshold << std::endl;
+
     node->m_Left = grow(node->m_Left, X[mask], y[mask]);
     node->m_Right = grow(node->m_Right, X[!mask], y[!mask]);
 
     return node;
 }
 
+void DecisionTree::fit(const MatrixView& X, const VectorView& y)
+{
+    m_Root = grow(m_Root, X, y);
+}
+
 double DecisionTree::visit(Node* node, VectorView x)
 {
-    // caso foglia
     if (node->m_Left == nullptr && node->m_Right == nullptr)
-        return node->m_Class;
+        return node->m_Label;
 
-    // caso nodo interno
     if (x[node->m_Feature] <= node->m_Threshold)
         return visit(node->m_Left, x);
     else
         return visit(node->m_Right, x);
-}
-
-void DecisionTree::fit(const MatrixView& X, const VectorView& y)
-{
-    m_Root = grow(m_Root, X, y);
 }
 
 Vector DecisionTree::predict(const MatrixView& X)

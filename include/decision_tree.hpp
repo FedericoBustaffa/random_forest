@@ -18,15 +18,15 @@ public:
 private:
     struct Node
     {
-        Node(size_t feature, double threshold)
-            : m_Feature(feature), m_Threshold(threshold), m_Class(-1),
+        Node(size_t feature, double threshold, double label = -1)
+            : m_Feature(feature), m_Threshold(threshold), m_Label(label),
               m_Left(nullptr), m_Right(nullptr)
         {
         }
 
         size_t m_Feature;
         double m_Threshold;
-        double m_Class;
+        double m_Label;
         Node* m_Left;
         Node* m_Right;
     };
