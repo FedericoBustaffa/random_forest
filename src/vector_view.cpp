@@ -61,6 +61,15 @@ VectorView& VectorView::operator=(VectorView&& other) noexcept
     return *this;
 }
 
+Vector VectorView::copy() const
+{
+    Vector v(m_Size);
+    for (size_t i = 0; i < m_Size; i++)
+        v[i] = m_View[m_Indices[i] + m_Stride];
+
+    return v;
+}
+
 VectorView VectorView::operator[](const std::vector<size_t>& indices) const
 {
     std::vector<size_t> new_indices(indices.size());

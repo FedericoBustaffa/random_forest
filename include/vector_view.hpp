@@ -7,6 +7,8 @@
 
 #include "mask.hpp"
 
+class Vector;
+
 class VectorView
 {
 public:
@@ -24,6 +26,8 @@ public:
     VectorView& operator=(VectorView&& other) noexcept;
 
     virtual inline size_t size() const { return m_Size; }
+
+    Vector copy() const;
 
     virtual inline double operator[](size_t idx) const
     {

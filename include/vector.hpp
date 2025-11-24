@@ -6,6 +6,8 @@
 class Vector : public VectorView
 {
 public:
+    Vector(size_t size);
+
     Vector(const double* data, size_t size);
 
     Vector(const Vector& other);
