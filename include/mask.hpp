@@ -8,8 +8,6 @@ class Mask
 public:
     Mask(const std::vector<bool>& data) : m_Data(data) {}
 
-    Mask(bool value, size_t size) : m_Data(value, size) {}
-
     Mask operator!() const
     {
         std::vector<bool> not_mask(m_Data.size());

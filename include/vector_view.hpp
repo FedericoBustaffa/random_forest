@@ -7,8 +7,6 @@
 
 #include "mask.hpp"
 
-class Vector;
-
 class VectorView
 {
 public:
@@ -70,15 +68,6 @@ public:
     }
 
     virtual inline size_t size() const { return m_Size; }
-
-    virtual Vector copy() const
-    {
-        double* data = new double[m_Size];
-        for (size_t i = 0; i < m_Size; i++)
-            data[i] = m_View[m_Indices[i]];
-
-        return Vector(data, m_Size);
-    }
 
     virtual inline double operator[](size_t idx) const
     {

@@ -44,8 +44,7 @@ double DecisionTree::informationGain(const VectorView& x, const VectorView& y,
     return gain;
 }
 
-DecisionTree::Node* DecisionTree::grow(Node* node,
-                                       const std::vector<VectorView>& X,
+DecisionTree::Node* DecisionTree::grow(Node* node, const MatrixView& X,
                                        const VectorView& y)
 {
     if (y.size() == 0)
@@ -54,28 +53,26 @@ DecisionTree::Node* DecisionTree::grow(Node* node,
     if (entropy(y) == 0.0)
         return new Node(0, 0, y[0]);
 
-    size_t n_features = X.size();
+    size_t n_features = X.cols();
     double best_threshold = 0;
     double best_gain = -1;
     size_t best_feature = 0;
 
     for (size_t i = 0; i < n_features; i++)
     {
-        std::cout << "current feature: " << i << std::endl;
         // sort by feature
-        std::vector<size_t> indices = argsort(X[i]);
-        VectorView X_sort = X[i][indices];
+        std::vector<size_t> indices = argsort(X(i));
+        MatrixView X_sort = X[indices];
         VectorView y_sort = y[indices];
 
         // candidate thresholds
         double current_class = y_sort[0];
         for (size_t j = 1; j < y_sort.size(); j++)
         {
-            std::cout << j << std::endl;
             if (current_class != y_sort[j])
             {
-                double threshold = (X_sort[j - 1] + X_sort[j]) / 2.0;
-                double gain = informationGain(X_sort, y_sort, threshold);
+                double threshold = (X_sort(i)[j - 1] + X_sort(i)[j]) / 2.0;
+                double gain = informationGain(X_sort(i), y_sort, threshold);
                 if (gain > best_gain)
                 {
                     best_gain = gain;
@@ -88,31 +85,20 @@ DecisionTree::Node* DecisionTree::grow(Node* node,
     }
 
     node = new Node(best_feature, best_threshold);
-    Mask mask = X[best_feature] <= best_threshold;
+    Mask mask = X(best_feature) <= best_threshold;
 
     std::cout << "best feature: " << best_feature << std::endl;
     std::cout << "best threshold: " << best_threshold << std::endl;
 
-    std::vector<VectorView> X_left, X_right;
-    for (size_t i = 0; i < X.size(); i++)
-    {
-        X_left.emplace_back(X[i][mask]);
-        X_right.emplace_back(X[i][!mask]);
-    }
-
-    node->m_Left = grow(node->m_Left, X_left, y[mask]);
-    node->m_Right = grow(node->m_Right, X_right, y[!mask]);
+    node->m_Left = grow(node->m_Left, X[mask], y[mask]);
+    node->m_Right = grow(node->m_Right, X[!mask], y[!mask]);
 
     return node;
 }
 
 void DecisionTree::fit(const MatrixView& X, const VectorView& y)
 {
-    std::vector<VectorView> features;
-    for (size_t i = 0; i < X.cols(); i++)
-        features.push_back(X(i).copy());
-
-    m_Root = grow(m_Root, features, y);
+    m_Root = grow(m_Root, X, y);
 }
 
 double DecisionTree::visit(Node* node, VectorView x)
