@@ -1,16 +1,17 @@
 #ifndef DECISION_TREE_HPP
 #define DECISION_TREE_HPP
 
-#include "tensor_view.hpp"
+#include "matrix_view.hpp"
+#include "vector.hpp"
 
 class DecisionTree
 {
 public:
     DecisionTree();
 
-    void fit(const TensorView& X, const TensorView& y);
+    void fit(const MatrixView& X, const VectorView& y);
 
-    // TensorView predict(const TensorView& X);
+    Vector predict(const MatrixView& X);
 
     ~DecisionTree();
 
@@ -18,24 +19,27 @@ private:
     struct Node
     {
         Node(size_t feature, double threshold)
-            : m_Feature(feature), m_Threshold(threshold), m_Left(nullptr),
-              m_Right(nullptr)
+            : m_Feature(feature), m_Threshold(threshold), m_Class(-1),
+              m_Left(nullptr), m_Right(nullptr)
         {
         }
 
         size_t m_Feature;
         double m_Threshold;
+        double m_Class;
         Node* m_Left;
         Node* m_Right;
     };
 
 private:
-    double entropy(const TensorView& y);
+    double entropy(const VectorView& y);
 
-    double informationGain(const TensorView& feature, const TensorView& y,
+    double informationGain(const VectorView& feature, const VectorView& y,
                            double threshold);
 
-    Node* grow(Node* node, const TensorView& X, const TensorView& y);
+    Node* grow(Node* node, const MatrixView& X, const VectorView& y);
+
+    double visit(Node* node, VectorView x);
 
     void deallocate(Node* node);
 

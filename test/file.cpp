@@ -11,9 +11,9 @@ int main(int argc, const char** argv)
     }
 
     auto [X, y] = read_csv(argv[1]);
-    for (size_t i = 0; i < X.shape()[0]; i++)
+    for (size_t i = 0; i < X.rows(); i++)
     {
-        for (size_t j = 0; j < X.shape()[1]; j++)
+        for (size_t j = 0; j < X.cols(); j++)
             std::printf("%.2f ", (double)X[i][j]);
 
         std::printf("%.2f\n", (double)y[i]);

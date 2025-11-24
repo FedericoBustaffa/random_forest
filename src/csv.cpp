@@ -29,7 +29,7 @@ bool readline(std::ifstream& file, std::vector<std::string>& line)
     return true;
 }
 
-std::pair<Tensor, Tensor> read_csv(const std::string& filepath,
+std::pair<Matrix, Vector> read_csv(const std::string& filepath,
                                    bool has_headers)
 {
     std::ifstream file(filepath);
@@ -118,6 +118,6 @@ std::pair<Tensor, Tensor> read_csv(const std::string& filepath,
         rows++;
     }
 
-    return {Tensor(features.data(), {rows, cols - 1}),
-            Tensor(targets.data(), {rows})};
+    return {Matrix(features.data(), rows, cols - 1),
+            Vector(targets.data(), rows)};
 }

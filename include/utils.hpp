@@ -5,13 +5,14 @@
 #include <utility>
 #include <vector>
 
-#include "tensor.hpp"
+#include "matrix.hpp"
+#include "vector.hpp"
 
-std::pair<Tensor, Tensor> read_csv(const std::string& filepath,
+std::pair<Matrix, Vector> read_csv(const std::string& filepath,
                                    bool has_headers = false);
 
-std::vector<size_t> argsort(const TensorView& t);
+std::vector<size_t> argsort(const VectorView& t);
 
-double accuracy(const TensorView& predictions, const TensorView& correct);
+double accuracy(const VectorView& predictions, const VectorView& correct);
 
 #endif

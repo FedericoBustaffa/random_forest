@@ -3,15 +3,19 @@
 #include <cmath>
 #include <unordered_map>
 
+#include "mask.hpp"
 #include "utils.hpp"
 
 DecisionTree::DecisionTree() {}
 
-double DecisionTree::entropy(const TensorView& y)
+double DecisionTree::entropy(const VectorView& y)
 {
-    std::unordered_map<double, double> counters;
+    if (y.size() == 0)
+        return 0.0;
+
+    std::unordered_map<unsigned int, double> counters;
     for (size_t i = 0; i < y.size(); i++)
-        counters[y[i]] += 1.0;
+        counters[(unsigned int)y[i]] += 1.0;
 
     double e = 0.0;
     for (auto& i : counters)
@@ -23,80 +27,97 @@ double DecisionTree::entropy(const TensorView& y)
     return e;
 }
 
-double DecisionTree::informationGain(const TensorView& feature,
-                                     const TensorView& y, double threshold)
+double DecisionTree::informationGain(const VectorView& x, const VectorView& y,
+                                     double threshold)
 {
-    double e = entropy(y);
+    Mask mask = x <= threshold;
 
-    std::vector<double> s1;
-    std::vector<double> s2;
+    double e1 = entropy(y[mask]);
+    double e2 = entropy(y[!mask]);
 
-    for (size_t i = 0; i < y.size(); i++)
-    {
-        if (feature[i] <= threshold)
-            s1.push_back(y);
-        else
-            s2.push_back(y);
-    }
+    double gain = entropy(y);
 
-    double e1 = entropy(TensorView(s1.data(), {s1.size()}));
-    double e2 = entropy(TensorView(s2.data(), {s2.size()}));
+    double ratio = e1 == 0 ? 0.0 : (double)y[mask].size() / y.size();
+    gain -= ratio * e1;
 
-    double gain = e;
-    gain -= (double)s1.size() / y.size() * e1;
-    gain -= (double)s2.size() / y.size() * e2;
+    ratio = e2 == 0 ? 0.0 : (double)y[!mask].size() / y.size();
+    gain -= ratio * e2;
 
     return gain;
 }
 
-DecisionTree::Node* DecisionTree::grow(Node* node, const TensorView& X,
-                                       const TensorView& y)
+DecisionTree::Node* DecisionTree::grow(Node* node, const MatrixView& X,
+                                       const VectorView& y)
 {
-    if (entropy(y) == 0)
+    if (entropy(y) == 0.0)
         return nullptr;
 
-    size_t n_features = X.shape()[1];
-    double best_threshold, best_gain = 0;
-    size_t best_feature;
+    size_t n_features = X.cols();
+    double best_threshold = 0;
+    double best_gain = -1;
+    size_t best_feature = 0;
 
     for (size_t i = 0; i < n_features; i++)
     {
         // sort by feature
-        std::vector<size_t> indices = argsort(X(i, 1));
+        std::vector<size_t> indices = argsort(X(i));
+        MatrixView X_sort = X[indices];
+        VectorView y_sort = y[indices];
 
         // candidate thresholds
-        double current_class = X[indices[0]];
-        double threshold, gain;
-        for (size_t j = 1; j < indices.size(); j++)
+        double current_class = y_sort[0];
+        for (size_t j = 1; j < y_sort.size(); j++)
         {
-            if (current_class != X[indices[j]])
+            if (current_class != y_sort[j])
             {
-                threshold = (X[indices[j - 1]] + X[indices[j]]) / 2.0;
-
-                gain = informationGain(X(i), y, threshold);
+                double threshold = (X_sort(i)[j - 1] + X_sort(i)[j]) / 2.0;
+                double gain = informationGain(X_sort(i), y_sort, threshold);
                 if (gain > best_gain)
                 {
                     best_gain = gain;
                     best_threshold = threshold;
                     best_feature = i;
                 }
+                current_class = y_sort[j];
             }
         }
     }
 
     node = new Node(best_feature, best_threshold);
-    // node->m_Left = grow(node->m_Left, X, y);
-    // node->m_Right = grow(node->m_Right, X, y);
+    Mask mask = X(best_feature) <= best_threshold;
+
+    node->m_Left = grow(node->m_Left, X[mask], y[mask]);
+    node->m_Right = grow(node->m_Right, X[!mask], y[!mask]);
 
     return node;
 }
 
-void DecisionTree::fit(const TensorView& X, const TensorView& y)
+double DecisionTree::visit(Node* node, VectorView x)
+{
+    // caso foglia
+    if (node->m_Left == nullptr && node->m_Right == nullptr)
+        return node->m_Class;
+
+    // caso nodo interno
+    if (x[node->m_Feature] <= node->m_Threshold)
+        return visit(node->m_Left, x);
+    else
+        return visit(node->m_Right, x);
+}
+
+void DecisionTree::fit(const MatrixView& X, const VectorView& y)
 {
     m_Root = grow(m_Root, X, y);
 }
 
-// Tensor DecisionTree::predict(const Tensor& X) { return ; }
+Vector DecisionTree::predict(const MatrixView& X)
+{
+    std::vector<double> y;
+    for (size_t i = 0; i < X.rows(); i++)
+        y.push_back(visit(m_Root, X[i]));
+
+    return Vector(y.data(), y.size());
+}
 
 void DecisionTree::deallocate(Node* node)
 {
