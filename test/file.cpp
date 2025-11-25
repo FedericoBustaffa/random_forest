@@ -1,5 +1,6 @@
-#include <cstdio>
+#include <iostream>
 
+#include "dataframe.hpp"
 #include "utils.hpp"
 
 int main(int argc, const char** argv)
@@ -10,13 +11,23 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    auto [X, y] = read_csv(argv[1]);
-    for (size_t i = 0; i < X.rows(); i++)
+    DataFrame df = read_csv(argv[1]);
+    for (size_t i = 0; i < df.rows(); i++)
     {
-        for (size_t j = 0; j < X.cols(); j++)
-            std::printf("%.2f ", (double)X[i][j]);
+        for (size_t j = 0; j < df.cols(); j++)
+            std::cout << df(i, j) << " ";
+        std::cout << std::endl;
+    }
 
-        std::printf("%.2f\n", (double)y[i]);
+    std::vector<std::vector<double>> data = df.toVector();
+
+    std::vector<std::vector<double>> X(data.begin(), data.end() - 1);
+    std::vector<double> y = data.back();
+    for (size_t i = 0; i < X[0].size(); i++)
+    {
+        for (size_t j = 0; j < X.size(); j++)
+            std::printf("%.2f ", X[j][i]);
+        std::printf("%.2f\n", y[i]);
     }
 
     return 0;

@@ -1,5 +1,6 @@
-#include <cstdio>
+#include <iostream>
 
+#include "dataframe.hpp"
 #include "decision_tree.hpp"
 #include "utils.hpp"
 
@@ -11,12 +12,13 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    auto [X, y] = read_csv(argv[1]);
+    DataFrame df = read_csv(argv[1]);
+    std::vector<std::vector<double>> data = df.toVector();
+    std::vector<std::vector<double>> X(data.begin(), data.end() - 1);
+    std::vector<double> y = data.back();
 
     DecisionTree tree;
     tree.fit(X, y);
-    Vector predictions = tree.predict(X);
-    std::printf("accuracy: %.2f\n", accuracy(predictions, y));
 
     return 0;
 }
