@@ -37,7 +37,8 @@ private:
     double informationGain(const VectorView& feature, const VectorView& y,
                            double threshold);
 
-    Node* grow(Node* node, const MatrixView& X, const VectorView& y);
+    Node* grow(Node* node, const MatrixView& X, const VectorView& y,
+               const std::vector<std::vector<size_t>>& indices, Mask& mask);
 
     double visit(Node* node, VectorView x);
 

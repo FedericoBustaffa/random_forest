@@ -29,6 +29,7 @@ VectorView::VectorView(VectorView&& other) noexcept
 {
     other.m_View = nullptr;
     other.m_Size = 0;
+    other.m_Stride = 0;
 }
 
 VectorView& VectorView::operator=(const VectorView& other)
@@ -59,15 +60,6 @@ VectorView& VectorView::operator=(VectorView&& other) noexcept
     }
 
     return *this;
-}
-
-Vector VectorView::copy() const
-{
-    Vector v(m_Size);
-    for (size_t i = 0; i < m_Size; i++)
-        v[i] = m_View[m_Indices[i] + m_Stride];
-
-    return v;
 }
 
 VectorView VectorView::operator[](const std::vector<size_t>& indices) const

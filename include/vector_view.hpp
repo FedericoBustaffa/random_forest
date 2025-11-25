@@ -27,8 +27,6 @@ public:
 
     virtual inline size_t size() const { return m_Size; }
 
-    Vector copy() const;
-
     virtual inline double operator[](size_t idx) const
     {
         return m_View[m_Indices[idx] * m_Stride];
