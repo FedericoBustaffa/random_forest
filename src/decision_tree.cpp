@@ -46,13 +46,13 @@ double DecisionTree::informationGain(const VectorView& x, const VectorView& y,
 
 DecisionTree::Node* DecisionTree::grow(
     Node* node, const MatrixView& X, const VectorView& y,
-    const std::vector<std::vector<size_t>>& indices, Mask& mask)
+    const std::vector<std::vector<size_t>>& indices)
 {
-    if (y[mask].size() == 0)
+    if (y.size() == 0)
         return nullptr;
 
-    if (entropy(y[mask]) == 0.0)
-        return new Node(0, 0, y[mask][0]);
+    if (entropy(y) == 0.0)
+        return new Node(0, 0, y[0]);
 
     size_t n_features = X.cols();
     double best_threshold = 0;
@@ -62,8 +62,8 @@ DecisionTree::Node* DecisionTree::grow(
     for (size_t i = 0; i < n_features; i++)
     {
         // sort by feature
-        MatrixView X_sort = X[indices[i]][mask];
-        VectorView y_sort = y[indices[i]][mask];
+        MatrixView X_sort = X[indices[i]];
+        VectorView y_sort = y[indices[i]];
 
         // candidate thresholds
         double current_class = y_sort[0];
@@ -87,25 +87,39 @@ DecisionTree::Node* DecisionTree::grow(
     std::cout << best_gain << std::endl;
     node = new Node(best_feature, best_threshold);
 
-    Mask left_mask = mask & (X(best_feature) <= best_threshold);
-    node->m_Left = grow(node->m_Left, X, y, indices, left_mask);
+    Mask mask = X(best_feature) <= best_threshold;
+    std::vector<std::vector<size_t>> idx_left(indices.size());
+    for (size_t i = 0; i < mask.size(); i++)
+    {
+        if (mask[i])
+        {
+            for (size_t j = 0; j < indices.size(); j++)
+                idx_left[j].push_back(indices[j][i]);
+        }
+    }
+    node->m_Left = grow(node->m_Left, X[mask], y[mask], idx_left);
 
-    Mask right_mask = mask & !(X(best_feature) <= best_threshold);
-    node->m_Right = grow(node->m_Right, X, y, indices, right_mask);
+    std::vector<std::vector<size_t>> idx_right(indices.size());
+    for (size_t i = 0; i < mask.size(); i++)
+    {
+        if (!mask[i])
+        {
+            for (size_t j = 0; j < indices.size(); j++)
+                idx_right[j].push_back(indices[j][i]);
+        }
+    }
+    node->m_Right = grow(node->m_Right, X[!mask], y[!mask], idx_right);
 
     return node;
 }
 
 void DecisionTree::fit(const MatrixView& X, const VectorView& y)
 {
-
     std::vector<std::vector<size_t>> indices;
     for (size_t i = 0; i < X.cols(); i++)
         indices.push_back(argsort(X(i)));
 
-    Mask mask(true, X.rows());
-
-    m_Root = grow(m_Root, X, y, indices, mask);
+    m_Root = grow(m_Root, X, y, indices);
 }
 
 double DecisionTree::visit(Node* node, VectorView x)

@@ -3,6 +3,15 @@
 #include <cstring>
 #include <utility>
 
+Vector::Vector(size_t size) : VectorView(nullptr, size)
+{
+    m_Data = new double[size];
+    for (size_t i = 0; i < size; i++)
+        m_Data[i] = 0.0;
+
+    m_View = m_Data;
+}
+
 Vector::Vector(const double* data, size_t size) : VectorView(nullptr, size)
 {
     m_Data = new double[size];

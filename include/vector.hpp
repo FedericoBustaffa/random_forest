@@ -18,6 +18,10 @@ public:
 
     Vector& operator=(Vector&& other) noexcept;
 
+    inline double operator[](size_t idx) const { return m_Data[idx]; }
+
+    inline double& operator[](size_t idx) { return m_Data[idx]; }
+
     ~Vector();
 
 private:

@@ -38,7 +38,7 @@ private:
                            double threshold);
 
     Node* grow(Node* node, const MatrixView& X, const VectorView& y,
-               const std::vector<std::vector<size_t>>& indices, Mask& mask);
+               const std::vector<std::vector<size_t>>& indices);
 
     double visit(Node* node, VectorView x);
 
