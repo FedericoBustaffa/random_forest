@@ -2,42 +2,42 @@
 #define VIEW_HPP
 
 #include <cassert>
-#include <vector>
 
 #include "mask.hpp"
 
+template <typename T>
 class View
 {
 public:
-    View(const std::vector<double>& data) : m_Data(data), m_Indices(data.size())
+    View(const T* data, size_t size) : m_Data(data), m_Indices(size)
     {
-        for (size_t i = 0; i < data.size(); i++)
+        for (size_t i = 0; i < size; i++)
             m_Indices[i] = i;
     }
 
-    View(const std::vector<double>& data, std::vector<size_t> indices)
+    View(const T* data, size_t size, std::vector<size_t> indices)
         : m_Data(data), m_Indices(indices)
     {
     }
 
     inline size_t size() const { return m_Indices.size(); }
 
-    double operator[](size_t idx) const
+    T operator[](size_t idx) const
     {
         assert(idx < m_Indices.size());
         return m_Data[m_Indices[idx]];
     }
 
-    View operator[](const std::vector<size_t>& indices) const
+    View<T> operator[](const std::vector<size_t>& indices) const
     {
         std::vector<size_t> new_indices(indices.size());
         for (size_t i = 0; i < indices.size(); i++)
             new_indices[i] = m_Indices[indices[i]];
 
-        return View(m_Data, new_indices);
+        return View<T>(m_Data, new_indices.size(), new_indices);
     }
 
-    Mask operator<(double value) const
+    Mask operator<(T value) const
     {
         std::vector<bool> mask(m_Indices.size());
         for (size_t i = 0; i < m_Indices.size(); i++)
@@ -46,7 +46,7 @@ public:
         return Mask(mask);
     }
 
-    View operator[](const Mask& mask) const
+    View<T> operator[](const Mask& mask) const
     {
         std::vector<size_t> indices;
         for (size_t i = 0; i < m_Indices.size(); i++)
@@ -55,13 +55,13 @@ public:
                 indices.push_back(m_Indices[i]);
         }
 
-        return View(m_Data, indices);
+        return View<T>(m_Data, indices.size(), indices);
     }
 
     ~View() {}
 
 private:
-    const std::vector<double>& m_Data;
+    const T* m_Data;
     std::vector<size_t> m_Indices;
 };
 

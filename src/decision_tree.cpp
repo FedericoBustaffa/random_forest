@@ -28,27 +28,28 @@ double DecisionTree::entropy(const View<double>& y)
 double DecisionTree::informationGain(const View<double>& x,
                                      const View<double>& y, double threshold)
 {
-    Mask mask = y < threshold;
-    double e1 = entropy(y[mask]);
-    double e2 = entropy(y[!mask]);
-    double gain = entropy(y);
+    Mask mask = x < threshold;
 
-    double ratio = e1 == 0 ? 0.0 : (double)y[mask].size() / y.size();
-    gain -= ratio * e1;
+    View y_left = y[mask];
+    View y_right = y[!mask];
 
-    ratio = e2 == 0 ? 0.0 : (double)y[!mask].size() / y.size();
-    gain -= ratio * e2;
+    if (y_left.size() == 0 || y_right.size() == 0)
+        return 0.0;
 
-    return gain;
+    double e_parent = entropy(y);
+    double e_left = entropy(y_left);
+    double e_right = entropy(y_right);
+
+    double ratio_left = (double)y_left.size() / y.size();
+    double ratio_right = (double)y_right.size() / y.size();
+
+    return e_parent - (ratio_left * e_left) - (ratio_right * e_right);
 }
 
 void DecisionTree::grow(const std::vector<View<double>>& X,
                         const View<double>& y)
 {
-    if (y.size() == 0)
-        return;
-
-    if (entropy(y) == 0.0)
+    if (y.size() == 0 || entropy(y) == 0.0)
         return;
 
     size_t n_features = X.size();
@@ -58,10 +59,12 @@ void DecisionTree::grow(const std::vector<View<double>>& X,
 
     for (size_t i = 0; i < n_features; i++)
     {
+        std::cout << "feature: " << i << std::endl;
+
         // order with indices
-        std::vector<size_t> indices = argsort(X[i]);
-        View<double> X_sort = X[i][indices];
-        View<double> y_sort = y[indices];
+        std::vector<size_t> order = argsort(X[i]);
+        const View<double>& X_sort = X[i][order];
+        const View<double>& y_sort = y[order];
 
         // candidate thresholds
         double current_class = y_sort[0];
@@ -83,15 +86,15 @@ void DecisionTree::grow(const std::vector<View<double>>& X,
     }
 
     Mask mask = X[best_feature] < best_threshold;
+
     std::vector<View<double>> X_left;
     std::vector<View<double>> X_right;
+
     for (size_t i = 0; i < X.size(); i++)
     {
         X_left.push_back(X[i][mask]);
         X_right.push_back(X[i][!mask]);
     }
-    std::cout << entropy(y[mask]) << std::endl;
-    std::cout << "not " << entropy(y[!mask]) << std::endl;
 
     grow(X_left, y[mask]);
     grow(X_right, y[!mask]);
@@ -100,11 +103,15 @@ void DecisionTree::grow(const std::vector<View<double>>& X,
 void DecisionTree::fit(const std::vector<std::vector<double>>& X,
                        const std::vector<double>& y)
 {
+    std::vector<std::vector<size_t>> indices;
+
     std::vector<View<double>> features;
     for (size_t i = 0; i < X.size(); i++)
-        features.push_back(X[i]);
+        features.emplace_back(X[i].data(), X[i].size());
 
-    grow(features, y);
+    View targets(y.data(), y.size());
+
+    grow(features, targets);
 }
 
 DecisionTree::~DecisionTree() {}
