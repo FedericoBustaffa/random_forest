@@ -1,9 +1,7 @@
 #ifndef DECISION_TREE_HPP
 #define DECISION_TREE_HPP
 
-#include <array>
 #include <cstdint>
-#include <unordered_map>
 #include <vector>
 
 #include "view.hpp"
@@ -41,17 +39,6 @@ private:
     };
 
 private:
-    double entropy(const View<uint32_t>& y);
-
-    double entropy(const std::unordered_map<size_t, size_t>& counters,
-                   size_t size);
-
-    double informationGain(const View<double>& feature, const View<uint32_t>& y,
-                           double threshold);
-
-    double informationGain(
-        const std::array<std::unordered_map<size_t, size_t>, 2> counters);
-
     Node* grow(Node* root, const std::vector<View<double>>& X,
                const View<uint32_t>& y);
 
@@ -62,7 +49,7 @@ private:
     void deallocate(Node* node);
 
 private:
-    Node* m_Root;
+    Node* m_Root = nullptr;
 };
 
 #endif

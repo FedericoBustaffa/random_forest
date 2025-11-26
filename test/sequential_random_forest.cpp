@@ -1,6 +1,7 @@
 #include <chrono>
 #include <cstdio>
 
+#include "csv.hpp"
 #include "dataframe.hpp"
 #include "random_forest.hpp"
 #include "utils.hpp"
@@ -27,11 +28,8 @@ int main(int argc, const char** argv)
     std::chrono::duration<double> duration = end - start;
     std::printf("trained in %.4f seconds\n", duration.count());
 
-    for (const auto& d : forest.depths())
-        std::printf("depth: %lu\n", d);
-
     std::vector<uint32_t> y_pred = forest.predict(X);
-    // std::printf("accuracy: %.2f\n", accuracy(y_pred, y));
+    std::printf("accuracy: %.2f\n", accuracy(y_pred, y));
 
     return 0;
 }

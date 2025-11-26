@@ -21,10 +21,6 @@ public:
     ~RandomForest();
 
 private:
-    std::vector<std::vector<double>> bootstrap(
-        const std::vector<std::vector<double>>& X) const;
-
-private:
     std::vector<DecisionTree> m_Trees;
 };
 

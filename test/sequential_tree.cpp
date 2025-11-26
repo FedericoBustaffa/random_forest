@@ -1,6 +1,7 @@
 #include <chrono>
 #include <cstdio>
 
+#include "csv.hpp"
 #include "dataframe.hpp"
 #include "decision_tree.hpp"
 #include "utils.hpp"

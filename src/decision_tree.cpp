@@ -1,90 +1,10 @@
 #include "decision_tree.hpp"
 
-#include <cmath>
-
 #include "mask.hpp"
+#include "tree_functions.hpp"
 #include "utils.hpp"
 
 DecisionTree::DecisionTree() {}
-
-double DecisionTree::entropy(const View<uint32_t>& y)
-{
-    std::unordered_map<size_t, size_t> counters;
-    for (size_t i = 0; i < y.size(); i++)
-        counters[y[i]] += 1;
-
-    double e = 0.0;
-    double proportion;
-    for (auto& i : counters)
-    {
-        proportion = (double)i.second / y.size();
-        e += -proportion * std::log2(proportion);
-    }
-
-    return e;
-}
-
-double DecisionTree::entropy(const std::unordered_map<size_t, size_t>& counters,
-                             size_t size)
-{
-    double e = 0.0;
-    double proportion;
-    for (auto& i : counters)
-    {
-        if (i.second == 0)
-            continue;
-
-        proportion = (double)i.second / size;
-        e += -proportion * std::log2(proportion);
-    }
-
-    return e;
-}
-
-double DecisionTree::informationGain(const View<double>& x,
-                                     const View<uint32_t>& y, double threshold)
-{
-    Mask mask = x < threshold;
-
-    View y_left = y[mask];
-    View y_right = y[!mask];
-
-    if (y_left.size() == 0 || y_right.size() == 0)
-        return 0.0;
-
-    double e_left = entropy(y_left);
-    double e_right = entropy(y_right);
-
-    double ratio_left = (double)y_left.size() / y.size();
-    double ratio_right = (double)y_right.size() / y.size();
-
-    return (ratio_left * e_left) + (ratio_right * e_right);
-}
-
-double DecisionTree::informationGain(
-    const std::array<std::unordered_map<size_t, size_t>, 2> counters)
-{
-    size_t left_size = 0;
-    for (const auto& i : counters[0])
-        left_size += i.second;
-
-    size_t right_size = 0;
-    for (const auto& i : counters[1])
-        right_size += i.second;
-
-    if (left_size == 0 || right_size == 0)
-        return 0.0;
-
-    size_t size = left_size + right_size;
-
-    double e_left = entropy(counters[0], left_size);
-    double e_right = entropy(counters[1], right_size);
-
-    double ratio_left = (double)left_size / size;
-    double ratio_right = (double)right_size / size;
-
-    return (ratio_left * e_left) + (ratio_right * e_right);
-}
 
 DecisionTree::Node* DecisionTree::grow(Node* root,
                                        const std::vector<View<double>>& X,
@@ -93,7 +13,7 @@ DecisionTree::Node* DecisionTree::grow(Node* root,
     if (y.size() == 0)
         return nullptr;
 
-    double parent_entropy = entropy(y);
+    double parent_entropy = entropy(count(y));
     if (parent_entropy == 0.0)
         return new Node(y[0]);
 
@@ -109,16 +29,17 @@ DecisionTree::Node* DecisionTree::grow(Node* root,
         const View<double>& X_sort = X[i][order];
         const View<uint32_t>& y_sort = y[order];
 
-        std::array<std::unordered_map<size_t, size_t>, 2> counters;
+        std::unordered_map<uint32_t, size_t> left_counters;
+        std::unordered_map<uint32_t, size_t> right_counters;
         for (size_t j = 0; j < y_sort.size(); j++)
-            counters[1][y_sort[j]]++;
+            right_counters[y_sort[j]]++;
 
         // candidate thresholds
         double current_class = y_sort[0];
         for (size_t j = 1; j < y_sort.size(); j++)
         {
-            counters[0][y_sort[j - 1]]++;
-            counters[1][y_sort[j - 1]]--;
+            left_counters[y_sort[j - 1]]++;
+            right_counters[y_sort[j - 1]]--;
 
             if (X_sort[j - 1] == X_sort[j])
                 continue;
@@ -126,7 +47,7 @@ DecisionTree::Node* DecisionTree::grow(Node* root,
             if (current_class != y_sort[j])
             {
                 double threshold = (X_sort[j - 1] + X_sort[j]) / 2.0;
-                double gain = informationGain(counters);
+                double gain = informationGain(left_counters, right_counters);
                 gain = parent_entropy - gain;
 
                 if (gain > best_gain)
