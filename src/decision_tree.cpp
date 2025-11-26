@@ -1,7 +1,6 @@
 #include "decision_tree.hpp"
 
 #include <cmath>
-#include <iostream>
 
 #include "mask.hpp"
 #include "utils.hpp"

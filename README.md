@@ -15,8 +15,6 @@ GitHub.
 
 ## Used Libraries and References
 
-- Implementation inspiration:
-  [RandomForest-CPP](https://github.com/ZexinYan/RandomForest-CPP/tree/master)
-- Multi-Threading: [OpenMP](https://www.openmp.org/),
+- Multi-Threading: [OpenMP](https://www.openmp.org/) and
   [FastFlow](https://github.com/fastflow/fastflow)
 - Multi-Node: [OpenMPI](https://docs.open-mpi.org/en/v5.0.x/)
