@@ -2,31 +2,49 @@
 
 #include <cmath>
 #include <iostream>
-#include <unordered_map>
 
 #include "mask.hpp"
 #include "utils.hpp"
 
 DecisionTree::DecisionTree() {}
 
-double DecisionTree::entropy(const View<double>& y)
+double DecisionTree::entropy(const View<unsigned int>& y)
 {
-    std::unordered_map<unsigned int, double> counters;
+    std::unordered_map<size_t, size_t> counters;
     for (size_t i = 0; i < y.size(); i++)
-        counters[(unsigned int)y[i]] += 1.0;
+        counters[y[i]] += 1;
 
     double e = 0.0;
+    double proportion;
     for (auto& i : counters)
     {
-        i.second = i.second / y.size();
-        e += -i.second * std::log2(i.second);
+        proportion = (double)i.second / y.size();
+        e += -proportion * std::log2(proportion);
+    }
+
+    return e;
+}
+
+double DecisionTree::entropy(const std::unordered_map<size_t, size_t>& counters,
+                             size_t size)
+{
+    double e = 0.0;
+    double proportion;
+    for (auto& i : counters)
+    {
+        if (i.second == 0)
+            continue;
+
+        proportion = (double)i.second / size;
+        e += -proportion * std::log2(proportion);
     }
 
     return e;
 }
 
 double DecisionTree::informationGain(const View<double>& x,
-                                     const View<double>& y, double threshold)
+                                     const View<unsigned int>& y,
+                                     double threshold)
 {
     Mask mask = x < threshold;
 
@@ -36,21 +54,50 @@ double DecisionTree::informationGain(const View<double>& x,
     if (y_left.size() == 0 || y_right.size() == 0)
         return 0.0;
 
-    double e_parent = entropy(y);
     double e_left = entropy(y_left);
     double e_right = entropy(y_right);
 
     double ratio_left = (double)y_left.size() / y.size();
     double ratio_right = (double)y_right.size() / y.size();
 
-    return e_parent - (ratio_left * e_left) - (ratio_right * e_right);
+    return (ratio_left * e_left) + (ratio_right * e_right);
 }
 
-void DecisionTree::grow(const std::vector<View<double>>& X,
-                        const View<double>& y)
+double DecisionTree::informationGain(
+    const std::array<std::unordered_map<size_t, size_t>, 2> counters)
 {
-    if (y.size() == 0 || entropy(y) == 0.0)
-        return;
+    size_t left_size = 0;
+    for (const auto& i : counters[0])
+        left_size += i.second;
+
+    size_t right_size = 0;
+    for (const auto& i : counters[1])
+        right_size += i.second;
+
+    if (left_size == 0 || right_size == 0)
+        return 0.0;
+
+    size_t size = left_size + right_size;
+
+    double e_left = entropy(counters[0], left_size);
+    double e_right = entropy(counters[1], right_size);
+
+    double ratio_left = (double)left_size / size;
+    double ratio_right = (double)right_size / size;
+
+    return (ratio_left * e_left) + (ratio_right * e_right);
+}
+
+DecisionTree::Node* DecisionTree::grow(Node* root,
+                                       const std::vector<View<double>>& X,
+                                       const View<unsigned int>& y)
+{
+    if (y.size() == 0)
+        return nullptr;
+
+    double parent_entropy = entropy(y);
+    if (parent_entropy == 0.0)
+        return new Node(y[0]);
 
     size_t n_features = X.size();
     double best_threshold = 0;
@@ -59,21 +106,31 @@ void DecisionTree::grow(const std::vector<View<double>>& X,
 
     for (size_t i = 0; i < n_features; i++)
     {
-        std::cout << "feature: " << i << std::endl;
-
         // order with indices
         std::vector<size_t> order = argsort(X[i]);
         const View<double>& X_sort = X[i][order];
-        const View<double>& y_sort = y[order];
+        const View<unsigned int>& y_sort = y[order];
+
+        std::array<std::unordered_map<size_t, size_t>, 2> counters;
+        for (size_t j = 0; j < y_sort.size(); j++)
+            counters[1][y_sort[j]]++;
 
         // candidate thresholds
         double current_class = y_sort[0];
         for (size_t j = 1; j < y_sort.size(); j++)
         {
+            counters[0][y_sort[j - 1]]++;
+            counters[1][y_sort[j - 1]]--;
+
+            if (X_sort[j - 1] == X_sort[j])
+                continue;
+
             if (current_class != y_sort[j])
             {
                 double threshold = (X_sort[j - 1] + X_sort[j]) / 2.0;
-                double gain = informationGain(X_sort, y_sort, threshold);
+                double gain = informationGain(counters);
+                gain = parent_entropy - gain;
+
                 if (gain > best_gain)
                 {
                     best_gain = gain;
@@ -84,6 +141,28 @@ void DecisionTree::grow(const std::vector<View<double>>& X,
             }
         }
     }
+
+    if (best_gain <= 1e-6)
+    {
+        std::unordered_map<size_t, size_t> final_counters;
+        for (size_t k = 0; k < y.size(); k++)
+            final_counters[y[k]] += 1;
+
+        size_t majority_class = 0;
+        size_t max_count = 0;
+        for (const auto& pair : final_counters)
+        {
+            if (pair.second > max_count)
+            {
+                max_count = pair.second;
+                majority_class = pair.first;
+            }
+        }
+        return new Node(majority_class);
+    }
+
+    // std::cout << "best threshold: " << best_threshold << std::endl;
+    // std::cout << "best feature: " << best_feature << std::endl;
 
     Mask mask = X[best_feature] < best_threshold;
 
@@ -96,12 +175,15 @@ void DecisionTree::grow(const std::vector<View<double>>& X,
         X_right.push_back(X[i][!mask]);
     }
 
-    grow(X_left, y[mask]);
-    grow(X_right, y[!mask]);
+    Node* node = new Node(best_feature, best_threshold);
+    node->left = grow(node->left, X_left, y[mask]);
+    node->right = grow(node->right, X_right, y[!mask]);
+
+    return node;
 }
 
 void DecisionTree::fit(const std::vector<std::vector<double>>& X,
-                       const std::vector<double>& y)
+                       const std::vector<unsigned int>& y)
 {
     std::vector<std::vector<size_t>> indices;
 
@@ -111,7 +193,46 @@ void DecisionTree::fit(const std::vector<std::vector<double>>& X,
 
     View targets(y.data(), y.size());
 
-    grow(features, targets);
+    m_Root = grow(m_Root, features, targets);
 }
 
-DecisionTree::~DecisionTree() {}
+unsigned int DecisionTree::visit(Node* node, const std::vector<double>& x)
+{
+    if (node->label != -1)
+        return node->label;
+
+    if (x[node->feature] < node->threshold)
+        return visit(node->left, x);
+    else
+        return visit(node->right, x);
+}
+
+std::vector<unsigned int> DecisionTree::predict(
+    const std::vector<std::vector<double>>& X)
+{
+    std::vector<double> pattern(X.size());
+    std::vector<unsigned int> labels(X[0].size());
+
+    for (size_t i = 0; i < X[0].size(); i++)
+    {
+        for (size_t j = 0; j < X.size(); j++)
+            pattern[j] = X[j][i];
+
+        labels[i] = visit(m_Root, pattern);
+    }
+
+    return labels;
+}
+
+void DecisionTree::deallocate(Node* node)
+{
+    if (node == nullptr)
+        return;
+
+    deallocate(node->left);
+    deallocate(node->right);
+
+    delete node;
+}
+
+DecisionTree::~DecisionTree() { deallocate(m_Root); }

@@ -16,8 +16,8 @@ std::vector<size_t> argsort(const View<double>& v)
     return indices;
 }
 
-double accuracy(const std::vector<double>& predictions,
-                const std::vector<double>& correct)
+double accuracy(const std::vector<unsigned int>& predictions,
+                const std::vector<unsigned int>& correct)
 {
     double counter = 0.0;
     for (size_t i = 0; i < predictions.size(); i++)

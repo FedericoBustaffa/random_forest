@@ -11,7 +11,7 @@ DataFrame read_csv(const std::string& filepath);
 
 std::vector<size_t> argsort(const View<double>& v);
 
-double accuracy(const std::vector<double>& predictions,
-                const std::vector<double>& correct);
+double accuracy(const std::vector<unsigned int>& predictions,
+                const std::vector<unsigned int>& correct);
 
 #endif
