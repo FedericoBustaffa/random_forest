@@ -14,10 +14,11 @@ public:
     DecisionTree();
 
     void fit(const std::vector<std::vector<double>>& X,
-             const std::vector<unsigned int>& y);
+             const std::vector<uint32_t>& y);
 
-    std::vector<unsigned int> predict(
-        const std::vector<std::vector<double>>& X);
+    std::vector<uint32_t> predict(const std::vector<std::vector<double>>& X);
+
+    size_t depth() const;
 
     ~DecisionTree();
 
@@ -40,21 +41,23 @@ private:
     };
 
 private:
-    double entropy(const View<unsigned int>& y);
+    double entropy(const View<uint32_t>& y);
 
     double entropy(const std::unordered_map<size_t, size_t>& counters,
                    size_t size);
 
-    double informationGain(const View<double>& feature,
-                           const View<unsigned int>& y, double threshold);
+    double informationGain(const View<double>& feature, const View<uint32_t>& y,
+                           double threshold);
 
     double informationGain(
         const std::array<std::unordered_map<size_t, size_t>, 2> counters);
 
     Node* grow(Node* root, const std::vector<View<double>>& X,
-               const View<unsigned int>& y);
+               const View<uint32_t>& y);
 
-    unsigned int visit(Node* node, const std::vector<double>& x);
+    uint32_t visit(Node* node, const std::vector<double>& x);
+
+    size_t compute_depth(Node* node) const;
 
     void deallocate(Node* node);
 

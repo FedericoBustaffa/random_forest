@@ -7,7 +7,7 @@
 
 DecisionTree::DecisionTree() {}
 
-double DecisionTree::entropy(const View<unsigned int>& y)
+double DecisionTree::entropy(const View<uint32_t>& y)
 {
     std::unordered_map<size_t, size_t> counters;
     for (size_t i = 0; i < y.size(); i++)
@@ -42,8 +42,7 @@ double DecisionTree::entropy(const std::unordered_map<size_t, size_t>& counters,
 }
 
 double DecisionTree::informationGain(const View<double>& x,
-                                     const View<unsigned int>& y,
-                                     double threshold)
+                                     const View<uint32_t>& y, double threshold)
 {
     Mask mask = x < threshold;
 
@@ -89,7 +88,7 @@ double DecisionTree::informationGain(
 
 DecisionTree::Node* DecisionTree::grow(Node* root,
                                        const std::vector<View<double>>& X,
-                                       const View<unsigned int>& y)
+                                       const View<uint32_t>& y)
 {
     if (y.size() == 0)
         return nullptr;
@@ -108,7 +107,7 @@ DecisionTree::Node* DecisionTree::grow(Node* root,
         // order with indices
         std::vector<size_t> order = argsort(X[i]);
         const View<double>& X_sort = X[i][order];
-        const View<unsigned int>& y_sort = y[order];
+        const View<uint32_t>& y_sort = y[order];
 
         std::array<std::unordered_map<size_t, size_t>, 2> counters;
         for (size_t j = 0; j < y_sort.size(); j++)
@@ -182,7 +181,7 @@ DecisionTree::Node* DecisionTree::grow(Node* root,
 }
 
 void DecisionTree::fit(const std::vector<std::vector<double>>& X,
-                       const std::vector<unsigned int>& y)
+                       const std::vector<uint32_t>& y)
 {
     std::vector<std::vector<size_t>> indices;
 
@@ -195,7 +194,7 @@ void DecisionTree::fit(const std::vector<std::vector<double>>& X,
     m_Root = grow(m_Root, features, targets);
 }
 
-unsigned int DecisionTree::visit(Node* node, const std::vector<double>& x)
+uint32_t DecisionTree::visit(Node* node, const std::vector<double>& x)
 {
     if (node->label != -1)
         return node->label;
@@ -206,11 +205,11 @@ unsigned int DecisionTree::visit(Node* node, const std::vector<double>& x)
         return visit(node->right, x);
 }
 
-std::vector<unsigned int> DecisionTree::predict(
+std::vector<uint32_t> DecisionTree::predict(
     const std::vector<std::vector<double>>& X)
 {
     std::vector<double> pattern(X.size());
-    std::vector<unsigned int> labels(X[0].size());
+    std::vector<uint32_t> labels(X[0].size());
 
     for (size_t i = 0; i < X[0].size(); i++)
     {
@@ -222,6 +221,16 @@ std::vector<unsigned int> DecisionTree::predict(
 
     return labels;
 }
+
+size_t DecisionTree::compute_depth(Node* node) const
+{
+    if (node == nullptr)
+        return 0;
+
+    return 1 + std::max(compute_depth(node->left), compute_depth(node->right));
+}
+
+size_t DecisionTree::depth() const { return compute_depth(m_Root); }
 
 void DecisionTree::deallocate(Node* node)
 {
