@@ -38,17 +38,17 @@ private:
         Node* right = nullptr;
     };
 
-private:
+private: // tree private methods
     Node* grow(Node* root, const std::vector<View<double>>& X,
                const View<uint32_t>& y, size_t depth);
 
-    uint32_t visit(Node* node, const std::vector<double>& x);
+    uint32_t predict_one(Node* node, const std::vector<double>& x);
 
     size_t compute_depth(Node* node) const;
 
     void deallocate(Node* node);
 
-private:
+private: // tree data members
     Node* m_Root = nullptr;
     size_t m_MaxDepth;
 };

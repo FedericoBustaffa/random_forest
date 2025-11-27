@@ -67,5 +67,5 @@ clean-fast:
 	-rm -rf $(BUILD_DIR)
 
 clean: clean-fast
-	-rm -rf $(TARGETS)
+	-rm -rf $(TARGETS) ./test/*.out
 
