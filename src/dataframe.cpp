@@ -17,7 +17,8 @@ const std::string& DataFrame::operator()(size_t row, size_t col) const
     return m_Content[row * m_Cols + col];
 }
 
-std::vector<std::vector<double>> DataFrame::toVector() const
+std::pair<std::vector<std::vector<double>>, std::vector<uint32_t>> DataFrame::
+    toVector() const
 {
     std::vector<std::vector<double>> data(m_Cols);
 
@@ -50,7 +51,10 @@ std::vector<std::vector<double>> DataFrame::toVector() const
         }
     }
 
-    return data;
+    std::vector<std::vector<double>> X(data.begin(), data.end() - 1);
+    std::vector<uint32_t> y(data.back().begin(), data.back().end());
+
+    return {X, y};
 }
 
 DataFrame::~DataFrame() {}

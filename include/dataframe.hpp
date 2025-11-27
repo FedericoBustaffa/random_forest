@@ -2,6 +2,7 @@
 #define DATAFRAME_HPP
 
 #include <cassert>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -17,7 +18,8 @@ public:
 
     const std::string& operator()(size_t row, size_t col) const;
 
-    std::vector<std::vector<double>> toVector() const;
+    std::pair<std::vector<std::vector<double>>, std::vector<uint32_t>>
+    toVector() const;
 
     ~DataFrame();
 

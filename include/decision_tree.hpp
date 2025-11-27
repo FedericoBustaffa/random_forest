@@ -9,7 +9,7 @@
 class DecisionTree
 {
 public:
-    DecisionTree();
+    DecisionTree(size_t max_depth = 0);
 
     void fit(const std::vector<std::vector<double>>& X,
              const std::vector<uint32_t>& y);
@@ -40,7 +40,7 @@ private:
 
 private:
     Node* grow(Node* root, const std::vector<View<double>>& X,
-               const View<uint32_t>& y);
+               const View<uint32_t>& y, size_t depth);
 
     uint32_t visit(Node* node, const std::vector<double>& x);
 
@@ -50,6 +50,7 @@ private:
 
 private:
     Node* m_Root = nullptr;
+    size_t m_MaxDepth;
 };
 
 #endif

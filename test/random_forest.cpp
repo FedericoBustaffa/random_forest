@@ -8,20 +8,19 @@
 
 int main(int argc, const char** argv)
 {
-    if (argc != 2)
+    if (argc != 4)
     {
-        std::printf("USAGE: %s <filepath>\n", argv[0]);
+        std::printf("USAGE: %s <estimators> <max_depth> <filepath>\n", argv[0]);
         return 1;
     }
 
-    DataFrame df = read_csv(argv[1]);
-    std::vector<std::vector<double>> data = df.toVector();
-    std::vector<std::vector<double>> X(data.begin(), data.end() - 1);
-    std::vector<uint32_t> y;
-    for (const auto& i : data.back())
-        y.push_back(i);
+    size_t estimators = std::stoull(argv[1]);
+    size_t max_depth = std::stoull(argv[2]);
 
-    RandomForest forest(100);
+    DataFrame df = read_csv(argv[3]);
+    auto [X, y] = df.toVector();
+
+    RandomForest forest(estimators, max_depth);
     auto start = std::chrono::high_resolution_clock::now();
     forest.fit(X, y);
     auto end = std::chrono::high_resolution_clock::now();

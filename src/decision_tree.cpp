@@ -4,12 +4,15 @@
 #include "tree_functions.hpp"
 #include "utils.hpp"
 
-DecisionTree::DecisionTree() {}
+DecisionTree::DecisionTree(size_t max_depth) : m_MaxDepth(max_depth) {}
 
 DecisionTree::Node* DecisionTree::grow(Node* root,
                                        const std::vector<View<double>>& X,
-                                       const View<uint32_t>& y)
+                                       const View<uint32_t>& y, size_t depth)
 {
+    if (m_MaxDepth != 0 && depth == m_MaxDepth)
+        return new Node(majority(y));
+
     if (y.size() == 0)
         return nullptr;
 
@@ -62,23 +65,7 @@ DecisionTree::Node* DecisionTree::grow(Node* root,
     }
 
     if (best_gain <= 1e-6)
-    {
-        std::unordered_map<size_t, size_t> final_counters;
-        for (size_t k = 0; k < y.size(); k++)
-            final_counters[y[k]] += 1;
-
-        size_t majority_class = 0;
-        size_t max_count = 0;
-        for (const auto& pair : final_counters)
-        {
-            if (pair.second > max_count)
-            {
-                max_count = pair.second;
-                majority_class = pair.first;
-            }
-        }
-        return new Node(majority_class);
-    }
+        return new Node(majority(y));
 
     // std::cout << "best threshold: " << best_threshold << std::endl;
     // std::cout << "best feature: " << best_feature << std::endl;
@@ -95,8 +82,8 @@ DecisionTree::Node* DecisionTree::grow(Node* root,
     }
 
     Node* node = new Node(best_feature, best_threshold);
-    node->left = grow(node->left, X_left, y[mask]);
-    node->right = grow(node->right, X_right, y[!mask]);
+    node->left = grow(node->left, X_left, y[mask], depth + 1);
+    node->right = grow(node->right, X_right, y[!mask], depth + 1);
 
     return node;
 }
@@ -112,7 +99,7 @@ void DecisionTree::fit(const std::vector<std::vector<double>>& X,
 
     View targets(y.data(), y.size());
 
-    m_Root = grow(m_Root, features, targets);
+    m_Root = grow(m_Root, features, targets, 1);
 }
 
 uint32_t DecisionTree::visit(Node* node, const std::vector<double>& x)

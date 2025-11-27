@@ -4,7 +4,10 @@
 #include <cstdio>
 #include <unordered_map>
 
-RandomForest::RandomForest(size_t estimators) : m_Trees(estimators) {}
+RandomForest::RandomForest(size_t estimators, size_t max_depth)
+    : m_Trees(estimators, max_depth)
+{
+}
 
 void RandomForest::fit(const std::vector<std::vector<double>>& X,
                        const std::vector<uint32_t> y)
@@ -13,6 +16,7 @@ void RandomForest::fit(const std::vector<std::vector<double>>& X,
     {
         auto [Xb, yb] = bootstrap(X, y);
         m_Trees[i].fit(Xb, yb);
+        std::printf("tree %lu depth: %lu\n", i + 1, m_Trees[i].depth());
     }
 }
 

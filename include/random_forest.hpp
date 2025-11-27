@@ -9,7 +9,7 @@
 class RandomForest
 {
 public:
-    RandomForest(size_t estimators);
+    RandomForest(size_t estimators, size_t max_depth = 0);
 
     void fit(const std::vector<std::vector<double>>& X,
              const std::vector<uint32_t> y);

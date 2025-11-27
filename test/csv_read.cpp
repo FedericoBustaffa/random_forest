@@ -19,15 +19,12 @@ int main(int argc, const char** argv)
         std::cout << std::endl;
     }
 
-    std::vector<std::vector<double>> data = df.toVector();
-
-    std::vector<std::vector<double>> X(data.begin(), data.end() - 1);
-    std::vector<double> y = data.back();
+    auto [X, y] = df.toVector();
     for (size_t i = 0; i < X[0].size(); i++)
     {
         for (size_t j = 0; j < X.size(); j++)
             std::printf("%.2f ", X[j][i]);
-        std::printf("%.2f\n", y[i]);
+        std::printf("%u\n", y[i]);
     }
 
     return 0;

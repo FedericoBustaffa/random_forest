@@ -27,6 +27,23 @@ std::unordered_map<uint32_t, size_t> count(const View<uint32_t>& y)
     return counter;
 }
 
+uint32_t majority(const View<uint32_t>& y)
+{
+    std::unordered_map<uint32_t, size_t> counter = count(y);
+    uint32_t value = 0;
+    size_t best_counter = 0;
+    for (const auto& kv : counter)
+    {
+        if (kv.second > best_counter)
+        {
+            best_counter = kv.second;
+            value = kv.first;
+        }
+    }
+
+    return value;
+}
+
 std::pair<std::vector<std::vector<double>>, std::vector<uint32_t>> bootstrap(
     const std::vector<std::vector<double>>& X, const std::vector<uint32_t>& y)
 {
