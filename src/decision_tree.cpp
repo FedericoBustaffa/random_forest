@@ -29,27 +29,25 @@ DecisionTree::Node* DecisionTree::grow(Node* root,
     {
         // order with indices
         std::vector<size_t> order = argsort(X[i]);
-        const View<double>& X_sort = X[i][order];
-        const View<uint32_t>& y_sort = y[order];
 
         std::unordered_map<uint32_t, size_t> left_counters;
         std::unordered_map<uint32_t, size_t> right_counters;
-        for (size_t j = 0; j < y_sort.size(); j++)
-            right_counters[y_sort[j]]++;
+        for (size_t j = 0; j < y.size(); j++)
+            right_counters[y[order[j]]]++;
 
         // candidate thresholds
-        double current_class = y_sort[0];
-        for (size_t j = 1; j < y_sort.size(); j++)
+        double current_class = y[order[0]];
+        for (size_t j = 1; j < y.size(); j++)
         {
-            left_counters[y_sort[j - 1]]++;
-            right_counters[y_sort[j - 1]]--;
+            left_counters[y[order[j - 1]]]++;
+            right_counters[y[order[j - 1]]]--;
 
-            if (X_sort[j - 1] == X_sort[j])
+            if (X[i][order[j - 1]] == X[i][order[j]])
                 continue;
 
-            if (current_class != y_sort[j])
+            if (current_class != y[order[j]])
             {
-                double threshold = (X_sort[j - 1] + X_sort[j]) / 2.0;
+                double threshold = (X[i][order[j - 1]] + X[i][order[j]]) / 2.0;
                 double gain = informationGain(left_counters, right_counters);
                 gain = parent_entropy - gain;
 
@@ -59,7 +57,7 @@ DecisionTree::Node* DecisionTree::grow(Node* root,
                     best_threshold = threshold;
                     best_feature = i;
                 }
-                current_class = y_sort[j];
+                current_class = y[order[j]];
             }
         }
     }
