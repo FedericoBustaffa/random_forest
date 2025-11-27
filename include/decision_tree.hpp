@@ -15,6 +15,8 @@ public:
     void fit(const std::vector<std::vector<double>>& X,
              const std::vector<uint32_t>& y);
 
+    void fit(const std::vector<View<double>>& X, const View<uint32_t>& y);
+
     std::vector<uint32_t> predict(const std::vector<std::vector<double>>& X);
 
     size_t depth() const;

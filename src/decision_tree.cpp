@@ -99,6 +99,12 @@ void DecisionTree::fit(const std::vector<std::vector<double>>& X,
     m_Root = grow(m_Root, features, targets, 1);
 }
 
+void DecisionTree::fit(const std::vector<View<double>>& X,
+                       const View<uint32_t>& y)
+{
+    m_Root = grow(m_Root, X, y, 1);
+}
+
 uint32_t DecisionTree::predict_one(Node* node, const std::vector<double>& x)
 {
     if (node->label != -1)
