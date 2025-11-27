@@ -13,8 +13,7 @@ public:
     DecisionTree(size_t max_depth = 0);
 
     void fit(const std::vector<std::vector<double>>& X,
-             const std::vector<uint32_t>& y,
-             const std::vector<size_t>& indices = {});
+             const std::vector<uint32_t>& y);
 
     std::vector<uint32_t> predict(const std::vector<std::vector<double>>& X);
 

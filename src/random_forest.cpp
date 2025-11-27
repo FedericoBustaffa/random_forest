@@ -16,16 +16,19 @@ void RandomForest::fit(const std::vector<std::vector<double>>& X,
     for (size_t i = 0; i < m_Trees.size(); i++)
     {
         std::vector<size_t> indices = bootstrap(X[0].size());
-        std::vector<View<double>> Xb;
+        std::vector<std::vector<double>> Xb;
         Xb.reserve(X.size());
         for (size_t i = 0; i < X.size(); i++)
         {
-            Xb.emplace_back(X[i].data(), X[i].size());
-            Xb[i] = Xb[i][indices];
+            Xb.push_back(X[i]);
+            for (size_t j = 0; j < X[i].size(); j++)
+                Xb[i][j] = X[i][indices[j]];
         }
-        View<uint32_t> yb(y.data(), y.size());
+        std::vector<uint32_t> yb(y.begin(), y.end());
+        for (size_t j = 0; j < y.size(); j++)
+            yb[j] = y[indices[j]];
 
-        m_Trees[i].fit(Xb, yb[indices]);
+        m_Trees[i].fit(Xb, yb);
     }
 }
 
