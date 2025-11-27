@@ -44,7 +44,7 @@ int main(int argc, const char** argv)
     std::printf("sequential accuracy: %.2f\n", accuracy(y_seq, y));
 
     std::vector<uint32_t> y_omp = forest.predict(X);
-    std::printf("sequential accuracy: %.2f\n", accuracy(y_omp, y));
+    std::printf("omp accuracy: %.2f\n", accuracy(y_omp, y));
 
     return 0;
 }
