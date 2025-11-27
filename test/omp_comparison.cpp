@@ -36,12 +36,15 @@ int main(int argc, const char** argv)
     end = std::chrono::high_resolution_clock::now();
     duration = end - start;
     double omp_time = duration.count();
-    std::printf("sequential training time: %.4f seconds\n", omp_time);
+    std::printf("omp training time: %.4f seconds\n", omp_time);
 
     std::printf("speedup: %.4f\n", sequential_time / omp_time);
 
-    std::vector<uint32_t> y_pred = forest.predict(X);
-    std::printf("accuracy: %.2f\n", accuracy(y_pred, y));
+    std::vector<uint32_t> y_seq = forest.predict(X);
+    std::printf("sequential accuracy: %.2f\n", accuracy(y_seq, y));
+
+    std::vector<uint32_t> y_omp = forest.predict(X);
+    std::printf("sequential accuracy: %.2f\n", accuracy(y_omp, y));
 
     return 0;
 }

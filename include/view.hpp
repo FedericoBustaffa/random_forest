@@ -2,6 +2,7 @@
 #define VIEW_HPP
 
 #include <cassert>
+#include <cstddef>
 
 #include "mask.hpp"
 

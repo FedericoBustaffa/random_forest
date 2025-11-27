@@ -1,6 +1,7 @@
 #ifndef TREE_FUNCTIONS_HPP
 #define TREE_FUNCTIONS_HPP
 
+#include <cstddef>
 #include <cstdint>
 #include <unordered_map>
 

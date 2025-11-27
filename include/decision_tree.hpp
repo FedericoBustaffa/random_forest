@@ -1,6 +1,7 @@
 #ifndef DECISION_TREE_HPP
 #define DECISION_TREE_HPP
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
