@@ -1,26 +1,26 @@
-#include "random_forest.hpp"
+#include "random_forest_omp.hpp"
 #include "utils.hpp"
 
 #include <cstdio>
 #include <unordered_map>
 
-RandomForest::RandomForest(size_t estimators, size_t max_depth)
+RandomForestOMP::RandomForestOMP(size_t estimators, size_t max_depth)
     : m_Trees(estimators, max_depth)
 {
 }
 
-void RandomForest::fit(const std::vector<std::vector<double>>& X,
-                       const std::vector<uint32_t> y)
+void RandomForestOMP::fit(const std::vector<std::vector<double>>& X,
+                          const std::vector<uint32_t> y)
 {
+#pragma omp parallel for
     for (size_t i = 0; i < m_Trees.size(); i++)
     {
         auto [Xb, yb] = bootstrap(X, y);
         m_Trees[i].fit(Xb, yb);
-        // std::printf("tree %lu depth: %lu\n", i + 1, m_Trees[i].depth());
     }
 }
 
-std::vector<uint32_t> RandomForest::predict(
+std::vector<uint32_t> RandomForestOMP::predict(
     const std::vector<std::vector<double>>& X)
 {
     std::vector<std::unordered_map<uint32_t, size_t>> counters(X[0].size());
@@ -51,7 +51,7 @@ std::vector<uint32_t> RandomForest::predict(
     return prediction;
 }
 
-std::vector<size_t> RandomForest::depths() const
+std::vector<size_t> RandomForestOMP::depths() const
 {
     std::vector<size_t> out(m_Trees.size());
     for (size_t i = 0; i < m_Trees.size(); i++)
@@ -60,4 +60,4 @@ std::vector<size_t> RandomForest::depths() const
     return out;
 }
 
-RandomForest::~RandomForest() {}
+RandomForestOMP::~RandomForestOMP() {}
