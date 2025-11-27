@@ -44,27 +44,19 @@ uint32_t majority(const View<uint32_t>& y)
     return value;
 }
 
-std::pair<std::vector<std::vector<double>>, std::vector<uint32_t>> bootstrap(
-    const std::vector<std::vector<double>>& X, const std::vector<uint32_t>& y)
+std::vector<size_t> bootstrap(size_t n_samples)
 {
-    size_t n_samples = X[0].size();
-
     std::random_device rd;
     std::mt19937 rng(rd());
     std::uniform_int_distribution<size_t> dist(0, n_samples - 1);
 
-    std::vector<std::vector<double>> X_out(X.size());
-    std::vector<uint32_t> y_out;
-    y_out.reserve(n_samples);
+    std::vector<size_t> indices(n_samples);
     for (size_t i = 0; i < n_samples; i++)
     {
-        size_t index = dist(rng);
-        for (size_t j = 0; j < X.size(); j++)
-            X_out[j].push_back(X[j][index]);
-        y_out.push_back(y[index]);
+        indices[i] = dist(rng);
     }
 
-    return {X_out, y_out};
+    return indices;
 }
 
 double accuracy(const std::vector<unsigned int>& predictions,

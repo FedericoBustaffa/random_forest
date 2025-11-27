@@ -10,6 +10,8 @@ template <typename T>
 class View
 {
 public:
+    View() = default;
+
     View(const T* data, size_t size) : m_Data(data), m_Indices(size)
     {
         for (size_t i = 0; i < size; i++)
@@ -62,7 +64,7 @@ public:
     ~View() {}
 
 private:
-    const T* m_Data;
+    const T* m_Data = nullptr;
     std::vector<size_t> m_Indices;
 };
 

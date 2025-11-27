@@ -89,13 +89,16 @@ DecisionTree::Node* DecisionTree::grow(Node* root,
 }
 
 void DecisionTree::fit(const std::vector<std::vector<double>>& X,
-                       const std::vector<uint32_t>& y)
+                       const std::vector<uint32_t>& y,
+                       const std::vector<size_t>& indices)
 {
-    std::vector<std::vector<size_t>> indices;
-
     std::vector<View<double>> features;
+    features.reserve(X.size());
     for (size_t i = 0; i < X.size(); i++)
+    {
         features.emplace_back(X[i].data(), X[i].size());
+        features[i] = features[i][indices];
+    }
 
     View targets(y.data(), y.size());
 
