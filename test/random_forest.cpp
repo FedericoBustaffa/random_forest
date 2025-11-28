@@ -25,9 +25,14 @@ int main(int argc, const char** argv)
     forest.fit(X, y);
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
-    std::printf("trained in %.4f seconds\n", duration.count());
+    std::printf("training time: %.4f seconds\n", duration.count());
 
+    start = std::chrono::high_resolution_clock::now();
     std::vector<uint32_t> y_pred = forest.predict(X);
+    end = std::chrono::high_resolution_clock::now();
+    duration = end - start;
+    std::printf("prediction time: %.4f seconds\n", duration.count());
+
     std::printf("accuracy: %.2f\n", accuracy(y_pred, y));
 
     return 0;

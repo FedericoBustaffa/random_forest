@@ -91,9 +91,8 @@ DecisionTree::Node* DecisionTree::grow(Node* root,
 void DecisionTree::fit(const std::vector<std::vector<double>>& X,
                        const std::vector<uint32_t>& y)
 {
-    std::vector<std::vector<size_t>> indices;
-
     std::vector<View<double>> features;
+    features.reserve(X.size());
     for (size_t i = 0; i < X.size(); i++)
         features.emplace_back(X[i].data(), X[i].size());
 
@@ -102,15 +101,15 @@ void DecisionTree::fit(const std::vector<std::vector<double>>& X,
     m_Root = grow(m_Root, features, targets, 1);
 }
 
-uint32_t DecisionTree::visit(Node* node, const std::vector<double>& x)
+uint32_t DecisionTree::predict_one(Node* node, const std::vector<double>& x)
 {
     if (node->label != -1)
         return node->label;
 
     if (x[node->feature] < node->threshold)
-        return visit(node->left, x);
+        return predict_one(node->left, x);
     else
-        return visit(node->right, x);
+        return predict_one(node->right, x);
 }
 
 std::vector<uint32_t> DecisionTree::predict(
@@ -124,7 +123,7 @@ std::vector<uint32_t> DecisionTree::predict(
         for (size_t j = 0; j < X.size(); j++)
             pattern[j] = X[j][i];
 
-        labels[i] = visit(m_Root, pattern);
+        labels[i] = predict_one(m_Root, pattern);
     }
 
     return labels;

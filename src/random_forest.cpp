@@ -12,11 +12,23 @@ RandomForest::RandomForest(size_t estimators, size_t max_depth)
 void RandomForest::fit(const std::vector<std::vector<double>>& X,
                        const std::vector<uint32_t> y)
 {
+#pragma omp parallel for
     for (size_t i = 0; i < m_Trees.size(); i++)
     {
-        auto [Xb, yb] = bootstrap(X, y);
+        std::vector<size_t> indices = bootstrap(X[0].size());
+        std::vector<std::vector<double>> Xb;
+        Xb.reserve(X.size());
+        for (size_t i = 0; i < X.size(); i++)
+        {
+            Xb.push_back(X[i]);
+            for (size_t j = 0; j < X[i].size(); j++)
+                Xb[i][j] = X[i][indices[j]];
+        }
+        std::vector<uint32_t> yb(y.begin(), y.end());
+        for (size_t j = 0; j < y.size(); j++)
+            yb[j] = y[indices[j]];
+
         m_Trees[i].fit(Xb, yb);
-        std::printf("tree %lu depth: %lu\n", i + 1, m_Trees[i].depth());
     }
 }
 
