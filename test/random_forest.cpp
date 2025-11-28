@@ -25,17 +25,14 @@ int main(int argc, const char** argv)
     Timer timer;
     timer.start();
     forest.fit(X, y);
-    double train_time = timer.stop("training");
+    timer.stop("training");
 
     timer.start();
     std::vector<uint32_t> y_pred = forest.predict(X);
-    double prediction_time = timer.stop("prediction");
+    timer.stop("prediction");
 
     double accuracy = accuracy_score(y_pred, y);
     std::printf("accuracy: %.2f\n", accuracy);
-
-    to_json("omp", estimators, max_depth, train_time, prediction_time, accuracy,
-            omp_get_max_threads());
 
     return 0;
 }

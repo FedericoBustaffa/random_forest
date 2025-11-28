@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 
-srun make clean
 srun make -j
 
 for i in 64 128 256 512; do
