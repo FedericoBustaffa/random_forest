@@ -1,9 +1,9 @@
-#include <chrono>
 #include <cstdio>
 
 #include "csv.hpp"
 #include "dataframe.hpp"
 #include "random_forest.hpp"
+#include "timer.hpp"
 #include "utils.hpp"
 
 int main(int argc, const char** argv)
@@ -21,17 +21,14 @@ int main(int argc, const char** argv)
     auto [X, y] = df.toVector();
 
     RandomForest forest(estimators, max_depth);
-    auto start = std::chrono::high_resolution_clock::now();
+    Timer<milli> timer;
+    timer.start();
     forest.fit(X, y);
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration = end - start;
-    std::printf("training time: %.4f seconds\n", duration.count());
+    timer.stop("training");
 
-    start = std::chrono::high_resolution_clock::now();
+    timer.start();
     std::vector<uint32_t> y_pred = forest.predict(X);
-    end = std::chrono::high_resolution_clock::now();
-    duration = end - start;
-    std::printf("prediction time: %.4f seconds\n", duration.count());
+    timer.stop("prediction");
 
     std::printf("accuracy: %.2f\n", accuracy(y_pred, y));
 

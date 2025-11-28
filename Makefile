@@ -20,46 +20,50 @@ INCLUDES = -I./include/
 DEFINES = 
 
 # convenient single variable to wrap all the flags
-FLAGS = $(CXXFLAGS)
-FLAGS += $(INCLUDES)
-FLAGS += $(DEFINES)
+FLAGS = $(CXXFLAGS) $(INCLUDES) $(DEFINES)
 
 # link libraries
 LIBS = -fopenmp
 
 # specify source directory
-SOURCE_DIR = ./src
-SOURCES = $(wildcard $(SOURCE_DIR)/*.cpp)
-TESTS = $(wildcard test/*.cpp)
+SOURCES = $(wildcard src/*.cpp)
+TEST_SOURCES = $(wildcard test/*.cpp)
 
 # build directory containing .o and .d files
 BUILD_DIR = build
 
 # directory for .d files
-DEPS = $(patsubst $(SOURCE_DIR)/%.cpp, $(BUILD_DIR)/%.d, $(SOURCES))
+DEPS = $(patsubst src/%.cpp, $(BUILD_DIR)/%.d, $(SOURCES))
+DEPS += $(patsubst test/%.cpp, $(BUILD_DIR)/test_%.d, $(TEST_SOURCES))
 
 # generate the object files based on the sources names
-OBJECTS = $(patsubst $(SOURCE_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SOURCES))
+OBJECTS = $(patsubst src/%.cpp, $(BUILD_DIR)/%.o, $(SOURCES))
+TEST_OBJECTS = $(patsubst test/%.cpp, $(BUILD_DIR)/test_%.o, $(TEST_SOURCES))
+
+# generate targets executables
+TARGETS = $(patsubst test/%.cpp, $(BUILD_DIR)/%.out, $(TEST_SOURCES))
 
 .PHONY: all clean-fast clean recompile
 
-TARGETS = $(patsubst test/%.cpp, test/%.out, $(TESTS))
 
 all: FLAGS += $(OPTFLAGS)
-all: $(BUILD_DIR) test/$(TARGETS)
+all: $(BUILD_DIR) $(TARGETS)
 
 debug: FLAGS += $(DBGFLAGS)
-debug: $(BUILD_DIR) test/$(TARGETS)
+debug: $(BUILD_DIR) $(TARGETS)
 
 
 $(BUILD_DIR):
 	@mkdir -p $@
 
-test/%.out: $(OBJECTS) test/%.cpp
-	$(CXX) $(FLAGS) $^ -o $@
-
-$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp
+$(BUILD_DIR)/%.o: src/%.cpp
 	$(CXX) $(FLAGS) $(DEPSFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/test_%.o: test/%.cpp
+	$(CXX) $(FLAGS) $(DEPSFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.out: $(OBJECTS) $(BUILD_DIR)/test_%.o
+	$(CXX) $(FLAGS) $^ -o $@
 
 -include $(DEPS)
 
