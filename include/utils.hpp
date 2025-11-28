@@ -1,6 +1,7 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <cstddef>
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
