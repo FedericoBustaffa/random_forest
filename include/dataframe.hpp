@@ -19,7 +19,7 @@ public:
     const std::string& operator()(size_t row, size_t col) const;
 
     std::pair<std::vector<std::vector<double>>, std::vector<uint32_t>>
-    toVector() const;
+    to_vector() const;
 
     ~DataFrame();
 

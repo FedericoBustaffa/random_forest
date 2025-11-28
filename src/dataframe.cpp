@@ -18,7 +18,7 @@ const std::string& DataFrame::operator()(size_t row, size_t col) const
 }
 
 std::pair<std::vector<std::vector<double>>, std::vector<uint32_t>> DataFrame::
-    toVector() const
+    to_vector() const
 {
     std::vector<std::vector<double>> data(m_Cols);
 

@@ -28,9 +28,12 @@ public:
         return elapsed.count();
     }
 
-    inline void stop(const std::string& label)
+    inline double stop(const std::string& label)
     {
-        std::printf("%s time: %.2f %s\n", label.c_str(), stop(), suffix());
+        double elapsed = stop();
+        std::printf("%s time: %.2f %s\n", label.c_str(), elapsed, suffix());
+
+        return elapsed;
     }
 
 private:

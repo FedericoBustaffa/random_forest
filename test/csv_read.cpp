@@ -19,7 +19,7 @@ int main(int argc, const char** argv)
         std::cout << std::endl;
     }
 
-    auto [X, y] = df.toVector();
+    auto [X, y] = df.to_vector();
     for (size_t i = 0; i < X[0].size(); i++)
     {
         for (size_t j = 0; j < X.size(); j++)

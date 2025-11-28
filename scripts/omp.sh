@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+
+for i in 64 128 256 512; do
+    for j in 1 2 4; do
+        echo "estimators: ${i}"
+        echo "threads: ${j}"
+        OMP_NUM_THREADS=$j ./build/random_forest.out $i 0 $1
+        echo ""
+    done
+done
+
+python scripts/merge.py
+

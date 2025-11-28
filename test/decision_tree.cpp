@@ -17,7 +17,7 @@ int main(int argc, const char** argv)
     size_t max_depth = std::stoull(argv[1]);
 
     DataFrame df = read_csv(argv[2]);
-    auto [X, y] = df.toVector();
+    auto [X, y] = df.to_vector();
 
     DecisionTree tree(max_depth);
     Timer<milli> timer;
@@ -31,7 +31,7 @@ int main(int argc, const char** argv)
     std::vector<uint32_t> y_pred = tree.predict(X);
     timer.stop("prediction");
 
-    std::printf("accuracy: %.2f\n", accuracy(y_pred, y));
+    std::printf("accuracy: %.2f\n", accuracy_score(y_pred, y));
 
     return 0;
 }
