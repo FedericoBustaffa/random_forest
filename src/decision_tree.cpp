@@ -12,7 +12,7 @@ DecisionTree::Node* DecisionTree::grow(
     if (m_MaxDepth != 0 && depth == m_MaxDepth)
         return new Node(majority(y, indices));
 
-    if (y.size() == 0)
+    if (indices.size() == 0)
         return nullptr;
 
     double parent_entropy = entropy(count(y, indices));
@@ -31,20 +31,20 @@ DecisionTree::Node* DecisionTree::grow(
 
         std::unordered_map<uint32_t, size_t> left_counters;
         std::unordered_map<uint32_t, size_t> right_counters;
-        for (size_t j = 0; j < y.size(); j++)
-            right_counters[y[order[j]]]++;
+        for (size_t j = 0; j < indices.size(); j++)
+            right_counters[y[indices[order[j]]]]++;
 
         // candidate thresholds
         double current_class = y[indices[order[0]]];
-        for (size_t j = 1; j < y.size(); j++)
+        for (size_t j = 1; j < indices.size(); j++)
         {
-            left_counters[y[order[j - 1]]]++;
-            right_counters[y[order[j - 1]]]--;
+            left_counters[y[indices[order[j - 1]]]]++;
+            right_counters[y[indices[order[j - 1]]]]--;
 
             if (X[i][indices[order[j - 1]]] == X[i][indices[order[j]]])
                 continue;
 
-            if (current_class != y[order[j]])
+            if (current_class != y[indices[order[j]]])
             {
                 double threshold =
                     (X[i][indices[order[j - 1]]] + X[i][indices[order[j]]]) /
@@ -58,12 +58,12 @@ DecisionTree::Node* DecisionTree::grow(
                     best_threshold = threshold;
                     best_feature = i;
                 }
-                current_class = y[order[j]];
+                current_class = y[indices[order[j]]];
             }
         }
     }
 
-    if (best_gain <= 1e-6)
+    if (best_gain <= 1e-8)
         return new Node(majority(y, indices));
 
     // std::cout << "best threshold: " << best_threshold << std::endl;
@@ -72,18 +72,15 @@ DecisionTree::Node* DecisionTree::grow(
     std::vector<size_t> left;
     std::vector<size_t> right;
 
-    left.reserve(X[0].size());
-    right.reserve(X[0].size());
+    // left.reserve(X[0].size());
+    // right.reserve(X[0].size());
 
-    for (size_t i = 0; i < X.size(); i++)
+    for (size_t i = 0; i < indices.size(); i++)
     {
-        for (size_t j = 0; j < X[i].size(); j++)
-        {
-            if (X[best_feature][j] < best_threshold)
-                left.push_back(X[i][j]);
-            else
-                right.push_back(X[i][j]);
-        }
+        if (X[best_feature][indices[i]] <= best_threshold)
+            left.push_back(indices[i]);
+        else
+            right.push_back(indices[i]);
     }
 
     Node* node = new Node(best_feature, best_threshold);

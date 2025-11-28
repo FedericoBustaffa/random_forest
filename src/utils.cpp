@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 std::vector<size_t> argsort(const std::vector<double>& v,
                             const std::vector<size_t>& indices)
 {
-    std::vector<size_t> order(v.size());
+    std::vector<size_t> order(indices.size());
     std::iota(order.begin(), order.end(), 0);
 
     auto compare = [&](const auto& a, const auto& b) {
@@ -27,7 +27,7 @@ std::unordered_map<uint32_t, size_t> count(const std::vector<uint32_t>& y,
                                            const std::vector<size_t>& indices)
 {
     std::unordered_map<uint32_t, size_t> counter;
-    for (size_t i = 0; i < y.size(); i++)
+    for (size_t i = 0; i < indices.size(); i++)
         counter[y[indices[i]]]++;
 
     return counter;
@@ -58,9 +58,7 @@ std::vector<size_t> bootstrap(size_t n_samples)
 
     std::vector<size_t> indices(n_samples);
     for (size_t i = 0; i < n_samples; i++)
-    {
         indices[i] = dist(rng);
-    }
 
     return indices;
 }
