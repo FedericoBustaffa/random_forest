@@ -5,17 +5,14 @@
 #include <cstdint>
 #include <vector>
 
-#include "view.hpp"
-
 class DecisionTree
 {
 public:
     DecisionTree(size_t max_depth = 0);
 
     void fit(const std::vector<std::vector<double>>& X,
-             const std::vector<uint32_t>& y);
-
-    void fit(const std::vector<View<double>>& X, const View<uint32_t>& y);
+             const std::vector<uint32_t>& y,
+             const std::vector<size_t>& indices);
 
     std::vector<uint32_t> predict(const std::vector<std::vector<double>>& X);
 
@@ -42,8 +39,9 @@ private:
     };
 
 private: // tree private methods
-    Node* grow(Node* root, const std::vector<View<double>>& X,
-               const View<uint32_t>& y, size_t depth);
+    Node* grow(Node* root, const std::vector<std::vector<double>>& X,
+               const std::vector<uint32_t>& y, std::vector<size_t> indices,
+               size_t depth);
 
     uint32_t predict_one(Node* node, const std::vector<double>& x);
 

@@ -5,13 +5,13 @@
 #include <unordered_map>
 #include <vector>
 
-#include "view.hpp"
+std::vector<size_t> argsort(const std::vector<double>& v,
+                            const std::vector<size_t>& indices);
 
-std::vector<size_t> argsort(const View<double>& v);
+std::unordered_map<uint32_t, size_t> count(const std::vector<uint32_t>& y,
+                                           const std::vector<size_t>& indices);
 
-std::unordered_map<uint32_t, size_t> count(const View<uint32_t>& y);
-
-uint32_t majority(const View<uint32_t>& y);
+uint32_t majority(const std::vector<uint32_t>& y, std::vector<size_t>& indices);
 
 std::vector<size_t> bootstrap(size_t n_samples);
 
