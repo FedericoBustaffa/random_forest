@@ -23,6 +23,23 @@ std::vector<size_t> argsort(const std::vector<double>& v,
     return order;
 }
 
+std::vector<std::vector<double>> transpose(
+    const std::vector<std::vector<double>>& X)
+{
+    size_t rows = X.size();
+    size_t cols = X[0].size();
+
+    std::vector<std::vector<double>> T(X[0].size());
+    for (size_t i = 0; i < cols; i++)
+        T[i].reserve(rows);
+
+    for (size_t i = 0; i < rows; i++)
+        for (size_t j = 0; j < cols; j++)
+            T[j].push_back(X[i][j]);
+
+    return T;
+}
+
 std::unordered_map<uint32_t, size_t> count(const std::vector<uint32_t>& y,
                                            const std::vector<size_t>& indices)
 {

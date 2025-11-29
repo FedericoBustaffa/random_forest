@@ -2,6 +2,7 @@
 
 #include "csv.hpp"
 #include "dataframe.hpp"
+#include "utils.hpp"
 
 int main(int argc, const char** argv)
 {
@@ -20,11 +21,19 @@ int main(int argc, const char** argv)
     }
 
     auto [X, y] = df.to_vector();
-    for (size_t i = 0; i < X[0].size(); i++)
+    for (size_t i = 0; i < X.size(); i++)
     {
-        for (size_t j = 0; j < X.size(); j++)
-            std::printf("%.2f ", X[j][i]);
+        for (size_t j = 0; j < X[i].size(); j++)
+            std::printf("%.2f ", X[i][j]);
         std::printf("%u\n", y[i]);
+    }
+
+    auto T = transpose(X);
+    for (size_t i = 0; i < T[0].size(); i++)
+    {
+        for (size_t j = 0; j < T.size(); j++)
+            std::printf("%.2f ", T[j][i]);
+        std::printf("\n");
     }
 
     return 0;

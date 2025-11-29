@@ -91,7 +91,8 @@ void DecisionTree::fit(const std::vector<std::vector<double>>& X,
                        const std::vector<uint32_t>& y,
                        const std::vector<size_t>& indices)
 {
-    m_Root = grow(m_Root, X, y, indices, 1);
+    std::vector<std::vector<double>> T = transpose(X);
+    m_Root = grow(m_Root, T, y, indices, 1);
 }
 
 uint32_t DecisionTree::predict_one(Node* node, const std::vector<double>& x)
@@ -108,16 +109,9 @@ uint32_t DecisionTree::predict_one(Node* node, const std::vector<double>& x)
 std::vector<uint32_t> DecisionTree::predict(
     const std::vector<std::vector<double>>& X)
 {
-    std::vector<double> pattern(X.size());
-    std::vector<uint32_t> labels(X[0].size());
-
-    for (size_t i = 0; i < X[0].size(); i++)
-    {
-        for (size_t j = 0; j < X.size(); j++)
-            pattern[j] = X[j][i];
-
-        labels[i] = predict_one(m_Root, pattern);
-    }
+    std::vector<uint32_t> labels(X.size());
+    for (size_t i = 0; i < X.size(); i++)
+        labels[i] = predict_one(m_Root, X[i]);
 
     return labels;
 }

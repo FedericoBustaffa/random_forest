@@ -25,6 +25,9 @@ struct Record
 std::vector<size_t> argsort(const std::vector<double>& v,
                             const std::vector<size_t>& indices);
 
+std::vector<std::vector<double>> transpose(
+    const std::vector<std::vector<double>>& X);
+
 std::unordered_map<uint32_t, size_t> count(const std::vector<uint32_t>& y,
                                            const std::vector<size_t>& indices);
 
