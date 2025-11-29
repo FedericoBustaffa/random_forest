@@ -54,11 +54,10 @@ Thumbs.db
 
 _minted/
 
-.vscode/
 svg-inkscape/
 
 *.dat
 *.bin
-*.csv
 vgcore.*
-results/
+datasets/
+tmp/

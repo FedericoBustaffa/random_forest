@@ -1,22 +1,39 @@
 #include "random_forest.hpp"
-#include "utils.hpp"
 
 #include <cstdio>
 #include <unordered_map>
 
-RandomForest::RandomForest(size_t estimators, size_t max_depth)
-    : m_Trees(estimators, max_depth)
+#include "utils.hpp"
+
+RandomForest::RandomForest(size_t estimators, size_t max_depth, Policy policy)
+    : m_Trees(estimators, max_depth), m_Policy(policy)
 {
 }
 
 void RandomForest::fit(const std::vector<std::vector<double>>& X,
                        const std::vector<uint32_t> y)
 {
-#pragma omp parallel for
-    for (size_t i = 0; i < m_Trees.size(); i++)
+    switch (m_Policy)
     {
-        std::vector<size_t> indices = bootstrap(X[0].size());
-        m_Trees[i].fit(X, y, indices);
+    case Policy::Sequential:
+        for (size_t i = 0; i < m_Trees.size(); i++)
+        {
+            std::vector<size_t> indices = bootstrap(X[0].size());
+            m_Trees[i].fit(X, y, indices);
+        }
+        break;
+
+    case Policy::OpenMP:
+#pragma omp parallel for
+        for (size_t i = 0; i < m_Trees.size(); i++)
+        {
+            std::vector<size_t> indices = bootstrap(X[0].size());
+            m_Trees[i].fit(X, y, indices);
+        }
+        break;
+
+    case Policy::Invalid:
+        break;
     }
 }
 

@@ -1,29 +1,37 @@
 import json
 import os
+import sys
 
 import pandas as pd
 
 batch = {
-    "threading": [],
+    "dataset": [],
+    "policy": [],
     "estimators": [],
     "max_depth": [],
+    "accuracy": [],
     "train_time": [],
     "predict_time": [],
-    "accuracy": [],
-    "nthreads": [],
+    "threads": [],
+    "nodes": [],
 }
 
-paths = [f"results/{fp}" for fp in os.listdir("results/")]
+paths = [f"tmp/{fp}" for fp in os.listdir("tmp/")]
 
 for fp in paths:
-    if fp.endswith(".csv"):
-        continue
     f = open(fp, "r")
     content = json.load(f)
     for k in batch.keys():
-        batch[k].append(content[k])
+        if k == "dataset":
+            batch[k].append(content[k].split("/")[1].split(".")[0])
+        else:
+            batch[k].append(content[k])
 
     os.remove(fp)
 
+if "results" not in os.listdir("."):
+    os.mkdir("results")
+
+nfiles = len(os.listdir("results"))
 df = pd.DataFrame(batch)
-df.to_csv("results/results.csv", header=True, index=False)
+df.to_csv(f"results/{sys.argv[1]}_{nfiles + 1}.csv", header=True, index=False)

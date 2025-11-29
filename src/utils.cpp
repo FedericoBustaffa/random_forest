@@ -76,11 +76,20 @@ double accuracy_score(const std::vector<unsigned int>& predictions,
     return counter / predictions.size();
 }
 
-void to_json(const char* prefix, size_t estimators, size_t max_depth,
-             double train_time, double predict_time, double accuracy,
-             int nthreads)
+Policy string_to_policy(const std::string& s)
 {
-    fs::path dir_path = "results";
+    if (s == "seq")
+        return Policy::Sequential;
+
+    if (s == "omp")
+        return Policy::OpenMP;
+
+    return Policy::Invalid;
+}
+
+void to_json(const Record& record)
+{
+    fs::path dir_path = "tmp";
     if (!fs::exists(dir_path))
         fs::create_directory(dir_path);
 
@@ -93,16 +102,19 @@ void to_json(const char* prefix, size_t estimators, size_t max_depth,
 
     std::stringstream ss;
     ss << dir_path.c_str() << "/";
-    ss << "result_" << std::setw(3) << std::setfill('0') << nfiles << ".json";
+    ss << "result_" << std::setw(0) << std::setfill('0') << nfiles << ".json";
 
     std::ofstream out(ss.str());
+
     out << "{\n";
-    out << "\t\"threading\": " << '\"' << prefix << '\"' << ",\n";
-    out << "\t\"estimators\": " << estimators << ",\n";
-    out << "\t\"max_depth\": " << max_depth << ",\n";
-    out << "\t\"train_time\": " << train_time << ",\n";
-    out << "\t\"predict_time\": " << predict_time << ",\n";
-    out << "\t\"accuracy\": " << accuracy << ",\n";
-    out << "\t\"nthreads\": " << nthreads << "\n";
+    out << "\t\"dataset\": " << '\"' << record.dataset << '\"' << ",\n";
+    out << "\t\"policy\": " << '\"' << record.policy << '\"' << ",\n";
+    out << "\t\"estimators\": " << record.estimators << ",\n";
+    out << "\t\"max_depth\": " << record.max_depth << ",\n";
+    out << "\t\"accuracy\": " << record.accuracy << ",\n";
+    out << "\t\"train_time\": " << record.train_time << ",\n";
+    out << "\t\"predict_time\": " << record.predict_time << ",\n";
+    out << "\t\"threads\": " << record.threads << ",\n";
+    out << "\t\"nodes\": " << record.nodes << "\n";
     out << "}\n";
 }

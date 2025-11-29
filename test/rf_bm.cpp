@@ -33,14 +33,41 @@ int main(int argc, const char** argv)
     Timer<milli> timer;
     timer.start();
     forest.fit(X, y);
-    timer.stop("training");
+    double train_time = timer.stop("training");
 
     timer.start();
     std::vector<uint32_t> y_pred = forest.predict(X);
-    timer.stop("prediction");
+    double predict_time = timer.stop("prediction");
 
     double accuracy = accuracy_score(y_pred, y);
     std::printf("accuracy: %.2f\n", accuracy);
+
+    Record record;
+    record.dataset = argv[4];
+    record.policy = argv[3];
+    record.estimators = estimators;
+    record.max_depth = max_depth;
+    record.accuracy = accuracy;
+    record.train_time = train_time;
+    record.predict_time = predict_time;
+
+    switch (policy)
+    {
+    case Policy::Sequential:
+        record.threads = 1;
+        record.nodes = 1;
+        break;
+
+    case Policy::OpenMP:
+        record.threads = omp_get_max_threads();
+        record.nodes = 1;
+        break;
+
+    default:
+        break;
+    }
+
+    to_json(record);
 
     return 0;
 }

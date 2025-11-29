@@ -3,8 +3,24 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "random_forest.hpp"
+
+struct Record
+{
+    std::string dataset;
+    std::string policy;
+    size_t estimators;
+    size_t max_depth;
+    double accuracy;
+    double train_time;
+    double predict_time;
+    size_t threads;
+    size_t nodes;
+};
 
 std::vector<size_t> argsort(const std::vector<double>& v,
                             const std::vector<size_t>& indices);
@@ -19,8 +35,8 @@ std::vector<size_t> bootstrap(size_t n_samples);
 double accuracy_score(const std::vector<unsigned int>& predictions,
                       const std::vector<unsigned int>& correct);
 
-void to_json(const char* prefix, size_t estimators, size_t max_depth,
-             double train_time, double predict_time, double accuracy,
-             int nthreads);
+Policy string_to_policy(const std::string& s);
+
+void to_json(const Record& record);
 
 #endif

@@ -1,0 +1,17 @@
+dataset,policy,estimators,max_depth,accuracy,train_time,predict_time,threads,nodes
+breast_cancer,omp,64,0,1,104.807,1.56801,8,1
+breast_cancer,omp,512,0,1,1520.43,11.9272,2,1
+breast_cancer,omp,256,0,1,397.495,5.77237,8,1
+breast_cancer,omp,256,0,1,399.053,5.59718,4,1
+breast_cancer,omp,512,0,1,810.675,11.295,8,1
+breast_cancer,seq,64,0,1,372.845,1.547,1,1
+breast_cancer,omp,64,0,1,102.708,1.4545,4,1
+breast_cancer,seq,256,0,1,1464.14,5.56454,1,1
+breast_cancer,omp,256,0,1,765.97,5.77559,2,1
+breast_cancer,seq,512,0,1,2939.52,11.8902,1,1
+breast_cancer,omp,512,0,1,793.972,11.2385,4,1
+breast_cancer,omp,128,0,1,200.188,2.84319,4,1
+breast_cancer,omp,128,0,1,380.119,2.95068,2,1
+breast_cancer,omp,64,0,1,195.051,1.52923,2,1
+breast_cancer,seq,128,0,1,728.54,2.81751,1,1
+breast_cancer,omp,128,0,1,207.99,2.82326,8,1
