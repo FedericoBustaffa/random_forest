@@ -11,6 +11,7 @@ for i in 64 128 256 512; do
             ./build/rf_bm.out $i 0 "seq" $1
         else
             OMP_NUM_THREADS=$j ./build/rf_bm.out $i 0 "omp" $1
+            OMP_NUM_THREADS=$j ./build/rf_bm.out $i 0 "ff" $1
         fi
         echo ""
     done

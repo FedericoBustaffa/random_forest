@@ -17,20 +17,25 @@ void RandomForest::omp_fit(const std::vector<std::vector<double>>& X,
 std::vector<uint32_t> RandomForest::omp_predict(
     const std::vector<std::vector<double>>& X)
 {
+    // predict the same batch in parallel
     std::vector<std::vector<uint32_t>> y(m_Trees.size());
 #pragma omp parallel for
     for (size_t i = 0; i < m_Trees.size(); i++)
         y[i] = m_Trees[i].predict(X);
 
-    std::vector<std::unordered_map<uint32_t, size_t>> counters(y.size());
+    // count votes
+    std::vector<std::unordered_map<uint32_t, size_t>> counters(y[0].size());
 #pragma omp parallel for
-    for (size_t i = 0; i < y.size(); i++)
+    for (size_t i = 0; i < counters.size(); i++)
     {
-        const std::vector<uint32_t>& pred = y[i];
-        for (size_t j = 0; j < pred.size(); j++)
-            counters[i][pred[j]]++;
+        for (size_t j = 0; j < y.size(); j++)
+        {
+            const std::vector<uint32_t>& pred = y[j];
+            counters[i][pred[i]]++;
+        }
     }
 
+    // compute majority
     std::vector<uint32_t> prediction(counters.size());
 #pragma omp parallel for
     for (size_t i = 0; i < counters.size(); i++)

@@ -12,7 +12,7 @@
 struct Record
 {
     std::string dataset;
-    std::string policy;
+    std::string backend;
     size_t estimators;
     size_t max_depth;
     double accuracy;
@@ -35,10 +35,10 @@ uint32_t majority(const std::vector<uint32_t>& y, std::vector<size_t>& indices);
 
 std::vector<size_t> bootstrap(size_t n_samples);
 
-double accuracy_score(const std::vector<unsigned int>& predictions,
-                      const std::vector<unsigned int>& correct);
+double accuracy_score(const std::vector<uint32_t>& predictions,
+                      const std::vector<uint32_t>& correct);
 
-Policy string_to_policy(const std::string& s);
+Backend to_backend(const std::string& s);
 
 void to_json(const Record& record);
 
