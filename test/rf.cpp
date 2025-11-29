@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <omp.h>
 
 #include "csv.hpp"
 #include "dataframe.hpp"

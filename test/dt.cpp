@@ -25,7 +25,7 @@ int main(int argc, const char** argv)
     DecisionTree tree(max_depth);
     Timer<milli> timer;
     timer.start();
-    tree.fit(X, y, indices);
+    tree.fit(transpose(X), y, indices);
     timer.stop("training");
 
     std::printf("depth: %lu\n", tree.depth());

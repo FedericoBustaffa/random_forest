@@ -23,7 +23,7 @@ DEFINES =
 FLAGS = $(CXXFLAGS) $(INCLUDES) $(DEFINES)
 
 # link libraries
-LIBS = -fopenmp
+LIBS =
 
 # specify source directory
 SOURCES = $(wildcard src/*.cpp)

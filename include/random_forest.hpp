@@ -29,6 +29,19 @@ public:
     ~RandomForest();
 
 private:
+    void seq_fit(const std::vector<std::vector<double>>& X,
+                 const std::vector<uint32_t> y);
+
+    void omp_fit(const std::vector<std::vector<double>>& X,
+                 const std::vector<uint32_t> y);
+
+    std::vector<uint32_t> seq_predict(
+        const std::vector<std::vector<double>>& X);
+
+    std::vector<uint32_t> omp_predict(
+        const std::vector<std::vector<double>>& X);
+
+private:
     std::vector<DecisionTree> m_Trees;
     Policy m_Policy;
 };
