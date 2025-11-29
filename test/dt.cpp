@@ -23,7 +23,7 @@ int main(int argc, const char** argv)
     std::iota(indices.begin(), indices.end(), 0);
 
     DecisionTree tree(max_depth);
-    Timer<milli> timer;
+    Timer timer;
     timer.start();
     tree.fit(X, y, indices);
     timer.stop("training");

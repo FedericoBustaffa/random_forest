@@ -35,20 +35,23 @@ DecisionTree::Node* DecisionTree::grow(
             right_counters[y[indices[order[j]]]]++;
 
         // candidate thresholds
-        double current_class = y[indices[order[0]]];
+        double prev_label = y[indices[order[0]]];
         for (size_t j = 1; j < indices.size(); j++)
         {
-            left_counters[y[indices[order[j - 1]]]]++;
-            right_counters[y[indices[order[j - 1]]]]--;
+            uint32_t label = y[indices[order[j - 1]]];
+            left_counters[label]++;
+            right_counters[label]--;
 
-            if (X[i][indices[order[j - 1]]] == X[i][indices[order[j]]])
+            double prev_feature = X[i][indices[order[j - 1]]];
+            double curr_feature = X[i][indices[order[j]]];
+
+            if (prev_feature == curr_feature)
                 continue;
 
-            if (current_class != y[indices[order[j]]])
+            uint32_t curr_label = y[indices[order[j]]];
+            if (prev_label != curr_label)
             {
-                double threshold =
-                    (X[i][indices[order[j - 1]]] + X[i][indices[order[j]]]) /
-                    2.0;
+                double threshold = (prev_feature + curr_feature) / 2.0;
                 double gain = informationGain(left_counters, right_counters);
                 gain = parent_entropy - gain;
 
@@ -58,7 +61,7 @@ DecisionTree::Node* DecisionTree::grow(
                     best_threshold = threshold;
                     best_feature = i;
                 }
-                current_class = y[indices[order[j]]];
+                prev_label = curr_label;
             }
         }
     }
@@ -66,14 +69,8 @@ DecisionTree::Node* DecisionTree::grow(
     if (best_gain <= 1e-8)
         return new Node(majority(y, indices));
 
-    // std::cout << "best threshold: " << best_threshold << std::endl;
-    // std::cout << "best feature: " << best_feature << std::endl;
-
     std::vector<size_t> left;
     std::vector<size_t> right;
-
-    // left.reserve(X[0].size());
-    // right.reserve(X[0].size());
 
     for (size_t i = 0; i < indices.size(); i++)
     {
