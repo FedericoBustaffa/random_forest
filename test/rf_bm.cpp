@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <omp.h>
 
 #include "csv.hpp"
 #include "dataframe.hpp"
@@ -9,9 +8,10 @@
 
 int main(int argc, const char** argv)
 {
-    if (argc != 5)
+    if (argc != 6)
     {
-        std::printf("USAGE: %s <estimators> <max_depth> <backend> <filepath>\n",
+        std::printf("USAGE: %s <estimators> <max_depth> <backend> <n_threads> "
+                    "<filepath>\n",
                     argv[0]);
         return 1;
     }
@@ -25,12 +25,13 @@ int main(int argc, const char** argv)
         std::printf("[ERROR]: %s is an invalid backend", argv[3]);
         return 1;
     }
+    size_t n_threads = std::stoul(argv[4]);
 
-    DataFrame df = read_csv(argv[4]);
+    DataFrame df = read_csv(argv[5]);
     auto [X, y] = df.to_vector();
 
-    RandomForest forest(estimators, max_depth, backend);
-    Timer<milli> timer;
+    RandomForest forest(estimators, max_depth, backend, n_threads);
+    Timer timer;
     timer.start();
     forest.fit(X, y);
     double train_time = timer.stop("training");
@@ -59,7 +60,12 @@ int main(int argc, const char** argv)
         break;
 
     case Backend::OpenMP:
-        record.threads = omp_get_max_threads();
+        record.threads = n_threads;
+        record.nodes = 1;
+        break;
+
+    case Backend::FastFlow:
+        record.threads = n_threads;
         record.nodes = 1;
         break;
 

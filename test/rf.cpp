@@ -31,7 +31,7 @@ int main(int argc, const char** argv)
     auto [X, y] = df.to_vector();
 
     RandomForest forest(estimators, max_depth, backend, n_threads);
-    Timer<milli> timer;
+    Timer timer;
     timer.start();
     forest.fit(X, y);
     timer.stop("training");
