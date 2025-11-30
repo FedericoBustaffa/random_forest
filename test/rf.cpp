@@ -9,7 +9,7 @@
 void exit_with_msg(const char* program)
 {
     std::printf("USAGE: %s <estimators> <max_depth> <filepath> <log> <backend> "
-                "<n_threads> <nodes>\n",
+                "<threads> <nodes>\n",
                 program);
     exit(1);
 }
@@ -74,7 +74,7 @@ int main(int argc, const char** argv)
 
     RandomForest forest(record.estimators, record.max_depth, record.backend,
                         record.threads, record.nodes);
-    Timer timer;
+    Timer<milli> timer;
     timer.start();
     forest.fit(X, y);
     double train_time = timer.stop("training");
