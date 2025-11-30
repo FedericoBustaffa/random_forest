@@ -6,10 +6,14 @@ for i in 64 128 256 512; do
         echo "estimators: ${i}"
         echo "threads: ${j}"
         if [[ j -eq 1 ]]; then
-            srun -N 1 -n 1 -c $j ./build/rf.out $i 0 "seq" $j $1
+            echo "seq"
+            srun -N 1 -n 1 -c $j ./build/rf.out $i 0 $1 1 "seq" $j 1
         else
-            srun -N 1 -n 1 -c $j ./build/rf.out $i 0 "omp" $j $1
-            srun -N 1 -n 1 -c $j ./build/rf.out $i 0 "ff" $j $1
+            echo "omp"
+            srun -N 1 -n 1 -c $j ./build/rf.out $i 0 $1 1 "omp" $j 1
+
+            echo "ff"
+            srun -N 1 -n 1 -c $j ./build/rf.out $i 0 $1 1 "ff" $j 1
         fi
         echo ""
     done

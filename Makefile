@@ -63,7 +63,7 @@ $(BUILD_DIR)/test_%.o: test/%.cpp
 	$(CXX) $(FLAGS) $(DEPSFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.out: $(OBJECTS) $(BUILD_DIR)/test_%.o
-	$(CXX) $(FLAGS) $^ -o $@
+	$(CXX) $(FLAGS) $^ -o $@ $(LIBS)
 
 -include $(DEPS)
 
