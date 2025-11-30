@@ -12,7 +12,7 @@
 struct Record
 {
     std::string dataset;
-    std::string backend;
+    Backend backend;
     size_t estimators;
     size_t max_depth;
     double accuracy;

@@ -6,31 +6,74 @@
 #include "timer.hpp"
 #include "utils.hpp"
 
+void exit_with_msg(const char* program)
+{
+    std::printf("USAGE: %s <estimators> <max_depth> <filepath> <log> <backend> "
+                "<n_threads> <nodes>\n",
+                program);
+    exit(1);
+}
+
+Record parse(int argc, const char** argv, bool& log)
+{
+    if (argc < 4)
+        exit_with_msg(argv[0]);
+
+    Record record;
+
+    record.estimators = std::stoull(argv[1]);
+    record.max_depth = std::stoull(argv[2]);
+    record.dataset = argv[3];
+    log = std::stoi(argv[4]);
+
+    if (argc == 4)
+    {
+        record.backend = to_backend("seq");
+        record.threads = 1;
+        record.nodes = 1;
+
+        return record;
+    }
+
+    if (argc > 4)
+    {
+        record.backend = to_backend(argv[5]);
+        if (record.backend == Backend::Invalid)
+        {
+            std::printf("[ERROR]: %s is an invalid backend", argv[4]);
+            exit(1);
+        }
+
+        if (record.backend == Backend::Sequential)
+        {
+            record.threads = 1;
+            record.nodes = 1;
+        }
+        else if (record.backend != Backend::MPI)
+        {
+            record.threads = std::stoul(argv[6]);
+            record.nodes = 1;
+        }
+        else
+        {
+            record.threads = std::stoul(argv[6]);
+            record.nodes = std::stoul(argv[7]);
+        }
+    }
+
+    return record;
+}
+
 int main(int argc, const char** argv)
 {
-    if (argc != 6)
-    {
-        std::printf("USAGE: %s <estimators> <max_depth> <backend> <n_threads> "
-                    "<filepath>\n",
-                    argv[0]);
-        return 1;
-    }
+    bool log;
+    Record record = parse(argc, argv, log);
+    DataFrame df = read_csv(record.dataset);
 
-    size_t estimators = std::stoull(argv[1]);
-    size_t max_depth = std::stoull(argv[2]);
-
-    Backend backend = to_backend(argv[3]);
-    if (backend == Backend::Invalid)
-    {
-        std::printf("[ERROR]: %s is an invalid backend", argv[3]);
-        return 1;
-    }
-    size_t n_threads = std::stoul(argv[4]);
-
-    DataFrame df = read_csv(argv[5]);
     auto [X, y] = df.to_vector();
 
-    RandomForest forest(estimators, max_depth, backend, n_threads);
+    RandomForest forest(record.estimators, record.max_depth, record.backend,
+                        record.threads, record.nodes);
     Timer timer;
     timer.start();
     forest.fit(X, y);
@@ -43,37 +86,14 @@ int main(int argc, const char** argv)
     double accuracy = accuracy_score(y_pred, y);
     std::printf("accuracy: %.2f\n", accuracy);
 
-    Record record;
-    record.dataset = argv[5];
-    record.backend = argv[3];
-    record.estimators = estimators;
-    record.max_depth = max_depth;
-    record.accuracy = accuracy;
-    record.train_time = train_time;
-    record.predict_time = predict_time;
-
-    switch (backend)
+    if (log)
     {
-    case Backend::Sequential:
-        record.threads = 1;
-        record.nodes = 1;
-        break;
+        record.accuracy = accuracy;
+        record.train_time = train_time;
+        record.predict_time = predict_time;
 
-    case Backend::OpenMP:
-        record.threads = n_threads;
-        record.nodes = 1;
-        break;
-
-    case Backend::FastFlow:
-        record.threads = n_threads;
-        record.nodes = 1;
-        break;
-
-    default:
-        break;
+        to_json(record);
     }
-
-    to_json(record);
 
     return 0;
 }

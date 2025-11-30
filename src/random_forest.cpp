@@ -4,8 +4,9 @@
 #include <stdexcept>
 
 RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
-                           size_t n_workers)
-    : m_Trees(estimators, max_depth), m_Backend(backend), m_Threads(n_workers)
+                           size_t n_threads, size_t nodes)
+    : m_Trees(estimators, max_depth), m_Backend(backend), m_Threads(n_threads),
+      m_Nodes(nodes)
 {
 }
 

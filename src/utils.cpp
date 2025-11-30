@@ -112,6 +112,27 @@ Backend to_backend(const std::string& s)
     return Backend::Invalid;
 }
 
+std::string to_string(const Backend& backend)
+{
+    switch (backend)
+    {
+    case Backend::Sequential:
+        return "seq";
+
+    case Backend::OpenMP:
+        return "omp";
+
+    case Backend::FastFlow:
+        return "ff";
+
+    case Backend::MPI:
+        return "mpi";
+
+    default:
+        return "";
+    }
+}
+
 void to_json(const Record& record)
 {
     fs::path dir_path = "tmp";
@@ -133,7 +154,8 @@ void to_json(const Record& record)
 
     out << "{\n";
     out << "\t\"dataset\": " << '\"' << record.dataset << '\"' << ",\n";
-    out << "\t\"backend\": " << '\"' << record.backend << '\"' << ",\n";
+    out << "\t\"backend\": " << '\"' << to_string(record.backend) << '\"'
+        << ",\n";
     out << "\t\"estimators\": " << record.estimators << ",\n";
     out << "\t\"max_depth\": " << record.max_depth << ",\n";
     out << "\t\"accuracy\": " << record.accuracy << ",\n";
