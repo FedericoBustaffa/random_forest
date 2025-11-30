@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 
 
-make -j
-
 for i in 64 128 256 512; do
-    for j in 1 2 4 8; do
+    for j in 1 2 4 8 16; do
         echo "estimators: ${i}"
         echo "threads: ${j}"
         if [[ j -eq 1 ]]; then
-            ./build/rf_bm.out $i 0 "seq" $1
+            ./build/rf.out $i 0 $1 1 "seq" $j 1
         else
-            OMP_NUM_THREADS=$j ./build/rf_bm.out $i 0 "omp" $1
+            ./build/rf.out $i 0 $1 1 "omp" $j 1
+            echo ""
+
+            ./build/rf.out $i 0 $1 1 "ff" $j 1
         fi
         echo ""
     done

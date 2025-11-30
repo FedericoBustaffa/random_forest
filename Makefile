@@ -14,7 +14,7 @@ OPTFLAGS = -O3 -march=native -DNDEBUG
 DEPSFLAGS = -MMD -MP
 
 # include directories
-INCLUDES = -I./include/
+INCLUDES = -I./include/ -I./fastflow/
 
 # specify preprocessor definitions
 DEFINES = 
@@ -23,7 +23,7 @@ DEFINES =
 FLAGS = $(CXXFLAGS) $(INCLUDES) $(DEFINES)
 
 # link libraries
-LIBS =
+LIBS = -pthread
 
 # specify source directory
 SOURCES = $(wildcard src/*.cpp)
@@ -63,7 +63,7 @@ $(BUILD_DIR)/test_%.o: test/%.cpp
 	$(CXX) $(FLAGS) $(DEPSFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.out: $(OBJECTS) $(BUILD_DIR)/test_%.o
-	$(CXX) $(FLAGS) $^ -o $@
+	$(CXX) $(FLAGS) $^ -o $@ $(LIBS)
 
 -include $(DEPS)
 

@@ -6,7 +6,7 @@ import pandas as pd
 
 batch = {
     "dataset": [],
-    "policy": [],
+    "backend": [],
     "estimators": [],
     "max_depth": [],
     "accuracy": [],

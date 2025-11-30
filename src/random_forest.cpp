@@ -1,26 +1,36 @@
 #include "random_forest.hpp"
 
 #include <cstdio>
+#include <stdexcept>
 
-RandomForest::RandomForest(size_t estimators, size_t max_depth, Policy policy)
-    : m_Trees(estimators, max_depth), m_Policy(policy)
+RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
+                           size_t n_threads, size_t nodes)
+    : m_Trees(estimators, max_depth), m_Backend(backend), m_Threads(n_threads),
+      m_Nodes(nodes)
 {
 }
 
 void RandomForest::fit(const std::vector<std::vector<double>>& X,
                        const std::vector<uint32_t> y)
 {
-    switch (m_Policy)
+    switch (m_Backend)
     {
-    case Policy::Sequential:
+    case Backend::Sequential:
         seq_fit(X, y);
         break;
 
-    case Policy::OpenMP:
+    case Backend::OpenMP:
         omp_fit(X, y);
         break;
 
-    case Policy::Invalid:
+    case Backend::FastFlow:
+        ff_fit(X, y);
+        break;
+
+    case Backend::MPI:
+        throw std::runtime_error("MPI backend not supported yet");
+
+    default:
         break;
     }
 }
@@ -28,13 +38,19 @@ void RandomForest::fit(const std::vector<std::vector<double>>& X,
 std::vector<uint32_t> RandomForest::predict(
     const std::vector<std::vector<double>>& X)
 {
-    switch (m_Policy)
+    switch (m_Backend)
     {
-    case Policy::Sequential:
+    case Backend::Sequential:
         return seq_predict(X);
 
-    case Policy::OpenMP:
+    case Backend::OpenMP:
         return omp_predict(X);
+
+    case Backend::FastFlow:
+        return ff_predict(X);
+
+    case Backend::MPI:
+        throw std::runtime_error("MPI backend not supported yet");
 
     default:
         return {};

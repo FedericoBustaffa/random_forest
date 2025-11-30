@@ -1,6 +1,7 @@
 #include "utils.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <filesystem>
 #include <fstream>
 #include <numeric>
@@ -80,9 +81,10 @@ std::vector<size_t> bootstrap(size_t n_samples)
     return indices;
 }
 
-double accuracy_score(const std::vector<unsigned int>& predictions,
-                      const std::vector<unsigned int>& correct)
+double accuracy_score(const std::vector<uint32_t>& predictions,
+                      const std::vector<uint32_t>& correct)
 {
+    assert(predictions.size() == correct.size());
     double counter = 0.0;
     for (size_t i = 0; i < predictions.size(); i++)
     {
@@ -93,15 +95,42 @@ double accuracy_score(const std::vector<unsigned int>& predictions,
     return counter / predictions.size();
 }
 
-Policy string_to_policy(const std::string& s)
+Backend to_backend(const std::string& s)
 {
     if (s == "seq")
-        return Policy::Sequential;
+        return Backend::Sequential;
 
     if (s == "omp")
-        return Policy::OpenMP;
+        return Backend::OpenMP;
 
-    return Policy::Invalid;
+    if (s == "ff")
+        return Backend::FastFlow;
+
+    if (s == "mpi")
+        return Backend::MPI;
+
+    return Backend::Invalid;
+}
+
+std::string to_string(const Backend& backend)
+{
+    switch (backend)
+    {
+    case Backend::Sequential:
+        return "seq";
+
+    case Backend::OpenMP:
+        return "omp";
+
+    case Backend::FastFlow:
+        return "ff";
+
+    case Backend::MPI:
+        return "mpi";
+
+    default:
+        return "";
+    }
 }
 
 void to_json(const Record& record)
@@ -125,7 +154,8 @@ void to_json(const Record& record)
 
     out << "{\n";
     out << "\t\"dataset\": " << '\"' << record.dataset << '\"' << ",\n";
-    out << "\t\"policy\": " << '\"' << record.policy << '\"' << ",\n";
+    out << "\t\"backend\": " << '\"' << to_string(record.backend) << '\"'
+        << ",\n";
     out << "\t\"estimators\": " << record.estimators << ",\n";
     out << "\t\"max_depth\": " << record.max_depth << ",\n";
     out << "\t\"accuracy\": " << record.accuracy << ",\n";
