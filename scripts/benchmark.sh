@@ -8,7 +8,9 @@ for i in 64 128 256 512; do
         if [[ j -eq 1 ]]; then
             ./build/rf.out $i 0 $1 1 "seq" $j 1
         else
-            OMP_NUM_THREADS=$j ./build/rf.out $i 0 $1 1 "omp" $j 1
+            ./build/rf.out $i 0 $1 1 "omp" $j 1
+            echo ""
+
             ./build/rf.out $i 0 $1 1 "ff" $j 1
         fi
         echo ""

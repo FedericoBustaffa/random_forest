@@ -7,13 +7,14 @@ for i in 64 128 256 512; do
         echo "threads: ${j}"
         if [[ j -eq 1 ]]; then
             echo "seq"
-            srun -N 1 -n 1 -c $j ./build/rf.out $i 0 $1 1 "seq" $j 1
+            srun -N 1 -n 1 -c 32 ./build/rf.out $i 0 $1 1 "seq" $j 1
         else
             echo "omp"
-            srun -N 1 -n 1 -c $j ./build/rf.out $i 0 $1 1 "omp" $j 1
+            srun -N 1 -n 1 -c 32 ./build/rf.out $i 0 $1 1 "omp" $j 1
+            echo ""
 
             echo "ff"
-            srun -N 1 -n 1 -c $j ./build/rf.out $i 0 $1 1 "ff" $j 1
+            srun -N 1 -n 1 -c 32 ./build/rf.out $i 0 $1 1 "ff" $j 1
         fi
         echo ""
     done

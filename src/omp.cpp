@@ -6,7 +6,7 @@ void RandomForest::omp_fit(const std::vector<std::vector<double>>& X,
                            const std::vector<uint32_t> y)
 {
     auto T = transpose(X);
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic) num_threads(m_Threads)
     for (size_t i = 0; i < m_Trees.size(); i++)
     {
         std::vector<size_t> indices = bootstrap(T[0].size());
@@ -19,13 +19,13 @@ std::vector<uint32_t> RandomForest::omp_predict(
 {
     // predict the same batch in parallel
     std::vector<std::vector<uint32_t>> y(m_Trees.size());
-#pragma omp parallel for
+#pragma omp parallel for num_threads(m_Threads)
     for (size_t i = 0; i < m_Trees.size(); i++)
         y[i] = m_Trees[i].predict(X);
 
     // count votes
     std::vector<std::unordered_map<uint32_t, size_t>> counters(y[0].size());
-#pragma omp parallel for
+#pragma omp parallel for num_threads(m_Threads)
     for (size_t i = 0; i < counters.size(); i++)
     {
         for (size_t j = 0; j < y.size(); j++)
@@ -37,7 +37,7 @@ std::vector<uint32_t> RandomForest::omp_predict(
 
     // compute majority
     std::vector<uint32_t> prediction(counters.size());
-#pragma omp parallel for
+#pragma omp parallel for num_threads(m_Threads)
     for (size_t i = 0; i < counters.size(); i++)
     {
         uint32_t value = 0;
