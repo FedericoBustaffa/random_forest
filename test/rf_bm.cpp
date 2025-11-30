@@ -44,7 +44,7 @@ int main(int argc, const char** argv)
     std::printf("accuracy: %.2f\n", accuracy);
 
     Record record;
-    record.dataset = argv[4];
+    record.dataset = argv[5];
     record.backend = argv[3];
     record.estimators = estimators;
     record.max_depth = max_depth;
