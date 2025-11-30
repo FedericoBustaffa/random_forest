@@ -16,7 +16,7 @@ void exit_with_msg(const char* program)
 
 Record parse(int argc, const char** argv, bool& log)
 {
-    if (argc < 4)
+    if (argc < 5)
         exit_with_msg(argv[0]);
 
     Record record;
@@ -26,7 +26,7 @@ Record parse(int argc, const char** argv, bool& log)
     record.dataset = argv[3];
     log = std::stoi(argv[4]);
 
-    if (argc == 4)
+    if (argc == 5)
     {
         record.backend = to_backend("seq");
         record.threads = 1;
@@ -35,7 +35,7 @@ Record parse(int argc, const char** argv, bool& log)
         return record;
     }
 
-    if (argc > 4)
+    if (argc > 5)
     {
         record.backend = to_backend(argv[5]);
         if (record.backend == Backend::Invalid)
