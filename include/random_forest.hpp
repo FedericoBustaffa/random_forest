@@ -41,6 +41,9 @@ private:
     void ff_fit(const std::vector<std::vector<double>>& X,
                 const std::vector<uint32_t> y);
 
+    void mpi_fit(const std::vector<std::vector<double>>& X,
+                 const std::vector<uint32_t> y);
+
     std::vector<uint32_t> seq_predict(
         const std::vector<std::vector<double>>& X);
 
@@ -48,6 +51,9 @@ private:
         const std::vector<std::vector<double>>& X);
 
     std::vector<uint32_t> ff_predict(const std::vector<std::vector<double>>& X);
+
+    std::vector<uint32_t> mpi_predict(
+        const std::vector<std::vector<double>>& X);
 
 private:
     std::vector<DecisionTree> m_Trees;
