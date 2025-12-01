@@ -23,8 +23,9 @@ std::vector<uint32_t> RandomForest::omp_predict(
     for (size_t i = 0; i < m_Trees.size(); i++)
         y[i] = m_Trees[i].predict(X);
 
-    // count votes
+    // count votes and compute majority
     std::vector<std::unordered_map<uint32_t, size_t>> counters(y[0].size());
+    std::vector<uint32_t> prediction(counters.size());
 #pragma omp parallel for num_threads(m_Threads)
     for (size_t i = 0; i < counters.size(); i++)
     {
@@ -33,13 +34,7 @@ std::vector<uint32_t> RandomForest::omp_predict(
             const std::vector<uint32_t>& pred = y[j];
             counters[i][pred[i]]++;
         }
-    }
 
-    // compute majority
-    std::vector<uint32_t> prediction(counters.size());
-#pragma omp parallel for num_threads(m_Threads)
-    for (size_t i = 0; i < counters.size(); i++)
-    {
         uint32_t value = 0;
         size_t counter = 0;
         for (const auto& kv : counters[i])

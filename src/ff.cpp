@@ -6,28 +6,39 @@
 
 using namespace ff;
 
-struct Task
-{
-    const std::vector<std::vector<double>>& X;
-    const std::vector<uint32_t>& y;
-    DecisionTree& tree;
-};
-
-class Source : public ff_node_t<Task>
+class Source : public ff_node_t<size_t>
 {
 public:
-    Source(const std::vector<std::vector<double>>& X,
+    Source(size_t n_jobs) : n_jobs(n_jobs) {}
+
+    size_t* svc(size_t* in) override
+    {
+        for (size_t i = 0; i < n_jobs; i++)
+            ff_send_out(new size_t(i));
+
+        return EOS;
+    }
+
+private:
+    size_t n_jobs;
+};
+
+class Fitter : public ff_node_t<size_t>
+{
+public:
+    Fitter(const std::vector<std::vector<double>>& X,
            const std::vector<uint32_t>& y, std::vector<DecisionTree>& trees)
         : X(X), y(y), trees(trees)
     {
     }
 
-    Task* svc(Task* task) override
+    size_t* svc(size_t* i) override
     {
-        for (size_t i = 0; i < trees.size(); i++)
-            ff_send_out(new Task(X, y, trees[i]));
+        std::vector<size_t> indices = bootstrap(X[0].size());
+        trees[*i].fit(X, y, indices);
+        delete i;
 
-        return EOS;
+        return GO_ON;
     }
 
 private:
@@ -36,64 +47,67 @@ private:
     std::vector<DecisionTree>& trees;
 };
 
-class Worker : public ff_node_t<Task>
-{
-public:
-    Task* svc(Task* task) override
-    {
-        std::vector<size_t> indices = bootstrap(task->X[0].size());
-        task->tree.fit(task->X, task->y, indices);
-        delete task;
-
-        return GO_ON;
-    }
-};
-
 void RandomForest::ff_fit(const std::vector<std::vector<double>>& X,
                           const std::vector<uint32_t> y)
 {
     auto T = transpose(X);
 
-    Source source(T, y, m_Trees);
+    Source source(m_Trees.size());
 
     std::vector<std::unique_ptr<ff_node>> workers;
     for (size_t i = 0; i < m_Threads; i++)
-        workers.push_back(std::make_unique<Worker>());
+        workers.push_back(std::make_unique<Fitter>(T, y, m_Trees));
 
-    ff_Farm<Task> farm(std::move(workers), source);
+    ff_Farm<size_t> farm(std::move(workers), source);
     farm.remove_collector();
     farm.run_and_wait_end();
 }
 
-std::vector<uint32_t> RandomForest::ff_predict(
-    const std::vector<std::vector<double>>& X)
+class Predicter : public ff_node_t<size_t>
 {
-    // predict the same batch in parallel
-    std::vector<std::vector<uint32_t>> y(m_Trees.size());
-#pragma omp parallel for
-    for (size_t i = 0; i < m_Trees.size(); i++)
-        y[i] = m_Trees[i].predict(X);
+public:
+    Predicter(const std::vector<std::vector<double>>& X,
+              std::vector<std::vector<uint32_t>>& y,
+              std::vector<DecisionTree>& trees)
+        : X(X), y(y), trees(trees)
+    {
+    }
 
-    // count votes
-    std::vector<std::unordered_map<uint32_t, size_t>> counters(y[0].size());
-#pragma omp parallel for
-    for (size_t i = 0; i < counters.size(); i++)
+    size_t* svc(size_t* i) override
+    {
+        y[*i] = trees[*i].predict(X);
+        delete i;
+
+        return GO_ON;
+    }
+
+private:
+    const std::vector<std::vector<double>>& X;
+    std::vector<std::vector<uint32_t>>& y;
+    std::vector<DecisionTree>& trees;
+};
+
+class VoteCounter : public ff_node_t<size_t>
+{
+public:
+    VoteCounter(const std::vector<std::vector<uint32_t>>& y,
+                std::vector<std::unordered_map<uint32_t, size_t>>& votes,
+                std::vector<uint32_t>& prediction)
+        : y(y), votes(votes), prediction(prediction)
+    {
+    }
+
+    size_t* svc(size_t* i) override
     {
         for (size_t j = 0; j < y.size(); j++)
         {
             const std::vector<uint32_t>& pred = y[j];
-            counters[i][pred[i]]++;
+            votes[*i][pred[*i]]++;
         }
-    }
 
-    // compute majority
-    std::vector<uint32_t> prediction(counters.size());
-#pragma omp parallel for
-    for (size_t i = 0; i < counters.size(); i++)
-    {
         uint32_t value = 0;
         size_t counter = 0;
-        for (const auto& kv : counters[i])
+        for (const auto& kv : votes[*i])
         {
             if (kv.second > counter)
             {
@@ -101,8 +115,46 @@ std::vector<uint32_t> RandomForest::ff_predict(
                 value = kv.first;
             }
         }
-        prediction[i] = value;
+        prediction[*i] = value;
+
+        delete i;
+
+        return GO_ON;
     }
+
+private:
+    const std::vector<std::vector<uint32_t>>& y;
+    std::vector<std::unordered_map<uint32_t, size_t>>& votes;
+    std::vector<uint32_t>& prediction;
+};
+
+std::vector<uint32_t> RandomForest::ff_predict(
+    const std::vector<std::vector<double>>& X)
+{
+    // predict the same batch in parallel
+    Source tree_source(m_Trees.size());
+
+    std::vector<std::vector<uint32_t>> y(m_Trees.size());
+    std::vector<std::unique_ptr<ff_node>> predicters;
+    for (size_t i = 0; i < m_Threads; i++)
+        predicters.push_back(std::make_unique<Predicter>(X, y, m_Trees));
+    ff_Farm<size_t> predict_farm(std::move(predicters), tree_source);
+
+    predict_farm.remove_collector();
+    predict_farm.run_and_wait_end();
+
+    // count votes and compute majority
+    std::vector<std::unordered_map<uint32_t, size_t>> votes(y[0].size());
+    std::vector<uint32_t> prediction(votes.size());
+
+    Source votes_source(votes.size());
+    std::vector<std::unique_ptr<ff_node>> counters;
+    for (size_t i = 0; i < m_Threads; i++)
+        counters.push_back(std::make_unique<VoteCounter>(y, votes, prediction));
+    ff_Farm<size_t> counter_farm(std::move(counters), votes_source);
+
+    counter_farm.remove_collector();
+    counter_farm.run_and_wait_end();
 
     return prediction;
 }
