@@ -1,5 +1,5 @@
 # compiler
-CXX = g++
+CXX = mpic++
 
 # general flags
 CXXFLAGS = -Wall -std=c++20 -fopenmp

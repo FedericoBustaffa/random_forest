@@ -19,7 +19,7 @@ class RandomForest
 {
 public:
     RandomForest(size_t estimators, size_t max_depth = 0,
-                 Backend backend = Backend::Sequential, size_t n_threads = 1,
+                 Backend backend = Backend::Sequential, size_t threads = 1,
                  size_t nodes = 1);
 
     void fit(const std::vector<std::vector<double>>& X,

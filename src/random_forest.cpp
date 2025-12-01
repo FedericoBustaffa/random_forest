@@ -3,8 +3,8 @@
 #include <cstdio>
 
 RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
-                           size_t n_threads, size_t nodes)
-    : m_Trees(estimators, max_depth), m_Backend(backend), m_Threads(n_threads),
+                           size_t threads, size_t nodes)
+    : m_Trees(estimators, max_depth), m_Backend(backend), m_Threads(threads),
       m_Nodes(nodes)
 {
 }
