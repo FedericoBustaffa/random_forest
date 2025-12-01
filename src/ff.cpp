@@ -87,12 +87,13 @@ private:
     std::vector<DecisionTree>& trees;
 };
 
-class Counter : public ff_node_t<size_t>
+class VoteCounter : public ff_node_t<size_t>
 {
 public:
-    Counter(const std::vector<std::vector<uint32_t>>& y,
-            std::vector<std::unordered_map<uint32_t, size_t>>& votes)
-        : y(y), votes(votes)
+    VoteCounter(const std::vector<std::vector<uint32_t>>& y,
+                std::vector<std::unordered_map<uint32_t, size_t>>& votes,
+                std::vector<uint32_t>& prediction)
+        : y(y), votes(votes), prediction(prediction)
     {
     }
 
@@ -104,6 +105,18 @@ public:
             votes[*i][pred[*i]]++;
         }
 
+        uint32_t value = 0;
+        size_t counter = 0;
+        for (const auto& kv : votes[*i])
+        {
+            if (kv.second > counter)
+            {
+                counter = kv.second;
+                value = kv.first;
+            }
+        }
+        prediction[*i] = value;
+
         delete i;
 
         return GO_ON;
@@ -112,6 +125,7 @@ public:
 private:
     const std::vector<std::vector<uint32_t>>& y;
     std::vector<std::unordered_map<uint32_t, size_t>>& votes;
+    std::vector<uint32_t>& prediction;
 };
 
 std::vector<uint32_t> RandomForest::ff_predict(
@@ -129,34 +143,18 @@ std::vector<uint32_t> RandomForest::ff_predict(
     predict_farm.remove_collector();
     predict_farm.run_and_wait_end();
 
-    // count votes
+    // count votes and compute majority
     std::vector<std::unordered_map<uint32_t, size_t>> votes(y[0].size());
-    Source votes_source(y[0].size());
+    std::vector<uint32_t> prediction(votes.size());
+
+    Source votes_source(votes.size());
     std::vector<std::unique_ptr<ff_node>> counters;
     for (size_t i = 0; i < m_Threads; i++)
-        counters.push_back(std::make_unique<Counter>(y, votes));
+        counters.push_back(std::make_unique<VoteCounter>(y, votes, prediction));
     ff_Farm<size_t> counter_farm(std::move(counters), votes_source);
 
     counter_farm.remove_collector();
     counter_farm.run_and_wait_end();
-
-    // compute majority
-    std::vector<uint32_t> prediction(votes.size());
-#pragma omp parallel for
-    for (size_t i = 0; i < votes.size(); i++)
-    {
-        uint32_t value = 0;
-        size_t counter = 0;
-        for (const auto& kv : votes[i])
-        {
-            if (kv.second > counter)
-            {
-                counter = kv.second;
-                value = kv.first;
-            }
-        }
-        prediction[i] = value;
-    }
 
     return prediction;
 }
