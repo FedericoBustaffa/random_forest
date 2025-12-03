@@ -67,12 +67,15 @@ Record parse(int argc, char** argv, bool& log)
 
 int main(int argc, char** argv)
 {
+    // CLI args parsing
     bool log;
     Record record = parse(argc, argv, log);
-    DataFrame df = read_csv(record.dataset);
 
+    // get the dataset
+    DataFrame df = read_csv(record.dataset);
     auto [X, y] = df.to_vector();
 
+    // initialize MPI if needed
     if (record.backend == Backend::MPI)
         MPI_Init(&argc, &argv);
 
