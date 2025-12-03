@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <mpi.h>
 
 #include "csv.hpp"
 #include "dataframe.hpp"
@@ -14,7 +15,7 @@ void exit_with_msg(const char* program)
     exit(1);
 }
 
-Record parse(int argc, const char** argv, bool& log)
+Record parse(int argc, char** argv, bool& log)
 {
     if (argc < 5)
         exit_with_msg(argv[0]);
@@ -64,7 +65,7 @@ Record parse(int argc, const char** argv, bool& log)
     return record;
 }
 
-int main(int argc, const char** argv)
+int main(int argc, char** argv)
 {
     bool log;
     Record record = parse(argc, argv, log);
@@ -72,11 +73,15 @@ int main(int argc, const char** argv)
 
     auto [X, y] = df.to_vector();
 
+    if (record.backend == Backend::MPI)
+        MPI_Init(&argc, &argv);
+
     RandomForest forest(record.estimators, record.max_depth, record.backend,
                         record.threads, record.nodes);
     Timer<milli> timer;
     timer.start();
     forest.fit(X, y);
+
     double train_time = timer.stop("training");
 
     timer.start();
@@ -94,6 +99,9 @@ int main(int argc, const char** argv)
 
         to_json(record);
     }
+
+    if (record.backend == Backend::MPI)
+        MPI_Finalize();
 
     return 0;
 }

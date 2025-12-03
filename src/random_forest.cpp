@@ -1,12 +1,11 @@
 #include "random_forest.hpp"
 
 #include <cstdio>
-#include <stdexcept>
 
 RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
-                           size_t n_threads, size_t nodes)
-    : m_Trees(estimators, max_depth), m_Backend(backend), m_Threads(n_threads),
-      m_Nodes(nodes)
+                           size_t threads, size_t nodes)
+    : m_Trees(estimators / nodes, max_depth), m_Backend(backend),
+      m_Threads(threads), m_Nodes(nodes)
 {
 }
 
@@ -28,7 +27,8 @@ void RandomForest::fit(const std::vector<std::vector<double>>& X,
         break;
 
     case Backend::MPI:
-        throw std::runtime_error("MPI backend not supported yet");
+        mpi_fit(X, y);
+        break;
 
     default:
         break;
@@ -50,7 +50,7 @@ std::vector<uint32_t> RandomForest::predict(
         return ff_predict(X);
 
     case Backend::MPI:
-        throw std::runtime_error("MPI backend not supported yet");
+        return mpi_predict(X);
 
     default:
         return {};
