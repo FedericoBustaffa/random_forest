@@ -11,4 +11,8 @@ echo ""
 
 echo "--- fastflow ---"
 ./build/rf.out $1 0 $2 0 "ff" $3 1
+echo ""
 
+
+echo "--- mpi ---"
+mpirun -n $4 ./build/rf.out $1 0 $2 0 "omp" $3 $4

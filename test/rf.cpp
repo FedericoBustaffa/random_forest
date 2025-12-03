@@ -81,6 +81,7 @@ int main(int argc, char** argv)
     Timer<milli> timer;
     timer.start();
     forest.fit(X, y);
+
     double train_time = timer.stop("training");
 
     timer.start();
