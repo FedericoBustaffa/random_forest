@@ -74,6 +74,9 @@ int main(int argc, char** argv)
     // get the dataset
     DataFrame df = read_csv(record.dataset);
     auto [X, y] = df.to_vector();
+    auto [train_idx, test_idx] = train_test_split(X.size(), 0.2);
+    auto [X_train, X_test] = split(X, train_idx, test_idx);
+    auto [y_train, y_test] = split(y, train_idx, test_idx);
 
     // initialize MPI if needed
     if (record.backend == Backend::MPI)
@@ -83,22 +86,28 @@ int main(int argc, char** argv)
                         record.threads, record.nodes);
     Timer<milli> timer;
     timer.start();
-    forest.fit(X, y);
-
+    forest.fit(X_train, y_train);
     double train_time = timer.stop("training");
 
     timer.start();
-    std::vector<uint32_t> y_pred = forest.predict(X);
-    double predict_time = timer.stop("prediction");
+    std::vector<uint32_t> train_pred = forest.predict(X_train);
+    double train_predict_time = timer.stop("train prediction");
 
-    double accuracy = accuracy_score(y_pred, y);
-    std::printf("accuracy: %.2f\n", accuracy);
+    timer.start();
+    std::vector<uint32_t> test_pred = forest.predict(X_test);
+    timer.stop("test prediction");
+
+    double train_accuracy = accuracy_score(train_pred, y_train);
+    std::printf("train accuracy: %.2f\n", train_accuracy);
+
+    double test_accuracy = accuracy_score(test_pred, y_test);
+    std::printf("test accuracy: %.2f\n", test_accuracy);
 
     if (log)
     {
-        record.accuracy = accuracy;
+        record.accuracy = train_accuracy;
         record.train_time = train_time;
-        record.predict_time = predict_time;
+        record.predict_time = train_predict_time;
 
         to_json(record);
     }

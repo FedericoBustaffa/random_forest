@@ -68,6 +68,25 @@ uint32_t majority(const std::vector<uint32_t>& y, std::vector<size_t>& indices)
     return value;
 }
 
+std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
+    size_t n_samples, float test_size)
+{
+    std::random_device rd;
+    std::mt19937 engine(rd());
+
+    std::vector<size_t> indices(n_samples);
+    std::iota(indices.begin(), indices.end(), 0);
+    std::shuffle(indices.begin(), indices.end(), engine);
+
+    std::vector<size_t> train_indices(indices.begin(),
+                                      indices.begin() + n_samples * test_size);
+
+    std::vector<size_t> test_indices(indices.begin() + n_samples * test_size,
+                                     indices.end());
+
+    return {train_indices, test_indices};
+}
+
 std::vector<size_t> bootstrap(size_t n_samples)
 {
     std::random_device rd;
