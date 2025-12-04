@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-for i in 64 128 256 512; do
+for i in 32 64 128 256; do
     for j in 1 2 4 8 16; do
         echo "estimators: ${i}"
         echo "threads: ${j}"
