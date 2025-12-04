@@ -78,11 +78,9 @@ std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
     std::iota(indices.begin(), indices.end(), 0);
     std::shuffle(indices.begin(), indices.end(), engine);
 
-    std::vector<size_t> train_indices(indices.begin(),
-                                      indices.begin() + n_samples * test_size);
-
-    std::vector<size_t> test_indices(indices.begin() + n_samples * test_size,
-                                     indices.end());
+    size_t n_test = static_cast<size_t>(n_samples * test_size);
+    std::vector<size_t> train_indices(indices.begin() + n_test, indices.end());
+    std::vector<size_t> test_indices(indices.begin(), indices.begin() + n_test);
 
     return {train_indices, test_indices};
 }
