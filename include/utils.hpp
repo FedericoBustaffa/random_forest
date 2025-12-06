@@ -58,6 +58,9 @@ std::vector<size_t> bootstrap(size_t n_samples);
 double accuracy_score(const std::vector<uint32_t>& predictions,
                       const std::vector<uint32_t>& correct);
 
+double f1_score(const std::vector<uint32_t>& predictions,
+                const std::vector<uint32_t>& correct);
+
 Backend to_backend(const std::string& s);
 
 void to_json(const Record& record);

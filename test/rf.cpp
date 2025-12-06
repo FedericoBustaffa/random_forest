@@ -100,8 +100,14 @@ int main(int argc, char** argv)
     double train_accuracy = accuracy_score(train_pred, y_train);
     std::printf("train accuracy: %.2f\n", train_accuracy);
 
+    double train_f1 = f1_score(train_pred, y_train);
+    std::printf("train f1: %.2f\n", train_f1);
+
     double test_accuracy = accuracy_score(test_pred, y_test);
     std::printf("test accuracy: %.2f\n", test_accuracy);
+
+    double test_f1 = f1_score(test_pred, y_test);
+    std::printf("test f1: %.2f\n", test_f1);
 
     if (log)
     {
