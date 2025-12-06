@@ -2,14 +2,9 @@
 
 #include <algorithm>
 #include <cassert>
-#include <filesystem>
-#include <fstream>
 #include <numeric>
 #include <random>
-#include <set>
 #include <vector>
-
-namespace fs = std::filesystem;
 
 std::vector<size_t> argsort(const std::vector<double>& v,
                             const std::vector<size_t>& indices)
@@ -99,68 +94,6 @@ std::vector<size_t> bootstrap(size_t n_samples)
     return indices;
 }
 
-double accuracy_score(const std::vector<uint32_t>& predictions,
-                      const std::vector<uint32_t>& correct)
-{
-    assert(predictions.size() == correct.size());
-    double counter = 0.0;
-    for (size_t i = 0; i < predictions.size(); i++)
-    {
-        if (predictions[i] == correct[i])
-            counter++;
-    }
-
-    return counter / predictions.size();
-}
-
-double f1_score(const std::vector<uint32_t>& predictions,
-                const std::vector<uint32_t>& correct)
-{
-    assert(predictions.size() == correct.size());
-    std::set<uint32_t> labels(correct.begin(), correct.end());
-    double total_f1 = 0.0;
-
-    for (const auto& label : labels)
-    {
-        size_t tp = 0;
-        size_t fp = 0;
-        size_t fn = 0;
-
-        for (size_t i = 0; i < predictions.size(); i++)
-        {
-            if (predictions[i] == label)
-            {
-                // positives
-                if (predictions[i] == correct[i])
-                {
-                    // true positive
-                    tp++;
-                }
-                else
-                {
-                    // false positive
-                    fp++;
-                }
-            }
-            else
-            {
-                // negatives
-                if (predictions[i] != correct[i])
-                {
-                    // false negative
-                    fn++;
-                }
-            }
-        }
-
-        double precision = (double)tp / (tp + fp);
-        double recall = (double)tp / (tp + fn);
-        total_f1 += (2 * precision * recall) / (precision + recall);
-    }
-
-    return total_f1 / labels.size();
-}
-
 Backend to_backend(const std::string& s)
 {
     if (s == "seq")
@@ -176,58 +109,4 @@ Backend to_backend(const std::string& s)
         return Backend::MPI;
 
     return Backend::Invalid;
-}
-
-std::string to_string(const Backend& backend)
-{
-    switch (backend)
-    {
-    case Backend::Sequential:
-        return "seq";
-
-    case Backend::OpenMP:
-        return "omp";
-
-    case Backend::FastFlow:
-        return "ff";
-
-    case Backend::MPI:
-        return "mpi";
-
-    default:
-        return "";
-    }
-}
-
-void to_json(const Record& record)
-{
-    fs::path dir_path = "tmp";
-    if (!fs::exists(dir_path))
-        fs::create_directory(dir_path);
-
-    size_t nfiles = 0;
-    for (const auto& f : fs::directory_iterator(dir_path))
-    {
-        std::string name = f.path().filename();
-        nfiles++;
-    }
-
-    std::stringstream ss;
-    ss << dir_path.c_str() << "/";
-    ss << "result_" << std::setw(0) << std::setfill('0') << nfiles << ".json";
-
-    std::ofstream out(ss.str());
-
-    out << "{\n";
-    out << "\t\"dataset\": " << '\"' << record.dataset << '\"' << ",\n";
-    out << "\t\"backend\": " << '\"' << to_string(record.backend) << '\"'
-        << ",\n";
-    out << "\t\"estimators\": " << record.estimators << ",\n";
-    out << "\t\"max_depth\": " << record.max_depth << ",\n";
-    out << "\t\"accuracy\": " << record.accuracy << ",\n";
-    out << "\t\"train_time\": " << record.train_time << ",\n";
-    out << "\t\"predict_time\": " << record.predict_time << ",\n";
-    out << "\t\"threads\": " << record.threads << ",\n";
-    out << "\t\"nodes\": " << record.nodes << "\n";
-    out << "}\n";
 }

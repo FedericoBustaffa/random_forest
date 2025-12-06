@@ -2,17 +2,16 @@
 
 
 echo "--- sequential ---"
-./build/rf.out $1 $2 $3 0 "seq" $4 1
+./build/rf.out $1 $2 "seq" $3 $4 $5 0
 echo ""
 
 echo "--- openmp ---"
-./build/rf.out $1 $2 $3 0 "omp" $4 1
+./build/rf.out $1 $2 "omp" $3 $4 $5 0
 echo ""
 
 echo "--- fastflow ---"
-./build/rf.out $1 $2 $3 0 "ff" $4 1
+./build/rf.out $1 $2 "ff" $3 $4 $5 0
 echo ""
 
-
 echo "--- mpi ---"
-mpirun -n $4 ./build/rf.out $1 $2 $3 0 "omp" $4 $5
+mpirun -n $4 ./build/rf.out $1 $2 "mpi" $3 $4 $5 0

@@ -9,19 +9,6 @@
 
 #include "random_forest.hpp"
 
-struct Record
-{
-    std::string dataset;
-    Backend backend;
-    size_t estimators;
-    size_t max_depth;
-    double accuracy;
-    double train_time;
-    double predict_time;
-    size_t threads;
-    size_t nodes;
-};
-
 std::vector<size_t> argsort(const std::vector<double>& v,
                             const std::vector<size_t>& indices);
 
@@ -55,14 +42,6 @@ std::pair<std::vector<T>, std::vector<T>> split(
 
 std::vector<size_t> bootstrap(size_t n_samples);
 
-double accuracy_score(const std::vector<uint32_t>& predictions,
-                      const std::vector<uint32_t>& correct);
-
-double f1_score(const std::vector<uint32_t>& predictions,
-                const std::vector<uint32_t>& correct);
-
 Backend to_backend(const std::string& s);
-
-void to_json(const Record& record);
 
 #endif
