@@ -8,7 +8,7 @@ RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
 }
 
 void RandomForest::fit(const std::vector<std::vector<double>>& X,
-                       const std::vector<uint32_t> y)
+                       const std::vector<uint32_t>& y)
 {
     switch (m_Backend)
     {

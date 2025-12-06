@@ -23,7 +23,7 @@ public:
                  size_t nodes = 1);
 
     void fit(const std::vector<std::vector<double>>& X,
-             const std::vector<uint32_t> y);
+             const std::vector<uint32_t>& y);
 
     std::vector<uint32_t> predict(const std::vector<std::vector<double>>& X);
 
@@ -33,16 +33,16 @@ public:
 
 private:
     void seq_fit(const std::vector<std::vector<double>>& X,
-                 const std::vector<uint32_t> y);
+                 const std::vector<uint32_t>& y);
 
     void omp_fit(const std::vector<std::vector<double>>& X,
-                 const std::vector<uint32_t> y);
+                 const std::vector<uint32_t>& y);
 
     void ff_fit(const std::vector<std::vector<double>>& X,
-                const std::vector<uint32_t> y);
+                const std::vector<uint32_t>& y);
 
     void mpi_fit(const std::vector<std::vector<double>>& X,
-                 const std::vector<uint32_t> y);
+                 const std::vector<uint32_t>& y);
 
     std::vector<uint32_t> seq_predict(
         const std::vector<std::vector<double>>& X);

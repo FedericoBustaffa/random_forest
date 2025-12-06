@@ -3,7 +3,7 @@
 #include "utils.hpp"
 
 void RandomForest::seq_fit(const std::vector<std::vector<double>>& X,
-                           const std::vector<uint32_t> y)
+                           const std::vector<uint32_t>& y)
 {
     auto T = transpose(X);
     for (size_t i = 0; i < m_Trees.size(); i++)

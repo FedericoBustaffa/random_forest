@@ -48,7 +48,7 @@ private:
 };
 
 void RandomForest::ff_fit(const std::vector<std::vector<double>>& X,
-                          const std::vector<uint32_t> y)
+                          const std::vector<uint32_t>& y)
 {
     auto T = transpose(X);
 

@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     rf = RandomForestClassifier(
         n_estimators=args.estimators,
-        criterion="gini",
+        criterion="entropy",
         max_depth=max_depth,
         max_features=None,
         n_jobs=args.njobs,
@@ -35,11 +35,11 @@ if __name__ == "__main__":
     train_f1 = f1_score(y_train, train_pred, average="macro")
 
     print(f"train accuracy: {train_accuracy:.2f}")
-    print(f"train f1: {train_f1}")
+    print(f"train f1: {train_f1:.2f}")
 
     test_pred = rf.predict(X_test)
     test_accuracy = accuracy_score(y_test, test_pred)
     test_f1 = f1_score(y_test, test_pred, average="macro")
 
     print(f"test accuracy: {test_accuracy:.2f}")
-    print(f"test f1: {test_f1}")
+    print(f"test f1: {test_f1:.2f}")

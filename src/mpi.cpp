@@ -1,10 +1,11 @@
 #include "random_forest.hpp"
 
+#include <cstdio>
 #include <mpi.h>
 #include <unordered_map>
 
 void RandomForest::mpi_fit(const std::vector<std::vector<double>>& X,
-                           const std::vector<uint32_t> y)
+                           const std::vector<uint32_t>& y)
 {
     omp_fit(X, y);
 }

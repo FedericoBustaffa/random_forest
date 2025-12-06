@@ -3,7 +3,7 @@
 #include "utils.hpp"
 
 void RandomForest::omp_fit(const std::vector<std::vector<double>>& X,
-                           const std::vector<uint32_t> y)
+                           const std::vector<uint32_t>& y)
 {
     auto T = transpose(X);
 #pragma omp parallel for schedule(dynamic) num_threads(m_Threads)

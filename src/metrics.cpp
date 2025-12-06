@@ -22,7 +22,10 @@ double f1_score(const std::vector<uint32_t>& predictions,
 {
     assert(predictions.size() == correct.size());
     std::set<uint32_t> labels(correct.begin(), correct.end());
+    labels.insert(predictions.begin(), predictions.end());
+
     double total_f1 = 0.0;
+    size_t valid_labels = 0;
 
     for (const auto& label : labels)
     {
@@ -32,35 +35,38 @@ double f1_score(const std::vector<uint32_t>& predictions,
 
         for (size_t i = 0; i < predictions.size(); i++)
         {
-            if (predictions[i] == label)
+            if (label == predictions[i])
             {
-                // positives
-                if (predictions[i] == correct[i])
-                {
-                    // true positive
-                    tp++;
-                }
+                if (label == correct[i])
+                    tp++; // true positive
                 else
-                {
-                    // false positive
-                    fp++;
-                }
+                    fp++; // false positive
             }
             else
             {
-                // negatives
-                if (predictions[i] != correct[i])
-                {
-                    // false negative
-                    fn++;
-                }
+                if (label == correct[i])
+                    fn++; // false negative
             }
         }
 
-        double precision = (double)tp / (tp + fp);
-        double recall = (double)tp / (tp + fn);
-        total_f1 += (2 * precision * recall) / (precision + recall);
+        if (tp == 0 && fp == 0 && fn == 0)
+            continue;
+
+        double precision = 0.0;
+        if (tp + fp > 0)
+            precision = (double)tp / (tp + fp);
+
+        double recall = 0.0;
+        if (tp + fn > 0)
+            recall = (double)tp / (tp + fn);
+
+        double f1 = 0.0;
+        if (precision + recall > 0)
+            f1 = (2 * precision * recall) / (precision + recall);
+
+        total_f1 += f1;
+        valid_labels++;
     }
 
-    return total_f1 / labels.size();
+    return valid_labels == 0 ? 0.0 : total_f1 / valid_labels;
 }
