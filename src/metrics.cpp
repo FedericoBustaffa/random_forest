@@ -1,6 +1,7 @@
 #include "metrics.hpp"
 
 #include <cassert>
+#include <cstddef>
 #include <set>
 
 double accuracy_score(const std::vector<uint32_t>& predictions,
