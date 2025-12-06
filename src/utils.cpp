@@ -2,13 +2,9 @@
 
 #include <algorithm>
 #include <cassert>
-#include <filesystem>
-#include <fstream>
 #include <numeric>
 #include <random>
 #include <vector>
-
-namespace fs = std::filesystem;
 
 std::vector<size_t> argsort(const std::vector<double>& v,
                             const std::vector<size_t>& indices)
@@ -68,6 +64,23 @@ uint32_t majority(const std::vector<uint32_t>& y, std::vector<size_t>& indices)
     return value;
 }
 
+std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
+    size_t n_samples, float test_size)
+{
+    std::random_device rd;
+    std::mt19937 engine(rd());
+
+    std::vector<size_t> indices(n_samples);
+    std::iota(indices.begin(), indices.end(), 0);
+    std::shuffle(indices.begin(), indices.end(), engine);
+
+    size_t n_test = static_cast<size_t>(n_samples * test_size);
+    std::vector<size_t> train_indices(indices.begin() + n_test, indices.end());
+    std::vector<size_t> test_indices(indices.begin(), indices.begin() + n_test);
+
+    return {train_indices, test_indices};
+}
+
 std::vector<size_t> bootstrap(size_t n_samples)
 {
     std::random_device rd;
@@ -79,20 +92,6 @@ std::vector<size_t> bootstrap(size_t n_samples)
         indices[i] = dist(rng);
 
     return indices;
-}
-
-double accuracy_score(const std::vector<uint32_t>& predictions,
-                      const std::vector<uint32_t>& correct)
-{
-    assert(predictions.size() == correct.size());
-    double counter = 0.0;
-    for (size_t i = 0; i < predictions.size(); i++)
-    {
-        if (predictions[i] == correct[i])
-            counter++;
-    }
-
-    return counter / predictions.size();
 }
 
 Backend to_backend(const std::string& s)
@@ -110,58 +109,4 @@ Backend to_backend(const std::string& s)
         return Backend::MPI;
 
     return Backend::Invalid;
-}
-
-std::string to_string(const Backend& backend)
-{
-    switch (backend)
-    {
-    case Backend::Sequential:
-        return "seq";
-
-    case Backend::OpenMP:
-        return "omp";
-
-    case Backend::FastFlow:
-        return "ff";
-
-    case Backend::MPI:
-        return "mpi";
-
-    default:
-        return "";
-    }
-}
-
-void to_json(const Record& record)
-{
-    fs::path dir_path = "tmp";
-    if (!fs::exists(dir_path))
-        fs::create_directory(dir_path);
-
-    size_t nfiles = 0;
-    for (const auto& f : fs::directory_iterator(dir_path))
-    {
-        std::string name = f.path().filename();
-        nfiles++;
-    }
-
-    std::stringstream ss;
-    ss << dir_path.c_str() << "/";
-    ss << "result_" << std::setw(0) << std::setfill('0') << nfiles << ".json";
-
-    std::ofstream out(ss.str());
-
-    out << "{\n";
-    out << "\t\"dataset\": " << '\"' << record.dataset << '\"' << ",\n";
-    out << "\t\"backend\": " << '\"' << to_string(record.backend) << '\"'
-        << ",\n";
-    out << "\t\"estimators\": " << record.estimators << ",\n";
-    out << "\t\"max_depth\": " << record.max_depth << ",\n";
-    out << "\t\"accuracy\": " << record.accuracy << ",\n";
-    out << "\t\"train_time\": " << record.train_time << ",\n";
-    out << "\t\"predict_time\": " << record.predict_time << ",\n";
-    out << "\t\"threads\": " << record.threads << ",\n";
-    out << "\t\"nodes\": " << record.nodes << "\n";
-    out << "}\n";
 }

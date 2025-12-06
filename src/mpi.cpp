@@ -41,7 +41,7 @@ std::vector<uint32_t> RandomForest::mpi_predict(
         for (size_t i = 0; i < X.size(); i++)
         {
             std::unordered_map<uint32_t, size_t> counter;
-            for (size_t j = 0; j < n_proc; j++)
+            for (int j = 0; j < n_proc; j++)
             {
                 const std::vector<uint32_t>& pred = predictions[j];
                 counter[pred[i]]++;
