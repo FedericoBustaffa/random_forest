@@ -14,4 +14,4 @@ echo "--- fastflow ---"
 echo ""
 
 echo "--- mpi ---"
-mpirun -np $4 ./build/rf.out $1 $2 "mpi" $3 $4 $5 0
+mpirun -n $4 ./build/rf.out $1 $2 "mpi" $3 $4 $5 0

@@ -34,7 +34,7 @@ public:
 
     size_t* svc(size_t* i) override
     {
-        std::vector<size_t> indices = bootstrap(X[0].size());
+        std::vector<size_t> indices = bootstrap(X[0].size(), *i);
         trees[*i].fit(X, y, indices);
         delete i;
 

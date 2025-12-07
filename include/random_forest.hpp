@@ -57,6 +57,8 @@ private:
 
 private:
     std::vector<DecisionTree> m_Trees;
+    uint32_t m_Labels = 0;
+
     Backend m_Backend;
     size_t m_Threads;
     size_t m_Nodes;
