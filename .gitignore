@@ -58,6 +58,7 @@ svg-inkscape/
 
 *.dat
 *.bin
+*.txt
 vgcore.*
 datasets/
 tmp/
