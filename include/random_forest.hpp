@@ -1,7 +1,6 @@
 #ifndef RANDOM_FOREST_HPP
 #define RANDOM_FOREST_HPP
 
-#include <cstdint>
 #include <vector>
 
 #include "decision_tree.hpp"

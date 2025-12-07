@@ -1,7 +1,6 @@
 #include "random_forest.hpp"
 
 #include <mpi.h>
-#include <omp.h>
 
 #include "utils.hpp"
 
@@ -15,10 +14,6 @@ void RandomForest::mpi_fit(const std::vector<std::vector<double>>& X,
 #pragma omp parallel for schedule(dynamic) num_threads(m_Threads)
     for (size_t i = 0; i < m_Trees.size(); i++)
     {
-
-        printf("Rank %d: I am thread %d of %d\n", rank, omp_get_thread_num(),
-               omp_get_num_threads());
-
         uint32_t seed = rank * m_Trees.size() + i;
         std::vector<size_t> indices = bootstrap(T[0].size(), seed);
         m_Trees[i].fit(T, y, indices);
