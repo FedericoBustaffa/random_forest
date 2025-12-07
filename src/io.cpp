@@ -61,9 +61,12 @@ void print_stats(const Record& record)
     std::printf("nodes: %lu\n", record.nodes);
     std::printf("dataset: %s\n", record.dataset.c_str());
     std::printf("train accuracy: %.2f\n", record.train_accuracy);
-    std::printf("test accuracy: %.2f\n", record.test_accuracy);
     std::printf("train f1: %.2f\n", record.train_f1);
+    std::printf("test accuracy: %.2f\n", record.test_accuracy);
     std::printf("test f1: %.2f\n", record.test_f1);
+    std::printf("train time: %.2f ms\n", record.train_time);
+    std::printf("train predict time: %.2f ms\n", record.train_predict_time);
+    std::printf("test predict time: %.2f ms \n", record.test_predict_time);
 }
 
 void print_record(const Record& record)

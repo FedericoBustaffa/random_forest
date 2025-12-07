@@ -34,7 +34,7 @@ public:
 
     size_t* svc(size_t* i) override
     {
-        std::vector<size_t> indices = bootstrap(X[0].size());
+        std::vector<size_t> indices = bootstrap(X[0].size(), *i);
         trees[*i].fit(X, y, indices);
         delete i;
 
@@ -48,7 +48,7 @@ private:
 };
 
 void RandomForest::ff_fit(const std::vector<std::vector<double>>& X,
-                          const std::vector<uint32_t> y)
+                          const std::vector<uint32_t>& y)
 {
     auto T = transpose(X);
 

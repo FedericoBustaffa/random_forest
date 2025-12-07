@@ -1,7 +1,6 @@
 #ifndef RANDOM_FOREST_HPP
 #define RANDOM_FOREST_HPP
 
-#include <cstdint>
 #include <vector>
 
 #include "decision_tree.hpp"
@@ -23,7 +22,7 @@ public:
                  size_t nodes = 1);
 
     void fit(const std::vector<std::vector<double>>& X,
-             const std::vector<uint32_t> y);
+             const std::vector<uint32_t>& y);
 
     std::vector<uint32_t> predict(const std::vector<std::vector<double>>& X);
 
@@ -33,16 +32,16 @@ public:
 
 private:
     void seq_fit(const std::vector<std::vector<double>>& X,
-                 const std::vector<uint32_t> y);
+                 const std::vector<uint32_t>& y);
 
     void omp_fit(const std::vector<std::vector<double>>& X,
-                 const std::vector<uint32_t> y);
+                 const std::vector<uint32_t>& y);
 
     void ff_fit(const std::vector<std::vector<double>>& X,
-                const std::vector<uint32_t> y);
+                const std::vector<uint32_t>& y);
 
     void mpi_fit(const std::vector<std::vector<double>>& X,
-                 const std::vector<uint32_t> y);
+                 const std::vector<uint32_t>& y);
 
     std::vector<uint32_t> seq_predict(
         const std::vector<std::vector<double>>& X);
@@ -57,6 +56,8 @@ private:
 
 private:
     std::vector<DecisionTree> m_Trees;
+    uint32_t m_Labels = 0;
+
     Backend m_Backend;
     size_t m_Threads;
     size_t m_Nodes;

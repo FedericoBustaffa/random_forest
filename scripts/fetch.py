@@ -6,11 +6,8 @@ from ucimlrepo import fetch_ucirepo
 
 datasets = {
     53: "iris",
-    109: "wine",
     17: "breast_cancer",
     159: "magic",
-    59: "letter",
-    80: "digits",
     31: "covertype",
 }
 

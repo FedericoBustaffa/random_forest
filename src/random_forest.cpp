@@ -1,5 +1,7 @@
 #include "random_forest.hpp"
 
+#include <set>
+
 RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
                            size_t threads, size_t nodes)
     : m_Trees(estimators / nodes, max_depth), m_Backend(backend),
@@ -8,8 +10,13 @@ RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
 }
 
 void RandomForest::fit(const std::vector<std::vector<double>>& X,
-                       const std::vector<uint32_t> y)
+                       const std::vector<uint32_t>& y)
 {
+    // save the possible number of labels/classes
+    std::set<uint32_t> unique_labels(y.begin(), y.end());
+    m_Labels = unique_labels.size();
+
+    // fit based on the chosen backend
     switch (m_Backend)
     {
     case Backend::Sequential:

@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     // get the dataset and split train and test sets
     DataFrame df = read_csv(args.dataset);
     auto [X, y] = df.to_vector();
-    auto [train_idx, test_idx] = train_test_split(X.size(), 0.2);
+    auto [train_idx, test_idx] = train_test_split(X.size(), 0.2, 42);
     auto [X_train, X_test] = split(X, train_idx, test_idx);
     auto [y_train, y_test] = split(y, train_idx, test_idx);
 

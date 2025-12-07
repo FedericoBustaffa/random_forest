@@ -21,7 +21,7 @@ std::unordered_map<uint32_t, size_t> count(const std::vector<uint32_t>& y,
 uint32_t majority(const std::vector<uint32_t>& y, std::vector<size_t>& indices);
 
 std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
-    size_t n_samples, float test_size);
+    size_t n_samples, float test_size, int seed = -1);
 
 template <typename T>
 std::pair<std::vector<T>, std::vector<T>> split(
@@ -40,7 +40,7 @@ std::pair<std::vector<T>, std::vector<T>> split(
     return {train, test};
 }
 
-std::vector<size_t> bootstrap(size_t n_samples);
+std::vector<size_t> bootstrap(size_t n_samples, uint32_t seed);
 
 Backend to_backend(const std::string& s);
 
