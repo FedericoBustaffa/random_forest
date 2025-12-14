@@ -5,15 +5,19 @@ import sys
 import pandas as pd
 
 batch = {
-    "dataset": [],
-    "backend": [],
     "estimators": [],
     "max_depth": [],
-    "accuracy": [],
-    "train_time": [],
-    "predict_time": [],
+    "backend": [],
     "threads": [],
     "nodes": [],
+    "dataset": [],
+    "train_accuracy": [],
+    "train_f1": [],
+    "test_accuracy": [],
+    "test_f1": [],
+    "train_time": [],
+    "train_predict_time": [],
+    "test_predict_time": [],
 }
 
 paths = [f"tmp/{fp}" for fp in os.listdir("tmp/")]
@@ -34,4 +38,7 @@ if "results" not in os.listdir("."):
 
 nfiles = len(os.listdir("results"))
 df = pd.DataFrame(batch)
-df.to_csv(f"results/{sys.argv[1]}_{nfiles + 1}.csv", header=True, index=False)
+
+prefix = sys.argv[1]
+dataset = sys.argv[2].split("/")[1].split(".")[0]
+df.to_csv(f"results/{prefix}_{dataset}_{nfiles + 1}.csv", header=True, index=False)
