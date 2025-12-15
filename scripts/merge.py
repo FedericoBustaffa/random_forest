@@ -39,6 +39,11 @@ if "results" not in os.listdir("."):
 nfiles = len(os.listdir("results"))
 df = pd.DataFrame(batch)
 
+param_cols = df.columns.to_list()[:6]
+res_cols = df.columns.to_list()[6:]
+
+df = df.groupby(by=param_cols, as_index=False)[res_cols].mean()
+
 prefix = sys.argv[1]
 dataset = sys.argv[2].split("/")[1].split(".")[0]
 df.to_csv(f"results/{prefix}_{dataset}_{nfiles + 1}.csv", header=True, index=False)
