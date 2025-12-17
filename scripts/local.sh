@@ -41,4 +41,4 @@ for i in 32 64 128 256; do
 done
 
 
-python scripts/merge.py local $1
+python scripts/merge.py local

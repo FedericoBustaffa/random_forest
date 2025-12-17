@@ -40,4 +40,4 @@ for i in 32 64 128 256; do
     done
 done
 
-python scripts/merge.py cluster $1
+python scripts/merge.py cluster

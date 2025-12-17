@@ -1,49 +1,75 @@
+import argparse
 import json
 import os
-import sys
 
 import pandas as pd
 
-batch = {
-    "estimators": [],
-    "max_depth": [],
-    "backend": [],
-    "threads": [],
-    "nodes": [],
-    "dataset": [],
-    "train_accuracy": [],
-    "train_f1": [],
-    "test_accuracy": [],
-    "test_f1": [],
-    "train_time": [],
-    "train_predict_time": [],
-    "test_predict_time": [],
-}
 
-paths = [f"tmp/{fp}" for fp in os.listdir("tmp/")]
+def derive_stats(df: pd.DataFrame, field: str) -> pd.DataFrame:
+    seq = df[df["backend"] == "seq"]
 
-for fp in paths:
-    f = open(fp, "r")
-    content = json.load(f)
-    for k in batch.keys():
-        if k == "dataset":
-            batch[k].append(content[k].split("/")[1].split(".")[0])
-        else:
-            batch[k].append(content[k])
+    keys = ["estimators", "max_depth", "dataset"]
+    merged = seq.merge(df, how="right", on=keys, suffixes=("_seq", "_mt"))
 
-    os.remove(fp)
+    df[f"{field}_speedup"] = merged[f"{field}_time_seq"] / merged["train_time_mt"]
+    df[f"{field}_efficiency"] = df[f"{field}_speedup"] / merged["threads_mt"]
 
-if "results" not in os.listdir("."):
-    os.mkdir("results")
+    return df
 
-nfiles = len(os.listdir("results"))
-df = pd.DataFrame(batch)
 
-param_cols = df.columns.to_list()[:6]
-res_cols = df.columns.to_list()[6:]
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("prefix", type=str, help="prefix for the resulting file")
+    args = parser.parse_args()
 
-df = df.groupby(by=param_cols, as_index=False)[res_cols].mean()
+    # read the first file to infer the parameters
+    filepath = os.listdir("tmp")[0]
+    with open(f"tmp/{filepath}", "r") as fp:
+        keys = json.load(fp).keys()
 
-prefix = sys.argv[1]
-dataset = sys.argv[2].split("/")[1].split(".")[0]
-df.to_csv(f"results/{prefix}_{dataset}_{nfiles + 1}.csv", header=True, index=False)
+    df = {k: [] for k in keys}
+
+    # read all the files and merge them
+    paths = [f"tmp/{fp}" for fp in os.listdir("tmp/")]
+    for fp in paths:
+        f = open(fp, "r")
+        content = json.load(f)
+        for k in df.keys():
+            if k == "dataset":
+                df[k].append(content[k].split("/")[1].split(".")[0])
+            else:
+                df[k].append(content[k])
+
+        # delete consumed files
+        os.remove(fp)
+
+    # build a DataFrame
+    df = pd.DataFrame(df)
+
+    # mean multiple runs with same parameters
+    param_cols = df.columns.to_list()[:6]
+    res_cols = df.columns.to_list()[6:]
+    df = df.groupby(by=param_cols, as_index=False)[res_cols].mean()
+    assert isinstance(df, pd.DataFrame)
+
+    # compute derived stats
+    df = derive_stats(df, "train")
+    df = derive_stats(df, "train_predict")
+    df = derive_stats(df, "test_predict")
+    print(df)
+
+    # if not present create a "results" directory
+    if "results" not in os.listdir("."):
+        os.mkdir("results")
+
+    # get file id
+    prefixed_files = filter(
+        lambda x: x.startswith(f"{args.prefix}"), os.listdir("results")
+    )
+    nfiles = len(list(prefixed_files))
+
+    # write results in CSV file
+    dataset = df["dataset"].iloc[0]
+    filename = f"results/{args.prefix}_{dataset}_{nfiles + 1}.csv"
+    df = df.drop(columns="dataset")
+    df.to_csv(filename, header=True, index=False)
