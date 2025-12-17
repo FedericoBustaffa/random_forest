@@ -4,19 +4,6 @@ import os
 
 import pandas as pd
 
-
-def derive_stats(df: pd.DataFrame, field: str) -> pd.DataFrame:
-    seq = df[df["backend"] == "seq"]
-
-    keys = ["estimators", "max_depth", "dataset"]
-    merged = seq.merge(df, how="right", on=keys, suffixes=("_seq", "_mt"))
-
-    df[f"{field}_speedup"] = merged[f"{field}_time_seq"] / merged["train_time_mt"]
-    df[f"{field}_efficiency"] = df[f"{field}_speedup"] / merged["threads_mt"]
-
-    return df
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("prefix", type=str, help="prefix for the resulting file")
@@ -51,12 +38,6 @@ if __name__ == "__main__":
     res_cols = df.columns.to_list()[6:]
     df = df.groupby(by=param_cols, as_index=False)[res_cols].mean()
     assert isinstance(df, pd.DataFrame)
-
-    # compute derived stats
-    df = derive_stats(df, "train")
-    df = derive_stats(df, "train_predict")
-    df = derive_stats(df, "test_predict")
-    print(df)
 
     # if not present create a "results" directory
     if "results" not in os.listdir("."):
