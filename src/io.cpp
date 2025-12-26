@@ -104,15 +104,19 @@ void write_json(const Record& record)
     std::ofstream out(ss.str());
 
     out << "{\n";
-    out << "\t\"dataset\": " << '\"' << record.dataset << '\"' << ",\n";
-    out << "\t\"backend\": " << '\"' << record.backend << '\"' << ",\n";
     out << "\t\"estimators\": " << record.estimators << ",\n";
     out << "\t\"max_depth\": " << record.max_depth << ",\n";
-    out << "\t\"accuracy\": " << record.train_accuracy << ",\n";
-    out << "\t\"train_time\": " << record.train_time << ",\n";
-    out << "\t\"predict_time\": " << record.train_predict_time << ",\n";
+    out << "\t\"backend\": " << '\"' << record.backend << '\"' << ",\n";
     out << "\t\"threads\": " << record.threads << ",\n";
-    out << "\t\"nodes\": " << record.nodes << "\n";
+    out << "\t\"nodes\": " << record.nodes << ",\n";
+    out << "\t\"dataset\": " << '\"' << record.dataset << '\"' << ",\n";
+    out << "\t\"train_accuracy\": " << record.train_accuracy << ",\n";
+    out << "\t\"train_f1\": " << record.train_f1 << ",\n";
+    out << "\t\"test_accuracy\": " << record.test_accuracy << ",\n";
+    out << "\t\"test_f1\": " << record.test_f1 << ",\n";
+    out << "\t\"train_time\": " << record.train_time << ",\n";
+    out << "\t\"train_predict_time\": " << record.train_predict_time << ",\n";
+    out << "\t\"test_predict_time\": " << record.test_predict_time << "\n";
     out << "}\n";
 }
 
