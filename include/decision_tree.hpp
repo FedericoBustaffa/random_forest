@@ -34,23 +34,22 @@ private:
         double threshold;
         int label;
 
-        Node* left = nullptr;
-        Node* right = nullptr;
+        // indices
+        int64_t left = -1;
+        int64_t right = -1;
     };
 
 private: // tree private methods
-    Node* grow(Node* root, const std::vector<std::vector<double>>& X,
-               const std::vector<uint32_t>& y, std::vector<size_t> indices,
-               size_t depth);
+    void grow(const std::vector<std::vector<double>>& X,
+              const std::vector<uint32_t>& y, std::vector<size_t> indices,
+              size_t depth);
 
-    uint32_t predict_one(Node* node, const std::vector<double>& x);
+    uint32_t predict_one(int64_t idx, const std::vector<double>& x);
 
-    size_t compute_depth(Node* node) const;
-
-    void deallocate(Node* node);
+    size_t compute_depth(int64_t idx) const;
 
 private: // tree data members
-    Node* m_Root = nullptr;
+    std::vector<Node> m_Tree;
     size_t m_MaxDepth;
 };
 

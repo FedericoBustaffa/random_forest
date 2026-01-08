@@ -5,19 +5,25 @@
 
 DecisionTree::DecisionTree(size_t max_depth) : m_MaxDepth(max_depth) {}
 
-DecisionTree::Node* DecisionTree::grow(
-    Node* root, const std::vector<std::vector<double>>& X,
-    const std::vector<uint32_t>& y, std::vector<size_t> indices, size_t depth)
+void DecisionTree::grow(const std::vector<std::vector<double>>& X,
+                        const std::vector<uint32_t>& y,
+                        std::vector<size_t> indices, size_t depth)
 {
     if (m_MaxDepth != 0 && depth == m_MaxDepth)
-        return new Node(majority(y, indices));
+    {
+        m_Tree.emplace_back(majority(y, indices));
+        return;
+    }
 
-    if (indices.size() == 0)
-        return nullptr;
+    if (indices.empty())
+        return;
 
     double parent_entropy = entropy(count(y, indices));
     if (parent_entropy == 0.0)
-        return new Node(y[indices[0]]);
+    {
+        m_Tree.emplace_back(y[indices[0]]);
+        return;
+    }
 
     size_t n_features = X.size();
     double best_threshold = 0;
@@ -67,7 +73,10 @@ DecisionTree::Node* DecisionTree::grow(
     }
 
     if (best_gain <= 1e-8)
-        return new Node(majority(y, indices));
+    {
+        m_Tree.push_back(majority(y, indices));
+        return;
+    }
 
     std::vector<size_t> left;
     std::vector<size_t> right;
@@ -80,29 +89,28 @@ DecisionTree::Node* DecisionTree::grow(
             right.push_back(indices[i]);
     }
 
-    Node* node = new Node(best_feature, best_threshold);
-    node->left = grow(node->left, X, y, left, depth + 1);
-    node->right = grow(node->right, X, y, right, depth + 1);
-
-    return node;
+    m_Tree.emplace_back(best_feature, best_threshold);
+    grow(X, y, left, depth + 1);
+    grow(X, y, right, depth + 1);
 }
 
 void DecisionTree::fit(const std::vector<std::vector<double>>& X,
                        const std::vector<uint32_t>& y,
                        const std::vector<size_t>& indices)
 {
-    m_Root = grow(m_Root, X, y, indices, 1);
+    grow(X, y, indices, 1);
 }
 
-uint32_t DecisionTree::predict_one(Node* node, const std::vector<double>& x)
+uint32_t DecisionTree::predict_one(int64_t idx, const std::vector<double>& x)
 {
-    if (node->label != -1)
-        return node->label;
+    const Node& node = m_Tree[idx];
+    if (node.label != -1)
+        return node.label;
 
-    if (x[node->feature] < node->threshold)
-        return predict_one(node->left, x);
+    if (x[node.feature] < node.threshold)
+        return predict_one(node.left, x);
     else
-        return predict_one(node->right, x);
+        return predict_one(node.right, x);
 }
 
 std::vector<uint32_t> DecisionTree::predict(
@@ -110,30 +118,20 @@ std::vector<uint32_t> DecisionTree::predict(
 {
     std::vector<uint32_t> labels(X.size());
     for (size_t i = 0; i < X.size(); i++)
-        labels[i] = predict_one(m_Root, X[i]);
+        labels[i] = predict_one(0, X[i]);
 
     return labels;
 }
 
-size_t DecisionTree::compute_depth(Node* node) const
+size_t DecisionTree::compute_depth(int64_t idx) const
 {
-    if (node == nullptr)
+    if (idx == -1)
         return 0;
 
-    return 1 + std::max(compute_depth(node->left), compute_depth(node->right));
+    const Node& node = m_Tree[idx];
+    return 1 + std::max(compute_depth(node.left), compute_depth(node.right));
 }
 
-size_t DecisionTree::depth() const { return compute_depth(m_Root); }
+size_t DecisionTree::depth() const { return compute_depth(0); }
 
-void DecisionTree::deallocate(Node* node)
-{
-    if (node == nullptr)
-        return;
-
-    deallocate(node->left);
-    deallocate(node->right);
-
-    delete node;
-}
-
-DecisionTree::~DecisionTree() { deallocate(m_Root); }
+DecisionTree::~DecisionTree() {}
