@@ -2,7 +2,9 @@
 
 #include <ff/ff.hpp>
 
-#include "utils.hpp"
+#include <cstddef>
+#include <cstdint>
+#include <unordered_map>
 
 using namespace ff;
 
@@ -34,8 +36,7 @@ public:
 
     size_t* svc(size_t* i) override
     {
-        std::vector<size_t> indices = bootstrap(X[0].size(), *i);
-        trees[*i].fit(X, y, indices);
+        trees[*i].fit(X, y);
         delete i;
 
         return GO_ON;
@@ -50,13 +51,11 @@ private:
 void RandomForest::ff_fit(const std::vector<std::vector<double>>& X,
                           const std::vector<uint32_t>& y)
 {
-    auto T = transpose(X);
-
     Source source(m_Trees.size());
 
     std::vector<std::unique_ptr<ff_node>> workers;
     for (size_t i = 0; i < m_Threads; i++)
-        workers.push_back(std::make_unique<Fitter>(T, y, m_Trees));
+        workers.push_back(std::make_unique<Fitter>(X, y, m_Trees));
 
     ff_Farm<size_t> farm(std::move(workers), source);
     farm.remove_collector();

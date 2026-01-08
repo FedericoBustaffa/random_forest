@@ -4,9 +4,12 @@
 
 RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
                            size_t threads, size_t nodes)
-    : m_Trees(estimators / nodes, max_depth), m_Backend(backend),
-      m_Threads(threads), m_Nodes(nodes)
+    : m_Backend(backend), m_Threads(threads), m_Nodes(nodes)
 {
+    size_t ntrees = estimators / nodes;
+    m_Trees.reserve(ntrees);
+    for (size_t i = 0; i < ntrees; i++)
+        m_Trees.emplace_back(max_depth, true, ntrees + i);
 }
 
 void RandomForest::fit(const std::vector<std::vector<double>>& X,

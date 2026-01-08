@@ -2,7 +2,8 @@
 
 #include <mpi.h>
 
-#include "utils.hpp"
+#include <cstddef>
+#include <cstdint>
 
 void RandomForest::mpi_fit(const std::vector<std::vector<double>>& X,
                            const std::vector<uint32_t>& y)
@@ -10,14 +11,9 @@ void RandomForest::mpi_fit(const std::vector<std::vector<double>>& X,
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    auto T = transpose(X);
 #pragma omp parallel for schedule(dynamic) num_threads(m_Threads)
     for (size_t i = 0; i < m_Trees.size(); i++)
-    {
-        uint32_t seed = rank * m_Trees.size() + i;
-        std::vector<size_t> indices = bootstrap(T[0].size(), seed);
-        m_Trees[i].fit(T, y, indices);
-    }
+        m_Trees[i].fit(X, y);
 }
 
 std::vector<uint32_t> RandomForest::mpi_predict(

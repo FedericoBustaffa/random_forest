@@ -1,12 +1,10 @@
 #include <cstdio>
-#include <numeric>
 
 #include "dataframe.hpp"
 #include "decision_tree.hpp"
 #include "io.hpp"
 #include "metrics.hpp"
 #include "timer.hpp"
-#include "utils.hpp"
 
 int main(int argc, const char** argv)
 {
@@ -20,15 +18,14 @@ int main(int argc, const char** argv)
 
     DataFrame df = read_csv(argv[2]);
     auto [X, y] = df.to_vector();
-    std::vector<size_t> indices(y.size());
-    std::iota(indices.begin(), indices.end(), 0);
 
     DecisionTree tree(max_depth);
     Timer<milli> timer;
     timer.start();
-    tree.fit(transpose(X), y, indices);
+    tree.fit(X, y);
     timer.stop("training");
 
+    std::printf("size: %lu\n", tree.size());
     std::printf("depth: %lu\n", tree.depth());
 
     timer.start();

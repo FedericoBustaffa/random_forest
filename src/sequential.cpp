@@ -1,17 +1,14 @@
 #include "random_forest.hpp"
 
-#include "utils.hpp"
+#include <cstddef>
+#include <cstdint>
+#include <unordered_map>
 
 void RandomForest::seq_fit(const std::vector<std::vector<double>>& X,
                            const std::vector<uint32_t>& y)
 {
-    auto T = transpose(X);
     for (size_t i = 0; i < m_Trees.size(); i++)
-    {
-        uint32_t seed = m_Trees.size() + i;
-        std::vector<size_t> indices = bootstrap(T[0].size(), seed);
-        m_Trees[i].fit(T, y, indices);
-    }
+        m_Trees[i].fit(X, y);
 }
 
 std::vector<uint32_t> RandomForest::seq_predict(

@@ -47,7 +47,8 @@ std::unordered_map<uint32_t, size_t> count(const std::vector<uint32_t>& y,
     return counter;
 }
 
-uint32_t majority(const std::vector<uint32_t>& y, std::vector<size_t>& indices)
+uint32_t majority(const std::vector<uint32_t>& y,
+                  const std::vector<size_t>& indices)
 {
     std::unordered_map<uint32_t, size_t> counter = count(y, indices);
     uint32_t value = 0;

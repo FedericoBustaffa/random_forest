@@ -18,7 +18,8 @@ std::vector<std::vector<double>> transpose(
 std::unordered_map<uint32_t, size_t> count(const std::vector<uint32_t>& y,
                                            const std::vector<size_t>& indices);
 
-uint32_t majority(const std::vector<uint32_t>& y, std::vector<size_t>& indices);
+uint32_t majority(const std::vector<uint32_t>& y,
+                  const std::vector<size_t>& indices);
 
 std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
     size_t n_samples, float test_size, int seed = -1);
