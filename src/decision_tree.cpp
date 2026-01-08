@@ -98,11 +98,14 @@ DecisionTree::Node* DecisionTree::grow(
 void DecisionTree::fit(const std::vector<std::vector<double>>& X,
                        const std::vector<uint32_t>& y)
 {
-    std::vector<size_t> indices(y.size());
+    std::vector<size_t> indices;
     if (m_Bootstrap)
-        std::vector<size_t> indices = bootstrap(y.size(), m_RandomState);
+        indices = bootstrap(y.size(), m_RandomState);
     else
+    {
+        indices.resize(y.size());
         std::iota(indices.begin(), indices.end(), 0);
+    }
 
     auto T = transpose(X);
     m_Root = grow(m_Root, T, y, indices, 1);
