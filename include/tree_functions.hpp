@@ -7,9 +7,8 @@
 
 double entropy(const std::unordered_map<uint32_t, size_t>& counters);
 
-double gini(const std::unordered_map<uint32_t, size_t>& counters);
-
-double informationGain(std::unordered_map<uint32_t, size_t> left,
+double informationGain(double parent_entropy,
+                       std::unordered_map<uint32_t, size_t> left,
                        std::unordered_map<uint32_t, size_t> right);
 
 #endif
