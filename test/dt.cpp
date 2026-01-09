@@ -33,6 +33,7 @@ int main(int argc, const char** argv)
     timer.stop("prediction");
 
     std::printf("accuracy: %.2f\n", accuracy_score(y_pred, y));
+    std::printf("f1: %.2f\n", f1_score(y_pred, y));
 
     return 0;
 }

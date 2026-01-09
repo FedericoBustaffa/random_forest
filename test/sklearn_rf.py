@@ -34,10 +34,10 @@ if __name__ == "__main__":
     end = time.perf_counter()
     print(f"train time: {end - start:.4f} s")
 
-    start = time.perf_counter_ns() * 1000
+    start = time.perf_counter()
     train_pred = rf.predict(X_train)
-    end = time.perf_counter_ns() * 1000
-    print(f"train predict time: {end - start:.4f} ms")
+    end = time.perf_counter()
+    print(f"train predict time: {end - start:.4f} s")
 
     train_accuracy = accuracy_score(y_train, train_pred)
     train_f1 = f1_score(y_train, train_pred, average="macro")
