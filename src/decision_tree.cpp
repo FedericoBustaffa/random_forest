@@ -27,6 +27,9 @@ int64_t DecisionTree::grow(const std::vector<std::vector<double>>& X,
         return m_Tree.size() - 1;
     }
 
+    if (indices.empty())
+        return -1;
+
     size_t n_features = X.size();
     double best_threshold = 0;
     double best_gain = -1;
