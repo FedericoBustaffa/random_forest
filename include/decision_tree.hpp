@@ -16,9 +16,9 @@ public:
 
     std::vector<uint32_t> predict(const std::vector<std::vector<double>>& X);
 
-    size_t size() const { return compute_size(m_Root); }
+    size_t size() const { return m_Tree.size(); }
 
-    size_t depth() const { return compute_depth(m_Root); }
+    size_t depth() const { return compute_depth(0); }
 
     ~DecisionTree();
 
@@ -36,25 +36,21 @@ private:
         double threshold;
         int label;
 
-        Node* left = nullptr;
-        Node* right = nullptr;
+        int64_t left = -1;
+        int64_t right = -1;
     };
 
 private: // tree private methods
-    Node* grow(Node* root, const std::vector<std::vector<double>>& X,
-               const std::vector<uint32_t>& y,
-               const std::vector<size_t>& indices, size_t depth);
+    int64_t grow(const std::vector<std::vector<double>>& X,
+                 const std::vector<uint32_t>& y,
+                 const std::vector<size_t>& indices, size_t depth);
 
-    uint32_t predict_one(Node* node, const std::vector<double>& x);
+    uint32_t predict_one(const std::vector<double>& x, int64_t i);
 
-    size_t compute_size(Node* node) const;
-
-    size_t compute_depth(Node* node) const;
-
-    void deallocate(Node* node);
+    size_t compute_depth(int64_t i) const;
 
 private: // tree data members
-    Node* m_Root = nullptr;
+    std::vector<Node> m_Tree;
     size_t m_MaxDepth;
     bool m_Bootstrap;
     int64_t m_RandomState;

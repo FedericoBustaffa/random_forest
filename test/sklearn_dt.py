@@ -28,12 +28,12 @@ if __name__ == "__main__":
     start = time.perf_counter()
     rf.fit(X_train, y_train)
     end = time.perf_counter()
-    print(f"train time: {end - start:.4f} s")
+    print(f"train time: {(end - start) * 1000:.4f} ms")
 
     start = time.perf_counter()
     train_pred = rf.predict(X_train)
     end = time.perf_counter()
-    print(f"train predict time: {end - start:.4f} s")
+    print(f"train predict time: {(end - start) * 1000:.4f} ms")
 
     train_accuracy = accuracy_score(y_train, train_pred)
     train_f1 = f1_score(y_train, train_pred, average="macro")
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     start = time.perf_counter()
     test_pred = rf.predict(X_test)
     end = time.perf_counter()
-    print(f"test predict time: {end - start:.4f} s")
+    print(f"test predict time: {(end - start) * 1000:.4f} ms")
 
     test_accuracy = accuracy_score(y_test, test_pred)
     test_f1 = f1_score(y_test, test_pred, average="macro")
