@@ -68,9 +68,11 @@ uint32_t majority(const std::vector<uint32_t>& y,
 std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
     size_t n_samples, float test_size, int seed)
 {
-    std::random_device rd;
     if (seed < 0)
+    {
+        std::random_device rd;
         seed = rd();
+    }
 
     std::mt19937 engine(seed);
 
