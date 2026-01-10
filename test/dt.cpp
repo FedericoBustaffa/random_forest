@@ -27,10 +27,7 @@ int main(int argc, const char** argv)
     Timer<milli> timer;
     timer.start();
     tree.fit(X_train, y_train);
-    timer.stop("training");
-
-    std::printf("size: %lu\n", tree.size());
-    std::printf("depth: %lu\n", tree.depth());
+    timer.stop("train");
 
     timer.start();
     std::vector<uint32_t> y_pred = tree.predict(X_train);
@@ -45,6 +42,9 @@ int main(int argc, const char** argv)
 
     std::printf("test accuracy: %.2f\n", accuracy_score(y_pred, y_test));
     std::printf("test f1: %.2f\n", f1_score(y_pred, y_test));
+
+    std::printf("size: %lu\n", tree.size());
+    std::printf("depth: %lu\n", tree.depth());
 
     return 0;
 }

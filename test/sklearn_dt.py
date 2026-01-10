@@ -49,3 +49,5 @@ if __name__ == "__main__":
     test_f1 = f1_score(y_test, test_pred, average="macro")
     print(f"test accuracy: {test_accuracy:.2f}")
     print(f"test f1: {test_f1:.2f}")
+
+    print(f"depth: {rf.get_depth()}")
