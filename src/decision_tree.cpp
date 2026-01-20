@@ -79,7 +79,7 @@ int64_t DecisionTree::grow(const std::vector<std::vector<double>>& X,
         }
     }
 
-    if (best_gain <= 1e-9)
+    if (best_gain <= 1e-6)
     {
         m_Tree.emplace_back(majority(y, indices));
         return m_Tree.size() - 1;
