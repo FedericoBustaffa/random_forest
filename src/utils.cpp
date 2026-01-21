@@ -34,9 +34,21 @@ std::vector<std::vector<double>> transpose(
     return T;
 }
 
+size_t count_labels(const View<uint32_t>& y)
+{
+    size_t found = 0;
+    for (size_t i = 0; i < y.size(); ++i)
+    {
+        if (y[i] >= found)
+            found = y[i];
+    }
+
+    return found + 1;
+}
+
 Counter count(const View<uint32_t>& y)
 {
-    Counter counter(y);
+    Counter counter(count_labels(y));
     for (size_t i = 0; i < y.size(); i++)
         counter[y[i]]++;
 

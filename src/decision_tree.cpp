@@ -3,6 +3,7 @@
 #include <numeric>
 #include <random>
 
+#include "counter.hpp"
 #include "tree_functions.hpp"
 #include "utils.hpp"
 
@@ -18,7 +19,8 @@ DecisionTree::DecisionTree(size_t max_depth, bool bootstrap,
 }
 
 int64_t DecisionTree::grow(const std::vector<View<double>>& X,
-                           const View<uint32_t>& y, size_t depth)
+                           const View<uint32_t>& y, size_t n_labels,
+                           size_t depth)
 {
     if (m_MaxDepth != 0 && depth == m_MaxDepth)
     {
@@ -42,8 +44,7 @@ int64_t DecisionTree::grow(const std::vector<View<double>>& X,
         // order with indices
         std::vector<size_t> order = argsort(X[i]);
 
-        std::unordered_map<uint32_t, size_t> left_counters;
-        std::unordered_map<uint32_t, size_t> right_counters;
+        Counter left_counters(n_labels), right_counters(n_labels);
         for (size_t j = 0; j < y.size(); j++)
             right_counters[y[order[j]]]++;
 
@@ -111,8 +112,8 @@ int64_t DecisionTree::grow(const std::vector<View<double>>& X,
 
     int64_t idx = m_Tree.size();
     m_Tree.emplace_back(best_feature, best_threshold);
-    m_Tree[idx].left = grow(X_left, y_left, depth + 1);
-    m_Tree[idx].right = grow(X_right, y_right, depth + 1);
+    m_Tree[idx].left = grow(X_left, y_left, n_labels, depth + 1);
+    m_Tree[idx].right = grow(X_right, y_right, n_labels, depth + 1);
 
     return idx;
 }
@@ -138,7 +139,9 @@ void DecisionTree::fit(const std::vector<std::vector<double>>& X,
 
     View<uint32_t> y_view(y, indices);
 
-    grow(T_view, y_view, 1);
+    size_t n_labels = count_labels(y_view);
+
+    grow(T_view, y_view, n_labels, 1);
     m_Tree.shrink_to_fit();
 }
 

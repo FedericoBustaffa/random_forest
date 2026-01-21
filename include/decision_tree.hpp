@@ -44,7 +44,7 @@ private:
 
 private: // tree private methods
     int64_t grow(const std::vector<View<double>>& X, const View<uint32_t>& y,
-                 size_t depth);
+                 size_t n_labels, size_t depth);
 
     uint32_t predict_one(const std::vector<double>& x, int64_t i);
 

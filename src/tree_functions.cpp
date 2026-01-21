@@ -8,18 +8,18 @@
 double entropy(const Counter& counters)
 {
     size_t size = 0;
-    for (const auto& kv : counters)
-        size += kv.second;
+    for (size_t i = 0; i < counters.size(); ++i)
+        size += counters[i];
 
     double e = 0.0;
     double proportion;
-    for (auto& i : counters)
+    for (size_t i = 0; i < counters.size(); ++i)
     {
-        if (i.second == 0)
+        if (counters[i] == 0)
             continue;
 
-        proportion = (double)i.second / size;
-        e += -proportion * std::log2(proportion);
+        proportion = (double)counters[i] / size;
+        e -= proportion * std::log2(proportion);
     }
 
     return e;
@@ -31,12 +31,12 @@ double informationGain(double parent_entropy, const Counter& left,
                        const Counter& right)
 {
     size_t left_size = 0;
-    for (const auto& i : left)
-        left_size += i.second;
+    for (size_t i = 0; i < left.size(); ++i)
+        left_size += left[i];
 
     size_t right_size = 0;
-    for (const auto& i : right)
-        right_size += i.second;
+    for (size_t i = 0; i < right.size(); ++i)
+        right_size += right[i];
 
     if (left_size == 0 || right_size == 0)
         return parent_entropy;

@@ -14,6 +14,8 @@ std::vector<size_t> argsort(const View<double>& v);
 std::vector<std::vector<double>> transpose(
     const std::vector<std::vector<double>>& X);
 
+size_t count_labels(const View<uint32_t>& y);
+
 Counter count(const View<uint32_t>& y);
 
 uint32_t majority(const View<uint32_t>& y);

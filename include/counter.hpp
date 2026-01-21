@@ -2,25 +2,12 @@
 #define COUNTER_HPP
 
 #include <cstddef>
-#include <cstdint>
 #include <vector>
-
-#include "view.hpp"
 
 class Counter
 {
 public:
-    Counter(const View<uint32_t>& y)
-    {
-        size_t found = 0;
-        for (size_t i = 0; i < y.size(); ++i)
-        {
-            if (y[i] >= found)
-                found++;
-        }
-
-        m_Counters.resize(found, 0);
-    }
+    Counter(size_t n_labels) : m_Counters(n_labels, 0) {}
 
     inline size_t size() const { return m_Counters.size(); }
 
