@@ -13,7 +13,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     max_depth = args.max_depth if args.max_depth > 0 else None
 
-    df = pd.read_csv(args.dataset)
+    df = pd.read_csv(args.dataset, header=None)
     X = df.iloc[:, :-1].to_numpy()
     y = df.iloc[:, -1].to_numpy()
 

@@ -23,8 +23,8 @@ double entropy(const std::unordered_map<uint32_t, size_t>& counters)
 }
 
 double informationGain(double parent_entropy,
-                       std::unordered_map<uint32_t, size_t> left,
-                       std::unordered_map<uint32_t, size_t> right)
+                       const std::unordered_map<uint32_t, size_t>& left,
+                       const std::unordered_map<uint32_t, size_t>& right)
 {
     size_t left_size = 0;
     for (const auto& i : left)
