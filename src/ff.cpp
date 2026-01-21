@@ -4,7 +4,8 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <unordered_map>
+
+#include "counter.hpp"
 
 using namespace ff;
 
@@ -90,8 +91,7 @@ class VoteCounter : public ff_node_t<size_t>
 {
 public:
     VoteCounter(const std::vector<std::vector<uint32_t>>& y,
-                std::vector<std::unordered_map<uint32_t, size_t>>& votes,
-                std::vector<uint32_t>& prediction)
+                std::vector<Counter>& votes, std::vector<uint32_t>& prediction)
         : y(y), votes(votes), prediction(prediction)
     {
     }
@@ -106,12 +106,12 @@ public:
 
         uint32_t value = 0;
         size_t counter = 0;
-        for (const auto& kv : votes[*i])
+        for (size_t j = 0; j < votes[*i].size(); ++j)
         {
-            if (kv.second > counter)
+            if (votes[*i][j] > counter)
             {
-                counter = kv.second;
-                value = kv.first;
+                counter = votes[*i][j];
+                value = j;
             }
         }
         prediction[*i] = value;
@@ -123,7 +123,7 @@ public:
 
 private:
     const std::vector<std::vector<uint32_t>>& y;
-    std::vector<std::unordered_map<uint32_t, size_t>>& votes;
+    std::vector<Counter>& votes;
     std::vector<uint32_t>& prediction;
 };
 
@@ -143,7 +143,7 @@ std::vector<uint32_t> RandomForest::ff_predict(
     predict_farm.run_and_wait_end();
 
     // count votes and compute majority
-    std::vector<std::unordered_map<uint32_t, size_t>> votes(y[0].size());
+    std::vector<Counter> votes(X.size(), m_Labels);
     std::vector<uint32_t> prediction(votes.size());
 
     Source votes_source(votes.size());
