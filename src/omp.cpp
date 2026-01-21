@@ -2,7 +2,8 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <unordered_map>
+
+#include "counter.hpp"
 
 void RandomForest::omp_fit(const std::vector<std::vector<double>>& X,
                            const std::vector<uint32_t>& y)
@@ -22,7 +23,7 @@ std::vector<uint32_t> RandomForest::omp_predict(
         y[i] = m_Trees[i].predict(X);
 
     // count votes and compute majority
-    std::vector<std::unordered_map<uint32_t, size_t>> counters(y[0].size());
+    std::vector<Counter> counters(X.size(), m_Labels);
     std::vector<uint32_t> prediction(counters.size());
 #pragma omp parallel for num_threads(m_Threads)
     for (size_t i = 0; i < counters.size(); i++)
@@ -35,12 +36,12 @@ std::vector<uint32_t> RandomForest::omp_predict(
 
         uint32_t value = 0;
         size_t counter = 0;
-        for (const auto& kv : counters[i])
+        for (size_t j = 0; j < counters[i].size(); ++j)
         {
-            if (kv.second > counter)
+            if (counters[i][j] > counter)
             {
-                counter = kv.second;
-                value = kv.first;
+                counter = counters[i][j];
+                value = j;
             }
         }
         prediction[i] = value;

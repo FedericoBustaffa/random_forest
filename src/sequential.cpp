@@ -36,7 +36,6 @@ std::vector<uint32_t> RandomForest::seq_predict(
                 value = j;
             }
         }
-
         prediction.push_back(value);
     }
 
