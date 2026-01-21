@@ -2,9 +2,10 @@
 
 #include <cmath>
 
+#include "counter.hpp"
 #include "utils.hpp"
 
-double entropy(const std::unordered_map<uint32_t, size_t>& counters)
+double entropy(const Counter& counters)
 {
     size_t size = 0;
     for (const auto& kv : counters)
@@ -26,9 +27,8 @@ double entropy(const std::unordered_map<uint32_t, size_t>& counters)
 
 double entropy(const View<uint32_t>& y) { return entropy(count(y)); }
 
-double informationGain(double parent_entropy,
-                       const std::unordered_map<uint32_t, size_t>& left,
-                       const std::unordered_map<uint32_t, size_t>& right)
+double informationGain(double parent_entropy, const Counter& left,
+                       const Counter& right)
 {
     size_t left_size = 0;
     for (const auto& i : left)

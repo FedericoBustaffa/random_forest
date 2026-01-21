@@ -4,9 +4,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
+#include "counter.hpp"
 #include "random_forest.hpp"
 
 std::vector<size_t> argsort(const View<double>& v);
@@ -14,7 +14,7 @@ std::vector<size_t> argsort(const View<double>& v);
 std::vector<std::vector<double>> transpose(
     const std::vector<std::vector<double>>& X);
 
-std::unordered_map<uint32_t, size_t> count(const View<uint32_t>& y);
+Counter count(const View<uint32_t>& y);
 
 uint32_t majority(const View<uint32_t>& y);
 

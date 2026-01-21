@@ -34,9 +34,9 @@ std::vector<std::vector<double>> transpose(
     return T;
 }
 
-std::unordered_map<uint32_t, size_t> count(const View<uint32_t>& y)
+Counter count(const View<uint32_t>& y)
 {
-    std::unordered_map<uint32_t, size_t> counter;
+    Counter counter(y);
     for (size_t i = 0; i < y.size(); i++)
         counter[y[i]]++;
 
@@ -45,15 +45,15 @@ std::unordered_map<uint32_t, size_t> count(const View<uint32_t>& y)
 
 uint32_t majority(const View<uint32_t>& y)
 {
-    std::unordered_map<uint32_t, size_t> counter = count(y);
+    Counter counter = count(y);
     uint32_t value = 0;
     size_t best_counter = 0;
-    for (const auto& kv : counter)
+    for (size_t i = 0; i < counter.size(); ++i)
     {
-        if (kv.second > best_counter)
+        if (counter[i] > best_counter)
         {
-            best_counter = kv.second;
-            value = kv.first;
+            best_counter = counter[i];
+            value = i;
         }
     }
 
