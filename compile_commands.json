@@ -1,7 +1,8 @@
 [
   {
+    "file": "src/decision_tree.cpp",
     "arguments": [
-      "/usr/bin/g++",
+      "g++",
       "-Wall",
       "-std=c++20",
       "-fopenmp",
@@ -10,58 +11,21 @@
       "-O3",
       "-march=native",
       "-DNDEBUG",
+      "-MMD",
+      "-MP",
       "-c",
-      "-o",
-      "build/dataframe.o",
-      "src/dataframe.cpp"
-    ],
-    "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/src/dataframe.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/dataframe.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-Wall",
-      "-std=c++20",
-      "-fopenmp",
-      "-I./include/",
-      "-I./fastflow/",
-      "-O3",
-      "-march=native",
-      "-DNDEBUG",
-      "-c",
-      "-o",
-      "build/seq.o",
-      "src/seq.cpp"
-    ],
-    "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/src/seq.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/seq.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/g++",
-      "-Wall",
-      "-std=c++20",
-      "-fopenmp",
-      "-I./include/",
-      "-I./fastflow/",
-      "-O3",
-      "-march=native",
-      "-DNDEBUG",
-      "-c",
+      "src/decision_tree.cpp",
       "-o",
       "build/decision_tree.o",
-      "src/decision_tree.cpp"
+      "-I/usr/include"
     ],
     "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/src/decision_tree.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/decision_tree.o"
+    "output": "build/decision_tree.o"
   },
   {
+    "file": "src/args_parse.cpp",
     "arguments": [
-      "/usr/bin/g++",
+      "g++",
       "-Wall",
       "-std=c++20",
       "-fopenmp",
@@ -70,18 +34,21 @@
       "-O3",
       "-march=native",
       "-DNDEBUG",
+      "-MMD",
+      "-MP",
       "-c",
+      "src/args_parse.cpp",
       "-o",
-      "build/random_forest.o",
-      "src/random_forest.cpp"
+      "build/args_parse.o",
+      "-I/usr/include"
     ],
     "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/src/random_forest.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/random_forest.o"
+    "output": "build/args_parse.o"
   },
   {
+    "file": "src/dataframe.cpp",
     "arguments": [
-      "/usr/bin/g++",
+      "g++",
       "-Wall",
       "-std=c++20",
       "-fopenmp",
@@ -90,18 +57,21 @@
       "-O3",
       "-march=native",
       "-DNDEBUG",
+      "-MMD",
+      "-MP",
       "-c",
+      "src/dataframe.cpp",
       "-o",
-      "build/test_rf.o",
-      "test/rf.cpp"
+      "build/dataframe.o",
+      "-I/usr/include"
     ],
     "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/test/rf.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/test_rf.o"
+    "output": "build/dataframe.o"
   },
   {
+    "file": "src/io.cpp",
     "arguments": [
-      "/usr/bin/g++",
+      "g++",
       "-Wall",
       "-std=c++20",
       "-fopenmp",
@@ -110,18 +80,21 @@
       "-O3",
       "-march=native",
       "-DNDEBUG",
+      "-MMD",
+      "-MP",
       "-c",
+      "src/io.cpp",
       "-o",
-      "build/csv.o",
-      "src/csv.cpp"
+      "build/io.o",
+      "-I/usr/include"
     ],
     "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/src/csv.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/csv.o"
+    "output": "build/io.o"
   },
   {
+    "file": "src/ff.cpp",
     "arguments": [
-      "/usr/bin/g++",
+      "g++",
       "-Wall",
       "-std=c++20",
       "-fopenmp",
@@ -130,18 +103,21 @@
       "-O3",
       "-march=native",
       "-DNDEBUG",
+      "-MMD",
+      "-MP",
       "-c",
+      "src/ff.cpp",
       "-o",
       "build/ff.o",
-      "src/ff.cpp"
+      "-I/usr/include"
     ],
     "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/src/ff.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/ff.o"
+    "output": "build/ff.o"
   },
   {
+    "file": "src/metrics.cpp",
     "arguments": [
-      "/usr/bin/g++",
+      "g++",
       "-Wall",
       "-std=c++20",
       "-fopenmp",
@@ -150,18 +126,21 @@
       "-O3",
       "-march=native",
       "-DNDEBUG",
+      "-MMD",
+      "-MP",
       "-c",
+      "src/metrics.cpp",
       "-o",
-      "build/utils.o",
-      "src/utils.cpp"
+      "build/metrics.o",
+      "-I/usr/include"
     ],
     "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/src/utils.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/utils.o"
+    "output": "build/metrics.o"
   },
   {
+    "file": "src/mpi.cpp",
     "arguments": [
-      "/usr/bin/g++",
+      "g++",
       "-Wall",
       "-std=c++20",
       "-fopenmp",
@@ -170,18 +149,21 @@
       "-O3",
       "-march=native",
       "-DNDEBUG",
+      "-MMD",
+      "-MP",
       "-c",
+      "src/mpi.cpp",
       "-o",
-      "build/test_rf_bm.o",
-      "test/rf_bm.cpp"
+      "build/mpi.o",
+      "-I/usr/include"
     ],
     "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/test/rf_bm.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/test_rf_bm.o"
+    "output": "build/mpi.o"
   },
   {
+    "file": "src/omp.cpp",
     "arguments": [
-      "/usr/bin/g++",
+      "g++",
       "-Wall",
       "-std=c++20",
       "-fopenmp",
@@ -190,18 +172,21 @@
       "-O3",
       "-march=native",
       "-DNDEBUG",
+      "-MMD",
+      "-MP",
       "-c",
+      "src/omp.cpp",
       "-o",
       "build/omp.o",
-      "src/omp.cpp"
+      "-I/usr/include"
     ],
     "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/src/omp.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/omp.o"
+    "output": "build/omp.o"
   },
   {
+    "file": "src/random_forest.cpp",
     "arguments": [
-      "/usr/bin/g++",
+      "g++",
       "-Wall",
       "-std=c++20",
       "-fopenmp",
@@ -210,18 +195,67 @@
       "-O3",
       "-march=native",
       "-DNDEBUG",
+      "-MMD",
+      "-MP",
       "-c",
+      "src/random_forest.cpp",
+      "-o",
+      "build/random_forest.o",
+      "-I/usr/include"
+    ],
+    "directory": "/home/federico/dev/cpp/random_forest",
+    "output": "build/random_forest.o"
+  },
+  {
+    "file": "src/sequential.cpp",
+    "arguments": [
+      "g++",
+      "-Wall",
+      "-std=c++20",
+      "-fopenmp",
+      "-I./include/",
+      "-I./fastflow/",
+      "-O3",
+      "-march=native",
+      "-DNDEBUG",
+      "-MMD",
+      "-MP",
+      "-c",
+      "src/sequential.cpp",
+      "-o",
+      "build/sequential.o",
+      "-I/usr/include"
+    ],
+    "directory": "/home/federico/dev/cpp/random_forest",
+    "output": "build/sequential.o"
+  },
+  {
+    "file": "src/tree_functions.cpp",
+    "arguments": [
+      "g++",
+      "-Wall",
+      "-std=c++20",
+      "-fopenmp",
+      "-I./include/",
+      "-I./fastflow/",
+      "-O3",
+      "-march=native",
+      "-DNDEBUG",
+      "-MMD",
+      "-MP",
+      "-c",
+      "src/tree_functions.cpp",
       "-o",
       "build/tree_functions.o",
-      "src/tree_functions.cpp"
+      "-I/usr/include"
     ],
     "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/src/tree_functions.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/tree_functions.o"
+    "output": "build/tree_functions.o"
   },
   {
+    "file": "src/utils.cpp",
     "arguments": [
-      "/usr/bin/g++",
+      "g++",
       "-Wall",
       "-std=c++20",
       "-fopenmp",
@@ -230,18 +264,44 @@
       "-O3",
       "-march=native",
       "-DNDEBUG",
+      "-MMD",
+      "-MP",
       "-c",
+      "src/utils.cpp",
+      "-o",
+      "build/utils.o",
+      "-I/usr/include"
+    ],
+    "directory": "/home/federico/dev/cpp/random_forest",
+    "output": "build/utils.o"
+  },
+  {
+    "file": "test/dt.cpp",
+    "arguments": [
+      "g++",
+      "-Wall",
+      "-std=c++20",
+      "-fopenmp",
+      "-I./include/",
+      "-I./fastflow/",
+      "-O3",
+      "-march=native",
+      "-DNDEBUG",
+      "-MMD",
+      "-MP",
+      "-c",
+      "test/dt.cpp",
       "-o",
       "build/test_dt.o",
-      "test/dt.cpp"
+      "-I/usr/include"
     ],
     "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/test/dt.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/test_dt.o"
+    "output": "build/test_dt.o"
   },
   {
+    "file": "test/csv_read.cpp",
     "arguments": [
-      "/usr/bin/g++",
+      "g++",
       "-Wall",
       "-std=c++20",
       "-fopenmp",
@@ -250,13 +310,38 @@
       "-O3",
       "-march=native",
       "-DNDEBUG",
+      "-MMD",
+      "-MP",
       "-c",
+      "test/csv_read.cpp",
       "-o",
       "build/test_csv_read.o",
-      "test/csv_read.cpp"
+      "-I/usr/include"
     ],
     "directory": "/home/federico/dev/cpp/random_forest",
-    "file": "/home/federico/dev/cpp/random_forest/test/csv_read.cpp",
-    "output": "/home/federico/dev/cpp/random_forest/build/test_csv_read.o"
+    "output": "build/test_csv_read.o"
+  },
+  {
+    "file": "test/rf.cpp",
+    "arguments": [
+      "g++",
+      "-Wall",
+      "-std=c++20",
+      "-fopenmp",
+      "-I./include/",
+      "-I./fastflow/",
+      "-O3",
+      "-march=native",
+      "-DNDEBUG",
+      "-MMD",
+      "-MP",
+      "-c",
+      "test/rf.cpp",
+      "-o",
+      "build/test_rf.o",
+      "-I/usr/include"
+    ],
+    "directory": "/home/federico/dev/cpp/random_forest",
+    "output": "build/test_rf.o"
   }
 ]

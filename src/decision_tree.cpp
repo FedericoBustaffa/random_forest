@@ -17,17 +17,16 @@ DecisionTree::DecisionTree(size_t max_depth, bool bootstrap,
     }
 }
 
-int64_t DecisionTree::grow(const std::vector<std::vector<double>>& X,
-                           const std::vector<uint32_t>& y,
-                           const std::vector<size_t>& indices, size_t depth)
+int64_t DecisionTree::grow(const std::vector<View<double>>& X,
+                           const View<uint32_t>& y, size_t depth)
 {
     if (m_MaxDepth != 0 && depth == m_MaxDepth)
     {
-        m_Tree.emplace_back(majority(y, indices));
+        m_Tree.emplace_back(majority(y));
         return m_Tree.size() - 1;
     }
 
-    if (indices.empty())
+    if (y.empty())
         return -1;
 
     size_t n_features = X.size();
@@ -36,33 +35,33 @@ int64_t DecisionTree::grow(const std::vector<std::vector<double>>& X,
     size_t best_feature = 0;
 
     // compute only once
-    double parent_entropy = entropy(count(y, indices));
+    double parent_entropy = entropy(y);
 
     for (size_t i = 0; i < n_features; i++)
     {
         // order with indices
-        std::vector<size_t> order = argsort(X[i], indices);
+        std::vector<size_t> order = argsort(X[i]);
 
         std::unordered_map<uint32_t, size_t> left_counters;
         std::unordered_map<uint32_t, size_t> right_counters;
-        for (size_t j = 0; j < indices.size(); j++)
-            right_counters[y[indices[order[j]]]]++;
+        for (size_t j = 0; j < y.size(); j++)
+            right_counters[y[order[j]]]++;
 
         // candidate thresholds
-        double prev_label = y[indices[order[0]]];
-        for (size_t j = 1; j < indices.size(); j++)
+        double prev_label = y[order[0]];
+        for (size_t j = 1; j < y.size(); j++)
         {
-            uint32_t label = y[indices[order[j - 1]]];
+            uint32_t label = y[order[j - 1]];
             left_counters[label]++;
             right_counters[label]--;
 
-            double prev_feature = X[i][indices[order[j - 1]]];
-            double curr_feature = X[i][indices[order[j]]];
+            double prev_feature = X[i][order[j - 1]];
+            double curr_feature = X[i][order[j]];
 
             if (prev_feature == curr_feature)
                 continue;
 
-            uint32_t curr_label = y[indices[order[j]]];
+            uint32_t curr_label = y[order[j]];
             if (prev_label != curr_label)
             {
                 double threshold = (prev_feature + curr_feature) / 2.0;
@@ -81,25 +80,39 @@ int64_t DecisionTree::grow(const std::vector<std::vector<double>>& X,
 
     if (best_gain <= 1e-6)
     {
-        m_Tree.emplace_back(majority(y, indices));
+        m_Tree.emplace_back(majority(y));
         return m_Tree.size() - 1;
     }
 
     std::vector<size_t> left;
     std::vector<size_t> right;
 
-    for (size_t i = 0; i < indices.size(); i++)
+    const std::vector<size_t> indices = y.indices();
+
+    for (size_t i = 0; i < y.size(); i++)
     {
-        if (X[best_feature][indices[i]] <= best_threshold)
+        if (X[best_feature][i] <= best_threshold)
             left.push_back(indices[i]);
         else
             right.push_back(indices[i]);
     }
 
+    std::vector<View<double>> X_left;
+    X_left.reserve(left.size());
+    for (size_t i = 0; i < X.size(); ++i)
+        X_left.emplace_back(X[i], left);
+    View<uint32_t> y_left(y, left);
+
+    std::vector<View<double>> X_right;
+    X_right.reserve(right.size());
+    for (size_t i = 0; i < X.size(); ++i)
+        X_right.emplace_back(X[i], right);
+    View<uint32_t> y_right(y, right);
+
     int64_t idx = m_Tree.size();
     m_Tree.emplace_back(best_feature, best_threshold);
-    m_Tree[idx].left = grow(X, y, left, depth + 1);
-    m_Tree[idx].right = grow(X, y, right, depth + 1);
+    m_Tree[idx].left = grow(X_left, y_left, depth + 1);
+    m_Tree[idx].right = grow(X_right, y_right, depth + 1);
 
     return idx;
 }
@@ -116,7 +129,16 @@ void DecisionTree::fit(const std::vector<std::vector<double>>& X,
         std::iota(indices.begin(), indices.end(), 0);
     }
 
-    grow(transpose(X), y, indices, 1);
+    auto T = transpose(X);
+
+    std::vector<View<double>> T_view;
+    T_view.reserve(T.size());
+    for (size_t i = 0; i < T.size(); ++i)
+        T_view.emplace_back(T[i], indices);
+
+    View<uint32_t> y_view(y, indices);
+
+    grow(T_view, y_view, 1);
     m_Tree.shrink_to_fit();
 }
 

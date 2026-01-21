@@ -6,15 +6,12 @@
 #include <random>
 #include <vector>
 
-std::vector<size_t> argsort(const std::vector<double>& v,
-                            const std::vector<size_t>& indices)
+std::vector<size_t> argsort(const View<double>& v)
 {
-    std::vector<size_t> order(indices.size());
+    std::vector<size_t> order(v.size());
     std::iota(order.begin(), order.end(), 0);
 
-    auto compare = [&](const auto& a, const auto& b) {
-        return v[indices[a]] < v[indices[b]];
-    };
+    auto compare = [&](const auto& a, const auto& b) { return v[a] < v[b]; };
     std::sort(order.begin(), order.end(), compare);
 
     return order;
@@ -37,20 +34,18 @@ std::vector<std::vector<double>> transpose(
     return T;
 }
 
-std::unordered_map<uint32_t, size_t> count(const std::vector<uint32_t>& y,
-                                           const std::vector<size_t>& indices)
+std::unordered_map<uint32_t, size_t> count(const View<uint32_t>& y)
 {
     std::unordered_map<uint32_t, size_t> counter;
-    for (size_t i = 0; i < indices.size(); i++)
-        counter[y[indices[i]]]++;
+    for (size_t i = 0; i < y.size(); i++)
+        counter[y[i]]++;
 
     return counter;
 }
 
-uint32_t majority(const std::vector<uint32_t>& y,
-                  const std::vector<size_t>& indices)
+uint32_t majority(const View<uint32_t>& y)
 {
-    std::unordered_map<uint32_t, size_t> counter = count(y, indices);
+    std::unordered_map<uint32_t, size_t> counter = count(y);
     uint32_t value = 0;
     size_t best_counter = 0;
     for (const auto& kv : counter)
