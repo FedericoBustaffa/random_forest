@@ -2,7 +2,8 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <unordered_map>
+
+#include "counter.hpp"
 
 void RandomForest::seq_fit(const std::vector<std::vector<double>>& X,
                            const std::vector<uint32_t>& y)
@@ -14,7 +15,7 @@ void RandomForest::seq_fit(const std::vector<std::vector<double>>& X,
 std::vector<uint32_t> RandomForest::seq_predict(
     const std::vector<std::vector<double>>& X)
 {
-    std::vector<std::unordered_map<uint32_t, size_t>> counters(X.size());
+    std::vector<Counter> counters(X.size(), m_Labels);
     for (size_t i = 0; i < m_Trees.size(); i++)
     {
         std::vector<uint32_t> pred = m_Trees[i].predict(X);
@@ -27,12 +28,12 @@ std::vector<uint32_t> RandomForest::seq_predict(
     {
         uint32_t value = 0;
         size_t counter = 0;
-        for (const auto& kv : counters[i])
+        for (size_t j = 0; j < counters[i].size(); ++j)
         {
-            if (kv.second > counter)
+            if (counters[i][j] > counter)
             {
-                counter = kv.second;
-                value = kv.first;
+                counter = counters[i][j];
+                value = j;
             }
         }
 
