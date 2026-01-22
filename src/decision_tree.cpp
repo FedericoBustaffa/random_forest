@@ -65,7 +65,7 @@ int64_t DecisionTree::grow(const std::vector<View<double>>& X,
             uint32_t curr_label = y[order[j]];
             if (prev_label != curr_label)
             {
-                double threshold = (prev_feature + curr_feature) / 2.0;
+                double threshold = (prev_feature + curr_feature) * 0.5;
                 double gain = informationGain(parent_entropy, left_counters,
                                               right_counters);
                 if (gain > best_gain)
