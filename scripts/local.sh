@@ -13,7 +13,7 @@ done
 for i in 32 64 128 256; do
     for t in 1 2 4; do
         for j in $(seq 1 5); do
-            ./build/rf.out $i 0 "omp" $t 1 $1 1
+            OMP_NUM_THREADS=$t ./build/rf.out $i 0 "omp" $t 1 $1 1
         done
     done
 done

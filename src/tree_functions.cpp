@@ -25,7 +25,11 @@ double entropy(const Counter& counters)
     return e;
 }
 
-double entropy(const View<uint32_t>& y) { return entropy(count(y)); }
+double entropy(const std::vector<uint32_t>& y,
+               const std::vector<size_t>& indices)
+{
+    return entropy(count(y, indices));
+}
 
 double informationGain(double parent_entropy, const Counter& left,
                        const Counter& right)

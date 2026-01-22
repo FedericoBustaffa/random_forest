@@ -6,12 +6,15 @@
 #include <random>
 #include <vector>
 
-std::vector<size_t> argsort(const View<double>& v)
+std::vector<size_t> argsort(const std::vector<double>& v,
+                            const std::vector<size_t>& indices)
 {
-    std::vector<size_t> order(v.size());
+    std::vector<size_t> order(indices.size());
     std::iota(order.begin(), order.end(), 0);
 
-    auto compare = [&](const auto& a, const auto& b) { return v[a] < v[b]; };
+    auto compare = [&](const auto& a, const auto& b) {
+        return v[indices[a]] < v[indices[b]];
+    };
     std::sort(order.begin(), order.end(), compare);
 
     return order;
@@ -34,7 +37,7 @@ std::vector<std::vector<double>> transpose(
     return T;
 }
 
-size_t count_labels(const View<uint32_t>& y)
+size_t count_labels(const std::vector<uint32_t>& y)
 {
     size_t found = 0;
     for (size_t i = 0; i < y.size(); ++i)
@@ -46,18 +49,33 @@ size_t count_labels(const View<uint32_t>& y)
     return found + 1;
 }
 
-Counter count(const View<uint32_t>& y)
+size_t count_labels(const std::vector<uint32_t>& y,
+                    const std::vector<size_t>& indices)
 {
-    Counter counter(count_labels(y));
-    for (size_t i = 0; i < y.size(); i++)
-        counter[y[i]]++;
+    size_t found = 0;
+    for (size_t i = 0; i < indices.size(); ++i)
+    {
+        if (y[indices[i]] >= found)
+            found = y[indices[i]];
+    }
+
+    return found + 1;
+}
+
+Counter count(const std::vector<uint32_t>& y,
+              const std::vector<size_t>& indices)
+{
+    Counter counter(count_labels(y, indices));
+    for (size_t i = 0; i < indices.size(); i++)
+        counter[y[indices[i]]]++;
 
     return counter;
 }
 
-uint32_t majority(const View<uint32_t>& y)
+uint32_t majority(const std::vector<uint32_t>& y,
+                  const std::vector<size_t>& indices)
 {
-    Counter counter = count(y);
+    Counter counter = count(y, indices);
     uint32_t value = 0;
     size_t best_counter = 0;
     for (size_t i = 0; i < counter.size(); ++i)

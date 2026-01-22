@@ -5,8 +5,6 @@
 #include <cstdint>
 #include <vector>
 
-#include "view.hpp"
-
 class DecisionTree
 {
 public:
@@ -43,8 +41,10 @@ private:
     };
 
 private: // tree private methods
-    int64_t grow(const std::vector<View<double>>& X, const View<uint32_t>& y,
-                 size_t n_labels, size_t depth);
+    int64_t grow(const std::vector<std::vector<double>>& X,
+                 const std::vector<uint32_t>& y,
+                 const std::vector<size_t>& indices, size_t n_labels,
+                 size_t depth);
 
     uint32_t predict_one(const std::vector<double>& x, int64_t i);
 

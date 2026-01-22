@@ -9,16 +9,22 @@
 #include "counter.hpp"
 #include "random_forest.hpp"
 
-std::vector<size_t> argsort(const View<double>& v);
+std::vector<size_t> argsort(const std::vector<double>& v,
+                            const std::vector<size_t>& indices);
 
 std::vector<std::vector<double>> transpose(
     const std::vector<std::vector<double>>& X);
 
-size_t count_labels(const View<uint32_t>& y);
+size_t count_labels(const std::vector<uint32_t>& y);
 
-Counter count(const View<uint32_t>& y);
+size_t count_labels(const std::vector<uint32_t>& y,
+                    const std::vector<size_t>& indices);
 
-uint32_t majority(const View<uint32_t>& y);
+Counter count(const std::vector<uint32_t>& y,
+              const std::vector<size_t>& indices);
+
+uint32_t majority(const std::vector<uint32_t>& y,
+                  const std::vector<size_t>& indices);
 
 std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
     size_t n_samples, float test_size, int seed = -1);

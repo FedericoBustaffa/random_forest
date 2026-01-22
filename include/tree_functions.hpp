@@ -4,11 +4,11 @@
 #include <cstdint>
 
 #include "counter.hpp"
-#include "view.hpp"
 
 double entropy(const Counter& counters);
 
-double entropy(const View<uint32_t>& y);
+double entropy(const std::vector<uint32_t>& y,
+               const std::vector<size_t>& indices);
 
 double informationGain(double parent_entropy, const Counter& left,
                        const Counter& right);
