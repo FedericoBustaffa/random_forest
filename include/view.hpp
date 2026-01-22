@@ -21,7 +21,7 @@ public:
 
     inline bool empty() const { return m_Indices.empty(); }
 
-    inline const std::vector<size_t>& indices() const { return m_Indices; }
+    inline std::vector<size_t>& indices() const { return m_Indices; }
 
     inline const T& operator[](size_t idx) const
     {
@@ -34,7 +34,7 @@ public:
 
 private:
     const std::vector<T>& m_Data;
-    const std::vector<size_t>& m_Indices;
+    std::vector<size_t>& m_Indices;
 };
 
 #endif

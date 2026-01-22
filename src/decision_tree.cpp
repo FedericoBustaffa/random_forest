@@ -85,10 +85,11 @@ int64_t DecisionTree::grow(const std::vector<View<double>>& X,
         return m_Tree.size() - 1;
     }
 
+    const std::vector<size_t> indices = y.indices();
     std::vector<size_t> left;
     std::vector<size_t> right;
-
-    const std::vector<size_t> indices = y.indices();
+    left.reserve(indices.size());
+    right.reserve(indices.size());
 
     for (size_t i = 0; i < y.size(); i++)
     {
