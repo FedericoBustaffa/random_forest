@@ -8,7 +8,7 @@ CXXFLAGS = -Wall -std=c++20 -fopenmp
 DBGFLAGS = -g -DDEBUG
 
 # flags for optimized compilation - disabled if compiled in debug mode
-OPTFLAGS = -O3 -march=native -DNDEBUG
+OPTFLAGS = -O3 -march=native -ffast-math -DNDEBUG
 
 # dependencies flags
 DEPSFLAGS = -MMD -MP
