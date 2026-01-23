@@ -2,7 +2,7 @@
 
 
 # sequential
-for i in 32 64 128; do
+for i in 8 16 32 64 128 256; do
     for j in $(seq 1 5); do
         srun -N 1 -n 1 -c 1 ./build/rf.out $i 0 "seq" 1 1 $1 1
     done
@@ -10,7 +10,7 @@ done
 
 
 # openmp
-for i in 32 64 128; do
+for i in 8 16 32 64 128 256; do
     for t in 1 2 4 8 16 32; do
         for j in $(seq 1 5); do
             srun -N 1 -n 1 -c 32 ./build/rf.out $i 0 "omp" $t 1 $1 1
@@ -20,7 +20,7 @@ done
 
 
 # fastflow
-for i in 32 64 128; do
+for i in 8 16 32 64 128 256; do
     for t in 1 2 4 8 16 32; do
         for j in $(seq 1 5); do
             srun -N 1 -n 1 -c 32 ./build/rf.out $i 0 "ff" $t 1 $1 1
@@ -30,7 +30,7 @@ done
 
 
 # mpi
-for i in 32 64 128; do
+for i in 32 64 128 256; do
     for t in 16 32; do
         for n in 2 4 6 8; do
             for j in $(seq 1 5); do
