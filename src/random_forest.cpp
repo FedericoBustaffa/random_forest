@@ -12,8 +12,8 @@ RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
         m_Trees.emplace_back(max_depth, true, ntrees + i);
 }
 
-void RandomForest::fit(const std::vector<std::vector<double>>& X,
-                       const std::vector<uint32_t>& y)
+void RandomForest::fit(const std::vector<std::vector<float>>& X,
+                       const std::vector<uint8_t>& y)
 {
     // save the possible number of labels/classes
     m_Labels = count_labels(y);
@@ -42,8 +42,8 @@ void RandomForest::fit(const std::vector<std::vector<double>>& X,
     }
 }
 
-std::vector<uint32_t> RandomForest::predict(
-    const std::vector<std::vector<double>>& X)
+std::vector<uint8_t> RandomForest::predict(
+    const std::vector<std::vector<float>>& X)
 {
     switch (m_Backend)
     {

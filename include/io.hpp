@@ -4,8 +4,8 @@
 #include <string>
 
 #include "args_parse.hpp"
+#include "backend.hpp"
 #include "dataframe.hpp"
-#include "random_forest.hpp"
 
 struct Record
 {
@@ -48,15 +48,15 @@ struct Record
     std::string dataset;
 
     // predictions results
-    double train_accuracy;
-    double test_accuracy;
-    double train_f1;
-    double test_f1;
+    float train_accuracy;
+    float test_accuracy;
+    float train_f1;
+    float test_f1;
 
     // performance metrics
-    double train_time;
-    double train_predict_time;
-    double test_predict_time;
+    float train_time;
+    float train_predict_time;
+    float test_predict_time;
 };
 
 DataFrame read_csv(const std::string& filepath);

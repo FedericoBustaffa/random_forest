@@ -37,11 +37,11 @@ int main(int argc, char** argv)
     record.train_time = timer.stop();
 
     timer.start();
-    std::vector<uint32_t> train_pred = forest.predict(X_train);
+    std::vector<uint8_t> train_pred = forest.predict(X_train);
     record.train_predict_time = timer.stop();
 
     timer.start();
-    std::vector<uint32_t> test_pred = forest.predict(X_test);
+    std::vector<uint8_t> test_pred = forest.predict(X_test);
     record.test_predict_time = timer.stop();
 
     // prediction scores

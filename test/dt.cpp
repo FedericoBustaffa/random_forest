@@ -30,7 +30,7 @@ int main(int argc, const char** argv)
     timer.stop("train");
 
     timer.start();
-    std::vector<uint32_t> y_pred = tree.predict(X_train);
+    std::vector<uint8_t> y_pred = tree.predict(X_train);
     timer.stop("train predict");
 
     std::printf("train accuracy: %.2f\n", accuracy_score(y_pred, y_train));

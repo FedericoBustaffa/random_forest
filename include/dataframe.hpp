@@ -19,7 +19,7 @@ public:
 
     const std::string& operator()(size_t row, size_t col) const;
 
-    std::pair<std::vector<std::vector<double>>, std::vector<uint32_t>>
+    std::pair<std::vector<std::vector<float>>, std::vector<uint8_t>>
     to_vector();
 
     ~DataFrame();
@@ -36,7 +36,7 @@ private:
     size_t m_Rows, m_Cols;
 
     std::vector<DataType> m_DataTypes;
-    std::vector<std::unordered_map<std::string, double>> m_Encoders;
+    std::vector<std::unordered_map<std::string, float>> m_Encoders;
 };
 
 #endif

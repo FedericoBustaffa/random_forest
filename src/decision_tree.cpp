@@ -18,8 +18,8 @@ DecisionTree::DecisionTree(size_t max_depth, bool bootstrap,
     }
 }
 
-int64_t DecisionTree::grow(const std::vector<std::vector<double>>& X,
-                           const std::vector<uint32_t>& y,
+int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
+                           const std::vector<uint8_t>& y,
                            const std::vector<size_t>& indices, size_t n_labels,
                            size_t depth)
 {
@@ -33,12 +33,12 @@ int64_t DecisionTree::grow(const std::vector<std::vector<double>>& X,
         return -1;
 
     size_t n_features = X.size();
-    double best_threshold = 0;
-    double best_gain = -1;
+    float best_threshold = 0;
+    float best_gain = -1;
     size_t best_feature = 0;
 
     // compute only once
-    double parent_entropy = entropy(y, indices);
+    float parent_entropy = entropy(y, indices);
 
     for (size_t i = 0; i < n_features; i++)
     {
@@ -50,25 +50,25 @@ int64_t DecisionTree::grow(const std::vector<std::vector<double>>& X,
             right_counters[y[indices[order[j]]]]++;
 
         // candidate thresholds
-        double prev_label = y[indices[order[0]]];
+        float prev_label = y[indices[order[0]]];
         for (size_t j = 1; j < indices.size(); j++)
         {
-            uint32_t label = y[indices[order[j - 1]]];
+            uint8_t label = y[indices[order[j - 1]]];
             left_counters[label]++;
             right_counters[label]--;
 
-            double prev_feature = X[i][indices[order[j - 1]]];
-            double curr_feature = X[i][indices[order[j]]];
+            float prev_feature = X[i][indices[order[j - 1]]];
+            float curr_feature = X[i][indices[order[j]]];
 
             if (prev_feature == curr_feature)
                 continue;
 
-            uint32_t curr_label = y[indices[order[j]]];
+            uint8_t curr_label = y[indices[order[j]]];
             if (prev_label != curr_label)
             {
-                double threshold = (prev_feature + curr_feature) * 0.5;
-                double gain = informationGain(parent_entropy, left_counters,
-                                              right_counters);
+                float threshold = (prev_feature + curr_feature) * 0.5;
+                float gain = informationGain(parent_entropy, left_counters,
+                                             right_counters);
                 if (gain > best_gain)
                 {
                     best_gain = gain;
@@ -107,8 +107,8 @@ int64_t DecisionTree::grow(const std::vector<std::vector<double>>& X,
     return idx;
 }
 
-void DecisionTree::fit(const std::vector<std::vector<double>>& X,
-                       const std::vector<uint32_t>& y)
+void DecisionTree::fit(const std::vector<std::vector<float>>& X,
+                       const std::vector<uint8_t>& y)
 {
     std::vector<size_t> indices;
     if (m_Bootstrap)
@@ -126,7 +126,7 @@ void DecisionTree::fit(const std::vector<std::vector<double>>& X,
     m_Tree.shrink_to_fit();
 }
 
-uint32_t DecisionTree::predict_one(const std::vector<double>& x, int64_t i)
+uint8_t DecisionTree::predict_one(const std::vector<float>& x, int64_t i)
 {
     const Node& node = m_Tree[i];
     if (node.label != -1)
@@ -138,10 +138,10 @@ uint32_t DecisionTree::predict_one(const std::vector<double>& x, int64_t i)
         return predict_one(x, node.right);
 }
 
-std::vector<uint32_t> DecisionTree::predict(
-    const std::vector<std::vector<double>>& X)
+std::vector<uint8_t> DecisionTree::predict(
+    const std::vector<std::vector<float>>& X)
 {
-    std::vector<uint32_t> labels(X.size());
+    std::vector<uint8_t> labels(X.size());
     for (size_t i = 0; i < X.size(); i++)
         labels[i] = predict_one(X[i], 0);
 

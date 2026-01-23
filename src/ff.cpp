@@ -29,8 +29,8 @@ private:
 class Fitter : public ff_node_t<size_t>
 {
 public:
-    Fitter(const std::vector<std::vector<double>>& X,
-           const std::vector<uint32_t>& y, std::vector<DecisionTree>& trees)
+    Fitter(const std::vector<std::vector<float>>& X,
+           const std::vector<uint8_t>& y, std::vector<DecisionTree>& trees)
         : X(X), y(y), trees(trees)
     {
     }
@@ -44,13 +44,13 @@ public:
     }
 
 private:
-    const std::vector<std::vector<double>>& X;
-    const std::vector<uint32_t>& y;
+    const std::vector<std::vector<float>>& X;
+    const std::vector<uint8_t>& y;
     std::vector<DecisionTree>& trees;
 };
 
-void RandomForest::ff_fit(const std::vector<std::vector<double>>& X,
-                          const std::vector<uint32_t>& y)
+void RandomForest::ff_fit(const std::vector<std::vector<float>>& X,
+                          const std::vector<uint8_t>& y)
 {
     Source source(m_Trees.size());
 
@@ -66,8 +66,8 @@ void RandomForest::ff_fit(const std::vector<std::vector<double>>& X,
 class Predicter : public ff_node_t<size_t>
 {
 public:
-    Predicter(const std::vector<std::vector<double>>& X,
-              std::vector<std::vector<uint32_t>>& y,
+    Predicter(const std::vector<std::vector<float>>& X,
+              std::vector<std::vector<uint8_t>>& y,
               std::vector<DecisionTree>& trees)
         : X(X), y(y), trees(trees)
     {
@@ -82,16 +82,16 @@ public:
     }
 
 private:
-    const std::vector<std::vector<double>>& X;
-    std::vector<std::vector<uint32_t>>& y;
+    const std::vector<std::vector<float>>& X;
+    std::vector<std::vector<uint8_t>>& y;
     std::vector<DecisionTree>& trees;
 };
 
 class VoteCounter : public ff_node_t<size_t>
 {
 public:
-    VoteCounter(const std::vector<std::vector<uint32_t>>& y,
-                std::vector<Counter>& votes, std::vector<uint32_t>& prediction)
+    VoteCounter(const std::vector<std::vector<uint8_t>>& y,
+                std::vector<Counter>& votes, std::vector<uint8_t>& prediction)
         : y(y), votes(votes), prediction(prediction)
     {
     }
@@ -100,11 +100,11 @@ public:
     {
         for (size_t j = 0; j < y.size(); j++)
         {
-            const std::vector<uint32_t>& pred = y[j];
+            const std::vector<uint8_t>& pred = y[j];
             votes[*i][pred[*i]]++;
         }
 
-        uint32_t value = 0;
+        uint8_t value = 0;
         size_t counter = 0;
         for (size_t j = 0; j < votes[*i].size(); ++j)
         {
@@ -122,18 +122,18 @@ public:
     }
 
 private:
-    const std::vector<std::vector<uint32_t>>& y;
+    const std::vector<std::vector<uint8_t>>& y;
     std::vector<Counter>& votes;
-    std::vector<uint32_t>& prediction;
+    std::vector<uint8_t>& prediction;
 };
 
-std::vector<uint32_t> RandomForest::ff_predict(
-    const std::vector<std::vector<double>>& X)
+std::vector<uint8_t> RandomForest::ff_predict(
+    const std::vector<std::vector<float>>& X)
 {
     // predict the same batch in parallel
     Source tree_source(m_Trees.size());
 
-    std::vector<std::vector<uint32_t>> y(m_Trees.size());
+    std::vector<std::vector<uint8_t>> y(m_Trees.size());
     std::vector<std::unique_ptr<ff_node>> predicters;
     for (size_t i = 0; i < m_Threads; i++)
         predicters.push_back(std::make_unique<Predicter>(X, y, m_Trees));
@@ -144,7 +144,7 @@ std::vector<uint32_t> RandomForest::ff_predict(
 
     // count votes and compute majority
     std::vector<Counter> votes(X.size(), m_Labels);
-    std::vector<uint32_t> prediction(votes.size());
+    std::vector<uint8_t> prediction(votes.size());
 
     Source votes_source(votes.size());
     std::vector<std::unique_ptr<ff_node>> counters;

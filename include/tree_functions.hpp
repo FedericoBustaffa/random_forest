@@ -5,12 +5,12 @@
 
 #include "counter.hpp"
 
-double entropy(const Counter& counters);
+float entropy(const Counter& counters);
 
-double entropy(const std::vector<uint32_t>& y,
-               const std::vector<size_t>& indices);
+float entropy(const std::vector<uint8_t>& y,
+              const std::vector<size_t>& indices);
 
-double informationGain(double parent_entropy, const Counter& left,
-                       const Counter& right);
+float informationGain(float parent_entropy, const Counter& left,
+                      const Counter& right);
 
 #endif

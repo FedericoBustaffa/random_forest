@@ -4,11 +4,11 @@
 #include <cstddef>
 #include <set>
 
-double accuracy_score(const std::vector<uint32_t>& predictions,
-                      const std::vector<uint32_t>& correct)
+float accuracy_score(const std::vector<uint8_t>& predictions,
+                     const std::vector<uint8_t>& correct)
 {
     assert(predictions.size() == correct.size());
-    double counter = 0.0;
+    float counter = 0.0;
     for (size_t i = 0; i < predictions.size(); i++)
     {
         if (predictions[i] == correct[i])
@@ -18,14 +18,14 @@ double accuracy_score(const std::vector<uint32_t>& predictions,
     return counter / predictions.size();
 }
 
-double f1_score(const std::vector<uint32_t>& predictions,
-                const std::vector<uint32_t>& correct)
+float f1_score(const std::vector<uint8_t>& predictions,
+               const std::vector<uint8_t>& correct)
 {
     assert(predictions.size() == correct.size());
-    std::set<uint32_t> labels(correct.begin(), correct.end());
+    std::set<uint8_t> labels(correct.begin(), correct.end());
     labels.insert(predictions.begin(), predictions.end());
 
-    double total_f1 = 0.0;
+    float total_f1 = 0.0;
     size_t valid_labels = 0;
 
     for (const auto& label : labels)
@@ -53,15 +53,15 @@ double f1_score(const std::vector<uint32_t>& predictions,
         if (tp == 0 && fp == 0 && fn == 0)
             continue;
 
-        double precision = 0.0;
+        float precision = 0.0;
         if (tp + fp > 0)
-            precision = (double)tp / (tp + fp);
+            precision = (float)tp / (tp + fp);
 
-        double recall = 0.0;
+        float recall = 0.0;
         if (tp + fn > 0)
-            recall = (double)tp / (tp + fn);
+            recall = (float)tp / (tp + fn);
 
-        double f1 = 0.0;
+        float f1 = 0.0;
         if (precision + recall > 0)
             f1 = (2 * precision * recall) / (precision + recall);
 

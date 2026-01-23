@@ -24,11 +24,11 @@ DataFrame::DataFrame(const std::vector<std::string>& content, size_t rows,
             for (size_t j = 0; j < m_Rows; j++)
                 possible_values.emplace(m_Content[j * m_Cols + i]);
 
-            std::unordered_map<std::string, double> encoder;
-            double counter = 0.0;
+            std::unordered_map<std::string, float> encoder;
+            float counter = 0.0;
             for (const auto& pv : possible_values)
             {
-                encoder[pv] = (double)counter;
+                encoder[pv] = (float)counter;
                 counter += 1.0;
             }
 
@@ -45,11 +45,11 @@ const std::string& DataFrame::operator()(size_t row, size_t col) const
     return m_Content[row * m_Cols + col];
 }
 
-std::pair<std::vector<std::vector<double>>, std::vector<uint32_t>> DataFrame::
+std::pair<std::vector<std::vector<float>>, std::vector<uint8_t>> DataFrame::
     to_vector()
 {
-    std::vector<std::vector<double>> X(m_Rows);
-    std::vector<uint32_t> y(m_Rows);
+    std::vector<std::vector<float>> X(m_Rows);
+    std::vector<uint8_t> y(m_Rows);
 
     for (size_t i = 0; i < m_Rows; i++)
     {

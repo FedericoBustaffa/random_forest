@@ -3,16 +3,8 @@
 
 #include <vector>
 
+#include "backend.hpp"
 #include "decision_tree.hpp"
-
-enum class Backend
-{
-    Sequential,
-    OpenMP,
-    FastFlow,
-    MPI,
-    Invalid
-};
 
 class RandomForest
 {
@@ -21,42 +13,39 @@ public:
                  Backend backend = Backend::Sequential, size_t threads = 1,
                  size_t nodes = 1);
 
-    void fit(const std::vector<std::vector<double>>& X,
-             const std::vector<uint32_t>& y);
+    void fit(const std::vector<std::vector<float>>& X,
+             const std::vector<uint8_t>& y);
 
-    std::vector<uint32_t> predict(const std::vector<std::vector<double>>& X);
+    std::vector<uint8_t> predict(const std::vector<std::vector<float>>& X);
 
     std::vector<size_t> depths() const;
 
     ~RandomForest();
 
 private:
-    void seq_fit(const std::vector<std::vector<double>>& X,
-                 const std::vector<uint32_t>& y);
+    void seq_fit(const std::vector<std::vector<float>>& X,
+                 const std::vector<uint8_t>& y);
 
-    void omp_fit(const std::vector<std::vector<double>>& X,
-                 const std::vector<uint32_t>& y);
+    void omp_fit(const std::vector<std::vector<float>>& X,
+                 const std::vector<uint8_t>& y);
 
-    void ff_fit(const std::vector<std::vector<double>>& X,
-                const std::vector<uint32_t>& y);
+    void ff_fit(const std::vector<std::vector<float>>& X,
+                const std::vector<uint8_t>& y);
 
-    void mpi_fit(const std::vector<std::vector<double>>& X,
-                 const std::vector<uint32_t>& y);
+    void mpi_fit(const std::vector<std::vector<float>>& X,
+                 const std::vector<uint8_t>& y);
 
-    std::vector<uint32_t> seq_predict(
-        const std::vector<std::vector<double>>& X);
+    std::vector<uint8_t> seq_predict(const std::vector<std::vector<float>>& X);
 
-    std::vector<uint32_t> omp_predict(
-        const std::vector<std::vector<double>>& X);
+    std::vector<uint8_t> omp_predict(const std::vector<std::vector<float>>& X);
 
-    std::vector<uint32_t> ff_predict(const std::vector<std::vector<double>>& X);
+    std::vector<uint8_t> ff_predict(const std::vector<std::vector<float>>& X);
 
-    std::vector<uint32_t> mpi_predict(
-        const std::vector<std::vector<double>>& X);
+    std::vector<uint8_t> mpi_predict(const std::vector<std::vector<float>>& X);
 
 private:
     std::vector<DecisionTree> m_Trees;
-    uint32_t m_Labels = 0;
+    uint8_t m_Labels = 0;
 
     Backend m_Backend;
     size_t m_Threads;

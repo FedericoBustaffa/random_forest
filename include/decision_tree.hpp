@@ -11,10 +11,10 @@ public:
     DecisionTree(size_t max_depth = 0, bool bootstrap = false,
                  int64_t random_state = -1);
 
-    void fit(const std::vector<std::vector<double>>& X,
-             const std::vector<uint32_t>& y);
+    void fit(const std::vector<std::vector<float>>& X,
+             const std::vector<uint8_t>& y);
 
-    std::vector<uint32_t> predict(const std::vector<std::vector<double>>& X);
+    std::vector<uint8_t> predict(const std::vector<std::vector<float>>& X);
 
     size_t size() const { return m_Tree.size(); }
 
@@ -25,15 +25,15 @@ public:
 private:
     struct Node
     {
-        Node(uint32_t feature, double threshold)
+        Node(uint8_t feature, float threshold)
             : feature(feature), threshold(threshold), label(-1)
         {
         }
 
         Node(int label) : feature(0), threshold(0.0), label(label) {}
 
-        uint32_t feature;
-        double threshold;
+        uint8_t feature;
+        float threshold;
         int label;
 
         int64_t left = -1;
@@ -41,12 +41,12 @@ private:
     };
 
 private: // tree private methods
-    int64_t grow(const std::vector<std::vector<double>>& X,
-                 const std::vector<uint32_t>& y,
+    int64_t grow(const std::vector<std::vector<float>>& X,
+                 const std::vector<uint8_t>& y,
                  const std::vector<size_t>& indices, size_t n_labels,
                  size_t depth);
 
-    uint32_t predict_one(const std::vector<double>& x, int64_t i);
+    uint8_t predict_one(const std::vector<float>& x, int64_t i);
 
     size_t compute_depth(int64_t i) const;
 

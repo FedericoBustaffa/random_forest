@@ -4,10 +4,10 @@
 #include <cstdint>
 #include <vector>
 
-double accuracy_score(const std::vector<uint32_t>& predictions,
-                      const std::vector<uint32_t>& correct);
+float accuracy_score(const std::vector<uint8_t>& predictions,
+                     const std::vector<uint8_t>& correct);
 
-double f1_score(const std::vector<uint32_t>& predictions,
-                const std::vector<uint32_t>& correct);
+float f1_score(const std::vector<uint8_t>& predictions,
+               const std::vector<uint8_t>& correct);
 
 #endif

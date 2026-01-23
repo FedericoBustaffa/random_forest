@@ -5,8 +5,8 @@
 #include <cstddef>
 #include <cstdint>
 
-void RandomForest::mpi_fit(const std::vector<std::vector<double>>& X,
-                           const std::vector<uint32_t>& y)
+void RandomForest::mpi_fit(const std::vector<std::vector<float>>& X,
+                           const std::vector<uint8_t>& y)
 {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -16,15 +16,15 @@ void RandomForest::mpi_fit(const std::vector<std::vector<double>>& X,
         m_Trees[i].fit(X, y);
 }
 
-std::vector<uint32_t> RandomForest::mpi_predict(
-    const std::vector<std::vector<double>>& X)
+std::vector<uint8_t> RandomForest::mpi_predict(
+    const std::vector<std::vector<float>>& X)
 {
     // predict the same batch in parallel
-    std::vector<uint32_t> y(X.size() * m_Trees.size());
+    std::vector<uint8_t> y(X.size() * m_Trees.size());
 #pragma omp parallel for num_threads(m_Threads)
     for (size_t i = 0; i < m_Trees.size(); i++)
     {
-        std::vector<uint32_t> single = m_Trees[i].predict(X);
+        std::vector<uint8_t> single = m_Trees[i].predict(X);
         for (size_t j = 0; j < X.size(); j++)
             y[j * m_Trees.size() + i] = single[j];
     }
@@ -37,7 +37,7 @@ std::vector<uint32_t> RandomForest::mpi_predict(
         size_t row = i * m_Labels;
         for (size_t j = 0; j < m_Trees.size(); j++)
         {
-            uint32_t label = y[i * m_Trees.size() + j];
+            uint8_t label = y[i * m_Trees.size() + j];
             counters[row + label]++;
         }
     }
@@ -51,7 +51,7 @@ std::vector<uint32_t> RandomForest::mpi_predict(
 
     if (rank == 0)
     {
-        std::vector<uint32_t> prediction(X.size());
+        std::vector<uint8_t> prediction(X.size());
 #pragma omp parallel for num_threads(m_Threads)
         for (size_t i = 0; i < X.size(); i++)
         {

@@ -6,7 +6,7 @@
 #include <random>
 #include <vector>
 
-std::vector<size_t> argsort(const std::vector<double>& v,
+std::vector<size_t> argsort(const std::vector<float>& v,
                             const std::vector<size_t>& indices)
 {
     std::vector<size_t> order(indices.size());
@@ -20,13 +20,13 @@ std::vector<size_t> argsort(const std::vector<double>& v,
     return order;
 }
 
-std::vector<std::vector<double>> transpose(
-    const std::vector<std::vector<double>>& X)
+std::vector<std::vector<float>> transpose(
+    const std::vector<std::vector<float>>& X)
 {
     size_t rows = X.size();
     size_t cols = X[0].size();
 
-    std::vector<std::vector<double>> T(X[0].size());
+    std::vector<std::vector<float>> T(X[0].size());
     for (size_t i = 0; i < cols; i++)
         T[i].reserve(rows);
 
@@ -37,7 +37,7 @@ std::vector<std::vector<double>> transpose(
     return T;
 }
 
-size_t count_labels(const std::vector<uint32_t>& y)
+size_t count_labels(const std::vector<uint8_t>& y)
 {
     size_t found = 0;
     for (size_t i = 0; i < y.size(); ++i)
@@ -49,7 +49,7 @@ size_t count_labels(const std::vector<uint32_t>& y)
     return found + 1;
 }
 
-size_t count_labels(const std::vector<uint32_t>& y,
+size_t count_labels(const std::vector<uint8_t>& y,
                     const std::vector<size_t>& indices)
 {
     size_t found = 0;
@@ -62,8 +62,7 @@ size_t count_labels(const std::vector<uint32_t>& y,
     return found + 1;
 }
 
-Counter count(const std::vector<uint32_t>& y,
-              const std::vector<size_t>& indices)
+Counter count(const std::vector<uint8_t>& y, const std::vector<size_t>& indices)
 {
     Counter counter(count_labels(y, indices));
     for (size_t i = 0; i < indices.size(); i++)
@@ -72,11 +71,11 @@ Counter count(const std::vector<uint32_t>& y,
     return counter;
 }
 
-uint32_t majority(const std::vector<uint32_t>& y,
-                  const std::vector<size_t>& indices)
+uint8_t majority(const std::vector<uint8_t>& y,
+                 const std::vector<size_t>& indices)
 {
     Counter counter = count(y, indices);
-    uint32_t value = 0;
+    uint8_t value = 0;
     size_t best_counter = 0;
     for (size_t i = 0; i < counter.size(); ++i)
     {
@@ -112,7 +111,7 @@ std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
     return {train_indices, test_indices};
 }
 
-std::vector<size_t> bootstrap(size_t n_samples, uint32_t seed)
+std::vector<size_t> bootstrap(size_t n_samples, uint8_t seed)
 {
     std::mt19937 rng(seed);
     std::uniform_int_distribution<size_t> dist(0, n_samples - 1);

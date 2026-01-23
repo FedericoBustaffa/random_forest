@@ -6,25 +6,25 @@
 #include <string>
 #include <vector>
 
+#include "backend.hpp"
 #include "counter.hpp"
-#include "random_forest.hpp"
 
-std::vector<size_t> argsort(const std::vector<double>& v,
+std::vector<size_t> argsort(const std::vector<float>& v,
                             const std::vector<size_t>& indices);
 
-std::vector<std::vector<double>> transpose(
-    const std::vector<std::vector<double>>& X);
+std::vector<std::vector<float>> transpose(
+    const std::vector<std::vector<float>>& X);
 
-size_t count_labels(const std::vector<uint32_t>& y);
+size_t count_labels(const std::vector<uint8_t>& y);
 
-size_t count_labels(const std::vector<uint32_t>& y,
+size_t count_labels(const std::vector<uint8_t>& y,
                     const std::vector<size_t>& indices);
 
-Counter count(const std::vector<uint32_t>& y,
+Counter count(const std::vector<uint8_t>& y,
               const std::vector<size_t>& indices);
 
-uint32_t majority(const std::vector<uint32_t>& y,
-                  const std::vector<size_t>& indices);
+uint8_t majority(const std::vector<uint8_t>& y,
+                 const std::vector<size_t>& indices);
 
 std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
     size_t n_samples, float test_size, int seed = -1);
@@ -46,7 +46,7 @@ std::pair<std::vector<T>, std::vector<T>> split(
     return {train, test};
 }
 
-std::vector<size_t> bootstrap(size_t n_samples, uint32_t seed);
+std::vector<size_t> bootstrap(size_t n_samples, uint8_t seed);
 
 Backend to_backend(const std::string& s);
 
