@@ -119,10 +119,9 @@ void DecisionTree::fit(const std::vector<std::vector<float>>& X,
         std::iota(indices.begin(), indices.end(), 0);
     }
 
-    auto T = transpose(X);
     size_t n_labels = count_labels(y, indices);
 
-    grow(T, y, indices, n_labels, 1);
+    grow(transpose(X), y, indices, n_labels, 1);
     m_Tree.shrink_to_fit();
 }
 
