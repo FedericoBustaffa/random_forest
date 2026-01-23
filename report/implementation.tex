@@ -1,0 +1,13 @@
+\section{Implementation}
+
+As anticipated in the introduction, this implementation aims to speed, not good
+generalization, hence in order to have a good starting point, most optimizations
+are done at decision tree level.
+
+The random forest implementation parallelizes trees in both training and
+prediction phases, avoiding race conditions (almost entirely) for every parallel
+version.
+
+\subsection{Decision Tree}
+
+Starting from decision tree implementation we have 

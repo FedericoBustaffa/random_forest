@@ -1,0 +1,28 @@
+\section{Introduction}
+
+The developed model aims to provide an efficient yet basic implementation of
+random forest algorithm, built on top of a decision tree classifier.
+
+It's worth to clarify that the aim of the project was not to build a good ML
+model, but a well engineered model oriented pure runtime performance. In other
+words the tree does not use any heuristic, commonly used for regularization or
+approximate calculus (histogram approximation of features or splits based on a
+subsample of features).
+
+In this sense the decision tree is correct from an algorithmic point of view but
+quite "dummy" from a ML perspective: it does not aim to a good generalization of
+the underlying distribution, always overfitting the training set until all
+samples are correctly classified. It must be said, however, that splits are
+based on the best information gain; this should reduce the overall number of
+splits, also making them more significant.
+
+The random forest just uses a set of tree, each trained on a bootstrap of the
+training set. The final prediction is based on a simple majority vote for each
+sample.
+
+Moving to the parallelization choices and design, only the forest is
+parallelized; this choice was made considering the usual number of estimators
+for the examined datasets and the total number of processors available on the
+cluster. Parallelizing trees involves a nested parallelization paradigm, more
+difficult to handle and possibly worse in performance due to overhead.
+
