@@ -10,12 +10,120 @@ parallel version.
 
 \subsection{Decision Tree}
 
-Starting from decision tree implementation we have 
+The core logic and most of the low level optimizations are implemented in the
+decision tree, recursively built as a \verb|std::vector| of \verb|Node|, in
+order to better exploit cache locality for faster prediction.
+
+The tree is built with DFS layout, mostly for simplicity and to limit its
+dimension; in this way is fact possible to store it in a compact way. 
+
+% keep?
+A BFS layout comes with the need for a conversion from the DFS layout and, if
+implemented as a balanced binary tree, with an higher memory consumption in
+order to store empty nodes.
+
+% maybe I should implement it :)
+On the other hand, a BFS layout puts the tree levels contiguously in memory,
+performing better (on average) than DFS, that instead puts complete paths from
+root to leaves contiguously. In this sense the DFS can be very fast or suffer
+from multiple cache misses if the right path is on the right of the tree.
+
+% if implement BFS layout probably add some SIMD considerations
+
+The training algorithm finds the optimal split by considering every feature, and
+for each of them computing an optimal split threshold using information gain and
+entropy as metrics:
+
+\begin{enumerate}
+  \item Sort the feature by creating indices to redirect the indexing (dataset
+    is immutable).
+  \item If there is a change of class, the mid point between the previous and
+    current feature value is examined as candidate threshold.
+  \item If the candidate threshold has an higher information gain than the
+    previous one, then it becomes the new best threshold candidate.
+\end{enumerate}
+
+In this phase, most of the optimizations and time improvements are due to a
+column-major memory layout, obtained by creating a transposed copy of the
+original \emph{samples} $\times$ \emph{features} matrix. In this way is possible
+to exploit cache locality while scanning every feature value, searching for an
+optimal split.
+
+Another key optimization comes by considering the following entropy and
+information gain formulations:
+
+\begin{align*}
+  \text{Entropy}(S) &= -\sum_{i=1}^n p_i \log_2(p_i) \\
+  \text{Gain}(S, A) &= \text{Entropy}(S) - \sum_{v \in \text{Values}(A)}
+  \frac{\#(Sv)}{\#(S)} \cdot \text{Entropy}(Sv)
+\end{align*}
+
+where $S$ is the consider set of samples, $A$ is the considered attribute (or
+feature) and $Sv$ is the subset of $S$ with attribute $A$ having value $v$. The
+first term of this formulation can be computed once for every feature and then
+riused every time there is the need to analyze a new candidate threshold.
+
+Another related optimization exploits the fact that the considered feature is
+sorted, therefore is possible to think that the loop "moves" a boundary along
+the considered feature axis, gradually dividing encountered points in
+\emph{left} and \emph{right} subsets. This allows to count each target class
+cardinality once at the beginning and consider all the points as belonging to
+the \emph{right} subset. The loop just update the counter by decreasing
+\emph{right} counters on the and increasing \emph{left} counters, avoiding to
+completely rescan the target column each time \verb|informationGain| and
+\verb|entropy| functions are invoked.
+
+% leave for later if implementing BFS
+For the prediction phase the main optimization comes with the tree memory
+layout.
 
 \subsection{Random Forest}
 
-\subsection{OpenMP Version}
+The sequential implementation of the random forest stores a set of decision
+trees and train them sequentially, each on a bootstrap sampling of the original
+dataset.
 
-\subsection{FastFlow Version}
+For the prediction phase each tree performs a batch prediction on the given
+input returning a vector of labels. The vector is then used to increased a
+counters matrix that has a \emph{sample} $\times$ \emph{label} layout. Each row
+of the matrix is a frequency vector of every possible label for an input
+pattern.
 
-\subsection{MPI Version}
+Once every tree has produced its prediction, the final prediction is computed by
+taking the most frequent class for each input pattern.
+
+\subsubsection{OpenMP}
+
+The OpenMP version uses a static scheduling for both training and prediction
+phases, keeping basically the same logic of the sequential version.
+
+While the training phase uses a parallel for to parallelize each tree training,
+the prediction phase is splitted in two parallel steps. In the first step each
+tree produces its prediction and stores it in shared matrix with a \emph{tree}
+$\times$ \emph{sample} layout. There is no need of synchronization since the
+shared structure is projected for each tree to write its own cell.
+
+After producing predictions, the second parallel phase updates a matrix of
+counters, as before with a \emph{sample} $\times$ \emph{label} layout, and
+computes the majority vote for the final prediction. 
+
+Again no synchronization is needed due to the fact that every shared data
+structure is accessed exploiting the independence of each operation.
+
+\subsubsection{FastFlow}
+
+For the FastFlow version the main logic remains the same as the OpenMP version
+but instead of parallel for, the selected mechanism is the \verb|ff_Farm|.
+
+For the training part each worker has its own reference of the vector of trees,
+and the dataset. A \verb|Source| node only dispatches the index of the tree that
+the worker should train.
+
+The prediction part uses two independent farms that implement the exact same
+logic used for the OpenMP version, and again using a \verb|Source| node in
+charge of dispatching indices.
+
+This simple design choice was the first tried, yet the best one found, also
+capable of exposing worker tasks in their minimal form.
+
+\subsubsection{MPI}

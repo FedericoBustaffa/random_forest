@@ -20,7 +20,7 @@ DecisionTree::DecisionTree(size_t max_depth, bool bootstrap,
 
 int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
                            const std::vector<uint8_t>& y,
-                           const std::vector<size_t>& indices, size_t n_labels,
+                           std::vector<size_t>& indices, size_t n_labels,
                            size_t depth)
 {
     if (m_MaxDepth != 0 && depth == m_MaxDepth)
@@ -98,6 +98,7 @@ int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
         else
             right.push_back(indices[i]);
     }
+    indices.clear();
 
     int64_t idx = m_Tree.size();
     m_Tree.emplace_back(best_feature, best_threshold);
