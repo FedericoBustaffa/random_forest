@@ -42,9 +42,8 @@ private:
 
 private: // tree private methods
     int64_t grow(const std::vector<std::vector<float>>& X,
-                 const std::vector<uint8_t>& y,
-                 const std::vector<size_t>& indices, size_t n_labels,
-                 size_t depth);
+                 const std::vector<uint8_t>& y, std::vector<size_t>& indices,
+                 size_t n_labels, size_t depth);
 
     uint8_t predict_one(const std::vector<float>& x, int64_t i);
 

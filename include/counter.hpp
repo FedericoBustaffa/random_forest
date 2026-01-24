@@ -11,6 +11,15 @@ public:
 
     inline size_t size() const { return m_Counters.size(); }
 
+    inline size_t total() const
+    {
+        size_t s = 0;
+        for (size_t i = 0; i < m_Counters.size(); i++)
+            s += m_Counters[i];
+
+        return s;
+    }
+
     inline const size_t& operator[](size_t idx) const
     {
         return m_Counters[idx];
@@ -18,7 +27,7 @@ public:
 
     inline size_t& operator[](size_t idx) { return m_Counters[idx]; }
 
-    inline void reset() {}
+    inline void reset() { std::fill(m_Counters.begin(), m_Counters.end(), 0); }
 
     ~Counter() {}
 
