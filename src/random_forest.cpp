@@ -1,7 +1,8 @@
 #include "random_forest.hpp"
 
-#include "utils.hpp"
 #include <mpi.h>
+
+#include "utils.hpp"
 
 RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
                            size_t threads)
