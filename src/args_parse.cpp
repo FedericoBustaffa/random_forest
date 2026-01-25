@@ -2,19 +2,19 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 #include "args_parse.hpp"
 
 Args parse_args(int argc, char** argv)
 {
-    if (argc != 8)
+    if (argc < 7)
     {
         std::printf("USAGE: %s <estimators> <max_depth> "
-                    "<backend> <threads> <nodes> "
-                    "<dataset> <log>\n",
+                    "<backend> <threads> <nodes> <dataset> [log]\n",
                     argv[0]);
 
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     Args args;
@@ -25,7 +25,18 @@ Args parse_args(int argc, char** argv)
     args.threads = std::stoul(argv[4]);
     args.nodes = std::stoul(argv[5]);
     args.dataset = argv[6];
-    args.log = (bool)std::stoi(argv[7]);
+    args.log = false;
+
+    if (argc == 8)
+    {
+        if (std::strcmp(argv[7], "log") == 0)
+            args.log = true;
+        else
+        {
+            std::printf("ERROR: \"%s\" is an invalid value\n", argv[7]);
+            exit(EXIT_FAILURE);
+        }
+    }
 
     return args;
 }

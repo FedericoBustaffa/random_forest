@@ -8,6 +8,7 @@
 
 #include "backend.hpp"
 #include "counter.hpp"
+#include "datasplit.hpp"
 
 std::vector<size_t> argsort(const std::vector<float>& v,
                             const std::vector<size_t>& indices);
@@ -26,25 +27,9 @@ Counter count(const std::vector<uint8_t>& y,
 uint8_t majority(const std::vector<uint8_t>& y,
                  const std::vector<size_t>& indices);
 
-std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
-    size_t n_samples, float test_size, int seed = -1);
-
-template <typename T>
-std::pair<std::vector<T>, std::vector<T>> split(
-    const std::vector<T>& v, const std::vector<size_t>& train_idx,
-    const std::vector<size_t>& test_idx)
-{
-    std::vector<T> train(train_idx.size());
-    std::vector<T> test(test_idx.size());
-
-    for (size_t i = 0; i < train_idx.size(); i++)
-        train[i] = v[train_idx[i]];
-
-    for (size_t i = 0; i < test_idx.size(); i++)
-        test[i] = v[test_idx[i]];
-
-    return {train, test};
-}
+DataSplit train_test_split(const std::vector<std::vector<float>>& X,
+                           const std::vector<uint8_t>& y, float test_size,
+                           int seed = -1);
 
 std::vector<size_t> bootstrap(size_t n_samples, uint8_t seed);
 

@@ -60,13 +60,10 @@ void print_stats(const Record& record)
     std::printf("threads: %lu\n", record.threads);
     std::printf("nodes: %lu\n", record.nodes);
     std::printf("dataset: %s\n", record.dataset.c_str());
-    std::printf("train accuracy: %.2f\n", record.train_accuracy);
-    std::printf("train f1: %.2f\n", record.train_f1);
-    std::printf("test accuracy: %.2f\n", record.test_accuracy);
-    std::printf("test f1: %.2f\n", record.test_f1);
-    std::printf("train time: %.2f ms\n", record.train_time);
-    std::printf("train predict time: %.2f ms\n", record.train_predict_time);
-    std::printf("test predict time: %.2f ms \n", record.test_predict_time);
+    std::printf("training time: %.2f ms\n", record.train_time);
+    std::printf("prediction time: %.2f ms \n", record.predict_time);
+    std::printf("accuracy: %.2f\n", record.accuracy);
+    std::printf("f1 score: %.2f\n", record.f1);
 }
 
 void print_record(const Record& record)
@@ -110,13 +107,10 @@ void write_json(const Record& record)
     out << "\t\"threads\": " << record.threads << ",\n";
     out << "\t\"nodes\": " << record.nodes << ",\n";
     out << "\t\"dataset\": " << '\"' << record.dataset << '\"' << ",\n";
-    out << "\t\"train_accuracy\": " << record.train_accuracy << ",\n";
-    out << "\t\"train_f1\": " << record.train_f1 << ",\n";
-    out << "\t\"test_accuracy\": " << record.test_accuracy << ",\n";
-    out << "\t\"test_f1\": " << record.test_f1 << ",\n";
+    out << "\t\"accuracy\": " << record.accuracy << ",\n";
+    out << "\t\"f1\": " << record.f1 << ",\n";
     out << "\t\"train_time\": " << record.train_time << ",\n";
-    out << "\t\"train_predict_time\": " << record.train_predict_time << ",\n";
-    out << "\t\"test_predict_time\": " << record.test_predict_time << "\n";
+    out << "\t\"predict_time\": " << record.predict_time << "\n";
     out << "}\n";
 }
 

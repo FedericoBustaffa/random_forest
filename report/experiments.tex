@@ -1,5 +1,14 @@
 \section{Experiments}
 
+Most tests done on the cluster target performance, except an initial correctness
+check for both decision trees and random forest done by comparing results with
+Scikit-Learn.
+
+For random forest every version correctness is tested in order to ensure that
+parallelization does not corrupt the algorithm in any way. Of course little
+score discrepancies can be imputed to slightly different implementations or
+hyperparameters.
+
 \subsection{Comparison with Scikit-Learn}
 
 \subsection{Shared Memory}

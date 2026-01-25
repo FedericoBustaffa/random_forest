@@ -2,6 +2,7 @@
 
 #include "args_parse.hpp"
 #include "dataframe.hpp"
+#include "datasplit.hpp"
 #include "io.hpp"
 #include "metrics.hpp"
 #include "random_forest.hpp"
@@ -16,9 +17,7 @@ int main(int argc, char** argv)
     // get the dataset and split train and test sets
     DataFrame df = read_csv(args.dataset);
     auto [X, y] = df.to_vector();
-    auto [train_idx, test_idx] = train_test_split(X.size(), 0.2, 42);
-    auto [X_train, X_test] = split(X, train_idx, test_idx);
-    auto [y_train, y_test] = split(y, train_idx, test_idx);
+    DataSplit data = train_test_split(X, y, 0.2, 42);
 
     // initialize MPI if needed
     if (args.backend == Backend::MPI)
@@ -33,22 +32,16 @@ int main(int argc, char** argv)
     RandomForest forest(args.estimators, args.max_depth, args.backend,
                         args.threads, args.nodes);
     timer.start();
-    forest.fit(X_train, y_train);
+    forest.fit(data.X_train, data.y_train);
     record.train_time = timer.stop();
 
     timer.start();
-    std::vector<uint8_t> train_pred = forest.predict(X_train);
-    record.train_predict_time = timer.stop();
-
-    timer.start();
-    std::vector<uint8_t> test_pred = forest.predict(X_test);
-    record.test_predict_time = timer.stop();
+    std::vector<uint8_t> pred = forest.predict(data.X_test);
+    record.predict_time = timer.stop();
 
     // prediction scores
-    record.train_accuracy = accuracy_score(train_pred, y_train);
-    record.train_f1 = f1_score(train_pred, y_train);
-    record.test_accuracy = accuracy_score(test_pred, y_test);
-    record.test_f1 = f1_score(test_pred, y_test);
+    record.accuracy = accuracy_score(pred, data.y_test);
+    record.f1 = f1_score(pred, data.y_test);
 
     print_record(record);
 

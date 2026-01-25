@@ -48,15 +48,12 @@ struct Record
     std::string dataset;
 
     // predictions results
-    float train_accuracy;
-    float test_accuracy;
-    float train_f1;
-    float test_f1;
+    float accuracy;
+    float f1;
 
     // performance metrics
     float train_time;
-    float train_predict_time;
-    float test_predict_time;
+    float predict_time;
 };
 
 DataFrame read_csv(const std::string& filepath);

@@ -89,8 +89,9 @@ uint8_t majority(const std::vector<uint8_t>& y,
     return value;
 }
 
-std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
-    size_t n_samples, float test_size, int seed)
+DataSplit train_test_split(const std::vector<std::vector<float>>& X,
+                           const std::vector<uint8_t>& y, float test_size,
+                           int seed)
 {
     if (seed < 0)
     {
@@ -100,6 +101,7 @@ std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
 
     std::mt19937 engine(seed);
 
+    size_t n_samples = X.size();
     std::vector<size_t> indices(n_samples);
     std::iota(indices.begin(), indices.end(), 0);
     std::shuffle(indices.begin(), indices.end(), engine);
@@ -108,7 +110,21 @@ std::pair<std::vector<size_t>, std::vector<size_t>> train_test_split(
     std::vector<size_t> train_indices(indices.begin() + n_test, indices.end());
     std::vector<size_t> test_indices(indices.begin(), indices.begin() + n_test);
 
-    return {train_indices, test_indices};
+    DataSplit data(n_samples - n_test, n_test);
+
+    for (size_t i = 0; i < n_samples - n_test; i++)
+    {
+        data.X_train[i] = X[train_indices[i]];
+        data.y_train[i] = y[train_indices[i]];
+    }
+
+    for (size_t i = 0; i < n_test; i++)
+    {
+        data.X_test[i] = X[test_indices[i]];
+        data.y_test[i] = y[test_indices[i]];
+    }
+
+    return data;
 }
 
 std::vector<size_t> bootstrap(size_t n_samples, uint8_t seed)
