@@ -10,8 +10,17 @@ class RandomForest
 {
 public:
     RandomForest(size_t estimators, size_t max_depth = 0,
-                 Backend backend = Backend::Sequential, size_t threads = 1,
-                 size_t nodes = 1);
+                 Backend backend = Backend::Sequential, size_t threads = 1);
+
+    inline size_t estimators() const { return m_Trees.size(); }
+
+    inline size_t max_depth() const { return m_Trees[0].max_depth(); }
+
+    inline Backend backend() const { return m_Backend; }
+
+    inline size_t thrads() const { return m_Threads; }
+
+    inline size_t nodes() const { return m_Nodes; }
 
     void fit(const std::vector<std::vector<float>>& X,
              const std::vector<uint8_t>& y);

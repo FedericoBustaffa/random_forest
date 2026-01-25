@@ -11,14 +11,16 @@ public:
     DecisionTree(size_t max_depth = 0, bool bootstrap = false,
                  int64_t random_state = -1);
 
+    inline size_t max_depth() const { return m_MaxDepth; }
+
+    inline size_t size() const { return m_Tree.size(); }
+
+    size_t depth() const { return compute_depth(0); }
+
     void fit(const std::vector<std::vector<float>>& X,
              const std::vector<uint8_t>& y);
 
     std::vector<uint8_t> predict(const std::vector<std::vector<float>>& X);
-
-    size_t size() const { return m_Tree.size(); }
-
-    size_t depth() const { return compute_depth(0); }
 
     ~DecisionTree();
 

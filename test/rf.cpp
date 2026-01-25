@@ -24,24 +24,30 @@ int main(int argc, char** argv)
         MPI_Init(&argc, &argv);
 
     // to store statistics
-    Record record(args);
 
     // to measure performance
     Timer<milli> timer;
 
     RandomForest forest(args.estimators, args.max_depth, args.backend,
-                        args.threads, args.nodes);
+                        args.threads);
     timer.start();
     forest.fit(data.X_train, data.y_train);
-    record.train_time = timer.stop();
+    float train_time = timer.stop();
 
     timer.start();
     std::vector<uint8_t> pred = forest.predict(data.X_test);
-    record.predict_time = timer.stop();
+    float predict_time = timer.stop();
 
     // prediction scores
-    record.accuracy = accuracy_score(pred, data.y_test);
-    record.f1 = f1_score(pred, data.y_test);
+    float accuracy = accuracy_score(pred, data.y_test);
+    float f1 = f1_score(pred, data.y_test);
+
+    Record record(args);
+    record.nodes = forest.nodes();
+    record.train_time = train_time;
+    record.predict_time = predict_time;
+    record.accuracy = accuracy;
+    record.f1 = f1;
 
     print_record(record);
 

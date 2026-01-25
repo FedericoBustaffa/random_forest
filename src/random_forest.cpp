@@ -1,12 +1,18 @@
 #include "random_forest.hpp"
 
 #include "utils.hpp"
+#include <mpi.h>
 
 RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
-                           size_t threads, size_t nodes)
-    : m_Backend(backend), m_Threads(threads), m_Nodes(nodes)
+                           size_t threads)
+    : m_Backend(backend), m_Threads(threads)
 {
-    size_t ntrees = estimators / nodes;
+    if (m_Backend != Backend::MPI)
+        m_Nodes = 1;
+    else
+        MPI_Comm_size(MPI_COMM_WORLD, (int*)&m_Nodes);
+
+    size_t ntrees = estimators / m_Nodes;
     m_Trees.reserve(ntrees);
     for (size_t i = 0; i < ntrees; i++)
         m_Trees.emplace_back(max_depth, true, ntrees + i);
