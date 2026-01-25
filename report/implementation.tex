@@ -15,7 +15,7 @@ decision tree, recursively built as a \verb|std::vector| of \verb|Node|, in
 order to better exploit cache locality for faster prediction.
 
 The tree is built with DFS layout, mostly for simplicity and to limit its
-dimension; in this way is fact possible to store it in a compact way. 
+dimension; in this way is fact possible to store it in a compact way.
 
 % keep?
 A BFS layout comes with the need for a conversion from the DFS layout and, if
@@ -105,7 +105,7 @@ shared structure is projected for each tree to write its own cell.
 
 After producing predictions, the second parallel phase updates a matrix of
 counters, as before with a \emph{sample} $\times$ \emph{label} layout, and
-computes the majority vote for the final prediction. 
+computes the majority vote for the final prediction.
 
 Again no synchronization is needed due to the fact that every shared data
 structure is accessed exploiting the independence of each operation.
@@ -127,3 +127,40 @@ This simple design choice was the first tried, yet the best one found, also
 capable of exposing worker tasks in their minimal form.
 
 \subsubsection{MPI}
+
+The distributed hybrid implementation combines MPI and OpenMP to exploit both
+multiple nodes and low-latency shared memory. OpenMP was chosen over FastFlow
+because it better aligns with the data-parallel paradigm required by this task
+and modelled by the MPI implementation of the forest.
+
+About the actual implementation of MPI the choice was a minimal yet efficient
+architecture, where communications among processes are limited as much as
+possible.
+
+For the training phase the algorithm exploits the fact that the main program is
+replicated from start to finish and so there is no need for communication at
+all. Every process trains \emph{total\_trees} $/$ \emph{workers} decision trees
+obtaining the number of total processes by calling \verb|MPI_Comm_size|.
+
+For the prediction phase is required some a minimal communication among
+processes to ensure the correctness of the algorithm and it is structured in
+three parts:
+
+\begin{enumerate}
+  \item  Each process produces predictions using its trees and stores them in
+    flattened matrix. In particular every tree prediction over the batch of
+    samples is stored contiguously, followed by the prediction array of the next
+    tree.
+  \item A vector of counters with dimension \emph{samples} $\times$
+    \emph{labels} is used to count, for each sample the frequency of each
+    possible label with the previously produced predictions.
+  \item For the final part an \verb|MPI_Reduce| operation sums all the counters
+    coming from each process, obtaining one final counter object.
+  \item The counter can now be used to compute the majority vote for each sample
+    in order to produce the final prediction.
+\end{enumerate}
+
+This design was chosen considering that the code would be executed on an
+homogeneous cluster, and also assuming a fairly balanced workload among nodes.
+Of course moving to an eterogeneous architecture could result in a significant
+workload imbalance among nodes, that would require a dynamic scheduling policy.
