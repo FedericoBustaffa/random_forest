@@ -26,6 +26,12 @@ Args parse_args(int argc, char** argv)
     args.dataset = argv[5];
     args.log = false;
 
+    if (args.backend == Backend::Sequential)
+        args.threads = 1;
+
+    if (args.backend != Backend::MPI)
+        args.nodes = 1;
+
     if (argc == 7)
     {
         if (std::strcmp(argv[6], "log") == 0)
