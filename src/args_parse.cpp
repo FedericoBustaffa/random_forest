@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <mpi.h>
 
 #include "args_parse.hpp"
 
@@ -23,14 +24,23 @@ Args parse_args(int argc, char** argv)
     args.max_depth = std::stoull(argv[2]);
     args.backend = to_backend(argv[3]);
     args.threads = std::stoul(argv[4]);
+    args.nodes = 1;
     args.dataset = argv[5];
     args.log = false;
 
     if (args.backend == Backend::Sequential)
         args.threads = 1;
 
-    if (args.backend != Backend::MPI)
-        args.nodes = 1;
+    if (args.backend == Backend::MPI)
+    {
+        // initialize MPI if needed
+        if (args.backend == Backend::MPI)
+            MPI_Init(&argc, &argv);
+
+        int nodes;
+        MPI_Comm_size(MPI_COMM_WORLD, &nodes);
+        args.nodes = nodes;
+    }
 
     if (argc == 7)
     {

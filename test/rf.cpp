@@ -19,10 +19,6 @@ int main(int argc, char** argv)
     auto [X, y] = df.to_vector();
     DataSplit data = train_test_split(X, y, 0.2, 42);
 
-    // initialize MPI if needed
-    if (args.backend == Backend::MPI)
-        MPI_Init(&argc, &argv);
-
     // to store statistics
 
     // to measure performance
