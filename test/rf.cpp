@@ -31,7 +31,7 @@ int main(int argc, char** argv)
     RandomForest forest(args.estimators, args.max_depth, args.backend,
                         args.threads);
     timer.start();
-    forest.fit(data);
+    forest.fit(data.X_train, data.y_train);
     float train_time = timer.stop();
 
     timer.start();

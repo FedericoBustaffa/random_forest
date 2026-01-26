@@ -22,7 +22,8 @@ public:
 
     inline size_t nodes() const { return m_Nodes; }
 
-    void fit(const DataSplit& data);
+    void fit(const std::vector<std::vector<float>>& X,
+             const std::vector<uint8_t>& y);
 
     std::vector<uint8_t> predict(const std::vector<std::vector<float>>& X);
 
@@ -31,13 +32,17 @@ public:
     ~RandomForest();
 
 private:
-    void seq_fit(const DataSplit& data);
+    void seq_fit(const std::vector<std::vector<float>>& X,
+                 const std::vector<uint8_t>& y);
 
-    void omp_fit(const DataSplit& data);
+    void omp_fit(const std::vector<std::vector<float>>& X,
+                 const std::vector<uint8_t>& y);
 
-    void ff_fit(const DataSplit& data);
+    void ff_fit(const std::vector<std::vector<float>>& X,
+                const std::vector<uint8_t>& y);
 
-    void mpi_fit(const DataSplit& data);
+    void mpi_fit(const std::vector<std::vector<float>>& X,
+                 const std::vector<uint8_t>& y);
 
     std::vector<uint8_t> seq_predict(const std::vector<std::vector<float>>& X);
 

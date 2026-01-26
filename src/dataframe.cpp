@@ -56,7 +56,7 @@ std::pair<std::vector<std::vector<float>>, std::vector<uint8_t>> DataFrame::
         for (size_t j = 0; j < m_Cols - 1; j++)
         {
             if (m_DataTypes[j] == DataType::Numerical)
-                X[i].push_back(std::stod(m_Content[i * m_Cols + j]));
+                X[i].push_back(std::stof(m_Content[i * m_Cols + j]));
             else
                 X[i].push_back(m_Encoders[j][m_Content[i * m_Cols + j]]);
         }

@@ -18,11 +18,9 @@ DecisionTree::DecisionTree(size_t max_depth, bool bootstrap,
     }
 }
 
-void DecisionTree::fit(const DataSplit& data)
+void DecisionTree::fit(const std::vector<std::vector<float>>& X,
+                       const std::vector<uint8_t>& y)
 {
-    const auto& X = data.X_train;
-    const auto& y = data.y_train;
-
     std::vector<size_t> indices;
     if (m_Bootstrap)
         indices = bootstrap(y.size(), m_RandomState);
@@ -34,8 +32,7 @@ void DecisionTree::fit(const DataSplit& data)
 
     size_t n_labels = count_labels(y, indices);
 
-    grow(transpose(X), y, data.feature_types, indices, n_labels, 1);
-    // convert_dfs_to_bfs();
+    grow(transpose(X), y, indices, n_labels, 1);
     m_Tree.shrink_to_fit();
 }
 
@@ -62,7 +59,6 @@ std::vector<uint8_t> DecisionTree::predict(
 
 int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
                            const std::vector<uint8_t>& y,
-                           const std::vector<FeatureType>& types,
                            std::vector<size_t>& indices, size_t n_labels,
                            size_t depth)
 {
@@ -83,80 +79,44 @@ int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
     // compute only once
     float parent_entropy = entropy(y, indices);
 
-    Counter node_total_counters(n_labels);
-    for (size_t idx : indices)
-        node_total_counters[y[idx]]++;
-
     for (size_t i = 0; i < n_features; i++)
     {
-        if (types[i] == FeatureType::Binary)
+
+        Counter left_counters(n_labels);
+        Counter right_counters(n_labels);
+
+        // order with indices
+        std::vector<size_t> order = argsort(X[i], indices);
+        for (size_t j = 0; j < indices.size(); j++)
+            right_counters[y[indices[order[j]]]]++;
+
+        // candidate thresholds
+        float prev_label = y[indices[order[0]]];
+        for (size_t j = 1; j < indices.size(); j++)
         {
-            Counter right_counters(n_labels);
-            size_t count_ones = 0;
+            uint8_t label = y[indices[order[j - 1]]];
+            left_counters[label]++;
+            right_counters[label]--;
 
-            for (size_t idx : indices)
-            {
-                if (X[i][idx] > 0.5f)
-                {
-                    right_counters[y[idx]]++;
-                    count_ones++;
-                }
-            }
+            float prev_feature = X[i][indices[order[j - 1]]];
+            float curr_feature = X[i][indices[order[j]]];
 
-            if (count_ones == 0 || count_ones == indices.size())
+            if (prev_feature == curr_feature)
                 continue;
 
-            Counter left_counters(n_labels);
-            for (size_t l = 0; l < n_labels; l++)
-                left_counters[l] = node_total_counters[l] - right_counters[l];
-
-            float gain =
-                informationGain(parent_entropy, left_counters, right_counters);
-            if (gain > best_gain)
+            uint8_t curr_label = y[indices[order[j]]];
+            if (prev_label != curr_label)
             {
-                best_gain = gain;
-                best_threshold = 0.5f;
-                best_feature = i;
-            }
-        }
-        else
-        {
-            Counter left_counters(n_labels);
-            Counter right_counters(n_labels);
-
-            // order with indices
-            std::vector<size_t> order = argsort(X[i], indices);
-            for (size_t j = 0; j < indices.size(); j++)
-                right_counters[y[indices[order[j]]]]++;
-
-            // candidate thresholds
-            float prev_label = y[indices[order[0]]];
-            for (size_t j = 1; j < indices.size(); j++)
-            {
-                uint8_t label = y[indices[order[j - 1]]];
-                left_counters[label]++;
-                right_counters[label]--;
-
-                float prev_feature = X[i][indices[order[j - 1]]];
-                float curr_feature = X[i][indices[order[j]]];
-
-                if (prev_feature == curr_feature)
-                    continue;
-
-                uint8_t curr_label = y[indices[order[j]]];
-                if (prev_label != curr_label)
+                float threshold = (prev_feature + curr_feature) * 0.5;
+                float gain = informationGain(parent_entropy, left_counters,
+                                             right_counters);
+                if (gain > best_gain)
                 {
-                    float threshold = (prev_feature + curr_feature) * 0.5;
-                    float gain = informationGain(parent_entropy, left_counters,
-                                                 right_counters);
-                    if (gain > best_gain)
-                    {
-                        best_gain = gain;
-                        best_threshold = threshold;
-                        best_feature = i;
-                    }
-                    prev_label = curr_label;
+                    best_gain = gain;
+                    best_threshold = threshold;
+                    best_feature = i;
                 }
+                prev_label = curr_label;
             }
         }
     }
@@ -182,8 +142,8 @@ int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
 
     int64_t idx = m_Tree.size();
     m_Tree.emplace_back(best_feature, best_threshold);
-    m_Tree[idx].left = grow(X, y, types, left, n_labels, depth + 1);
-    m_Tree[idx].right = grow(X, y, types, right, n_labels, depth + 1);
+    m_Tree[idx].left = grow(X, y, left, n_labels, depth + 1);
+    m_Tree[idx].right = grow(X, y, right, n_labels, depth + 1);
 
     return idx;
 }

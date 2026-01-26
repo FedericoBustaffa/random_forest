@@ -5,8 +5,6 @@
 #include <cstdint>
 #include <vector>
 
-#include "datasplit.hpp"
-
 class DecisionTree
 {
 public:
@@ -19,7 +17,8 @@ public:
 
     size_t depth() const { return compute_depth(0); }
 
-    void fit(const DataSplit& data);
+    void fit(const std::vector<std::vector<float>>& X,
+             const std::vector<uint8_t>& y);
 
     std::vector<uint8_t> predict(const std::vector<std::vector<float>>& X);
 
@@ -47,9 +46,8 @@ private:
 
 private: // tree private methods
     int64_t grow(const std::vector<std::vector<float>>& X,
-                 const std::vector<uint8_t>& y,
-                 const std::vector<FeatureType>& types,
-                 std::vector<size_t>& indices, size_t n_labels, size_t depth);
+                 const std::vector<uint8_t>& y, std::vector<size_t>& indices,
+                 size_t n_labels, size_t depth);
 
     size_t compute_depth(int64_t i) const;
 

@@ -19,28 +19,29 @@ RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
         m_Trees.emplace_back(max_depth, true, ntrees + i);
 }
 
-void RandomForest::fit(const DataSplit& data)
+void RandomForest::fit(const std::vector<std::vector<float>>& X,
+                       const std::vector<uint8_t>& y)
 {
     // save the possible number of labels/classes
-    m_Labels = count_labels(data.y_train);
+    m_Labels = count_labels(y);
 
     // fit based on the chosen backend
     switch (m_Backend)
     {
     case Backend::Sequential:
-        seq_fit(data);
+        seq_fit(X, y);
         break;
 
     case Backend::OpenMP:
-        omp_fit(data);
+        omp_fit(X, y);
         break;
 
     case Backend::FastFlow:
-        ff_fit(data);
+        ff_fit(X, y);
         break;
 
     case Backend::MPI:
-        mpi_fit(data);
+        mpi_fit(X, y);
         break;
 
     default:

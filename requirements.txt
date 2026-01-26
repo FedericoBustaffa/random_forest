@@ -1,4 +1,6 @@
 numpy
+kagglehub
+requests
 matplotlib
 pandas
 scipy
