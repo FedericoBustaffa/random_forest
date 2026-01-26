@@ -1,6 +1,7 @@
 import argparse
 import os
 
+import kagglehub
 import pandas as pd
 from ucimlrepo import fetch_ucirepo
 
@@ -42,3 +43,13 @@ if __name__ == "__main__":
             fetch(name, datasets[name])
     else:
         fetch(args.name, datasets[args.name])
+
+    # SUSY
+    path_susy = kagglehub.dataset_download("janus137/supersymmetry-dataset")
+    df_susy = pd.read_csv(
+        path_susy + "/supersymmetry_dataset.csv", header=None, low_memory=False
+    )
+    df_susy = df_susy.iloc[:, 1:].assign(last_col=df_susy.iloc[:, 0])
+    df_susy = df_susy.iloc[1:].reset_index(drop=True)
+
+    df_susy.to_csv("datasets/susy.csv", header=False, index=False)
