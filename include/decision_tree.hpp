@@ -51,8 +51,6 @@ private: // tree private methods
                  const std::vector<FeatureType>& types,
                  std::vector<size_t>& indices, size_t n_labels, size_t depth);
 
-    void convert_dfs_to_bfs();
-
     size_t compute_depth(int64_t i) const;
 
 private: // tree data members

@@ -1,7 +1,6 @@
 #include "decision_tree.hpp"
 
 #include <numeric>
-#include <queue>
 #include <random>
 
 #include "counter.hpp"
@@ -123,7 +122,7 @@ int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
         else
         {
             Counter left_counters(n_labels);
-            Counter right_counters = node_total_counters;
+            Counter right_counters(n_labels);
 
             // order with indices
             std::vector<size_t> order = argsort(X[i], indices);
@@ -187,52 +186,6 @@ int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
     m_Tree[idx].right = grow(X, y, types, right, n_labels, depth + 1);
 
     return idx;
-}
-
-void DecisionTree::convert_dfs_to_bfs()
-{
-    if (m_Tree.empty())
-        return;
-
-    std::vector<Node> bfs_tree;
-    bfs_tree.reserve(m_Tree.size());
-
-    std::vector<int64_t> old_to_new(m_Tree.size(), -1);
-
-    std::queue<int64_t> q;
-    q.push(0);
-
-    // BFS traversal: build new array
-    while (!q.empty())
-    {
-        int64_t old_idx = q.front();
-        q.pop();
-
-        if (old_to_new[old_idx] != -1)
-            continue;
-
-        int64_t new_idx = bfs_tree.size();
-        old_to_new[old_idx] = new_idx;
-        bfs_tree.push_back(m_Tree[old_idx]);
-
-        if (m_Tree[old_idx].left != -1)
-            q.push(m_Tree[old_idx].left);
-
-        if (m_Tree[old_idx].right != -1)
-            q.push(m_Tree[old_idx].right);
-    }
-
-    // Fix children indices
-    for (auto& node : bfs_tree)
-    {
-        if (node.left != -1)
-            node.left = old_to_new[node.left];
-
-        if (node.right != -1)
-            node.right = old_to_new[node.right];
-    }
-
-    m_Tree = std::move(bfs_tree);
 }
 
 size_t DecisionTree::compute_depth(int64_t i) const
