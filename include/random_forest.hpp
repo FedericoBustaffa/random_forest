@@ -18,7 +18,7 @@ public:
 
     inline Backend backend() const { return m_Backend; }
 
-    inline size_t thrads() const { return m_Threads; }
+    inline size_t threads() const { return m_Threads; }
 
     inline size_t nodes() const { return m_Nodes; }
 

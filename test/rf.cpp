@@ -43,6 +43,7 @@ int main(int argc, char** argv)
     float f1 = f1_score(pred, data.y_test);
 
     Record record(args);
+    record.threads = forest.threads();
     record.nodes = forest.nodes();
     record.train_time = train_time;
     record.predict_time = predict_time;
