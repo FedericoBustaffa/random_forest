@@ -1,15 +1,51 @@
 \section{Experiments and Results}
 
-Most tests done on the cluster target performance, except an initial correctness
-check for both decision trees and random forest done by comparing results with
-Scikit-Learn.
+Most tests done on the cluster look for performance, except an initial
+correctness check for both decision trees and random forest done by comparing
+results with Scikit-Learn.
 
 For random forest every version correctness is tested in order to ensure that
 parallelization does not corrupt the algorithm in any way. Of course little
 score discrepancies can be imputed to slightly different implementations or
 hyperparameters.
 
+Moving to the datasets used for testing phase the choice went from little and
+simple (correctness and fast test), to quite large datasets with many samples and
+features, in order to evaluate how well the algorithm scales: 
+
+\begin{itemize}
+  \item \textbf{Breast Cancer} \cite{breast_cancer_14}: about 500 samples with
+    30 features and binary labels. Mostly used to quickly test
+    correctness.
+  \item \textbf{Magic Gamma Telescope} \cite{magic_gamma_telescope_159}: about
+    19.000 samples with 10 continuous features and binary labels. This was the
+    main dataset used for medium workload performance tests.
+  \item \textbf{MiniBooNE} \cite{miniboone_particle_identification_199}: about
+    130.000 samples with 50 continuous features and binary labels. Mainly used
+    to estimate bigger workload performances, it has been compared with Magic
+    Gamma Telescope taking a subset of the same size to check how the number of
+    features impacts performances.
+\end{itemize}
+
+Due to large dimension of the last dataset and the restricted time available for
+each run on the cluster, it has been used in its entirety only for the
+distributed version of the algorithm.
+
 \subsection{Comparison with Scikit-Learn}
+
+In order to compare decision tree and random forest with Scikit-Learn
+implementations in a fair way, they've been set to consider all the feature for
+the split and without limiting the maximum depth.
+
+The correctness test simply consisted in a comparison of accuracy and f1 score,
+on the same test split. For the decision tree also the reached depth was
+compared in order to see if the proposed implementation evaluates every split in
+a similar way, producing roughly the same amount of nodes of a state of the art
+implementation.
+
+% tabella con accuracy e f1 score
+
+As reported in the table ...
 
 \subsection{Shared Memory}
 

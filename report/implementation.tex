@@ -15,7 +15,7 @@ decision tree, recursively built as a \verb|std::vector| of \verb|Node|, in
 order to better exploit cache locality for faster prediction.
 
 The tree nodes are disposed following the DFS visit order, that comes naturally
-from a recursive build. To improve prediction performance, several variants have
+from a recursive build. To improve prediction performance, some variant have
 been tested like:
 
 \begin{itemize}
@@ -27,10 +27,12 @@ been tested like:
     DFS layout for prediction.
 \end{itemize}
 
-Both this variants didn't bring any improvement to the prediction phase,
-probably due to the fact that the DFS current tree is compact enough to fit in
-the cache. So in order to keep the code cleaner and do not add the cost of a BFS
-conversion the choice end up being a simple DFS layout.
+Both didn't bring any improvement to the prediction phase, probably due to the
+fact that the DFS tree is compact enough to do not cause many cache misses. So
+in order to keep the code cleaner and do not add the cost of a BFS conversion,
+the choice end up being a simple DFS layout. So in the end the main optimization
+to the preidiction phase was representing the tree as a compact array instead of
+a pointer-based data structure.
 
 The training algorithm finds the optimal split by considering every feature, and
 for each of them computing an optimal split threshold using information gain and
@@ -63,7 +65,7 @@ information gain formulations:
 where $S$ is the consider set of samples, $A$ is the considered attribute (or
 feature) and $Sv$ is the subset of $S$ with attribute $A$ having value $v$. The
 first term of this formulation can be computed once for every feature and then
-riused every time there is the need to analyze a new candidate threshold.
+reused every time there is the need to analyze a new candidate threshold.
 
 Another related optimization exploits the fact that the considered feature is
 sorted, therefore is possible to think that the loop "moves" a boundary along
@@ -74,10 +76,6 @@ the \emph{right} subset. The loop just update the counter by decreasing
 \emph{right} counters on the and increasing \emph{left} counters, avoiding to
 completely rescan the target column each time \verb|informationGain| and
 \verb|entropy| functions are invoked.
-
-% leave for later if implementing BFS
-For the prediction phase the main optimization comes with the tree memory
-layout.
 
 \subsection{Random Forest}
 
