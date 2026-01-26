@@ -35,7 +35,6 @@ void DecisionTree::fit(const DataSplit& data)
     size_t n_labels = count_labels(y, indices);
 
     grow(transpose(X), y, data.feature_types, indices, n_labels, 1);
-    // convert_dfs_to_bfs();
     m_Tree.shrink_to_fit();
 }
 
