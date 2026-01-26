@@ -29,34 +29,31 @@ private:
 class Fitter : public ff_node_t<size_t>
 {
 public:
-    Fitter(const std::vector<std::vector<float>>& X,
-           const std::vector<uint8_t>& y, std::vector<DecisionTree>& trees)
-        : X(X), y(y), trees(trees)
+    Fitter(const DataSplit& data, std::vector<DecisionTree>& trees)
+        : data(data), trees(trees)
     {
     }
 
     size_t* svc(size_t* i) override
     {
-        trees[*i].fit(X, y);
+        trees[*i].fit(data);
         delete i;
 
         return GO_ON;
     }
 
 private:
-    const std::vector<std::vector<float>>& X;
-    const std::vector<uint8_t>& y;
+    const DataSplit& data;
     std::vector<DecisionTree>& trees;
 };
 
-void RandomForest::ff_fit(const std::vector<std::vector<float>>& X,
-                          const std::vector<uint8_t>& y)
+void RandomForest::ff_fit(const DataSplit& data)
 {
     Source source(m_Trees.size());
 
     std::vector<std::unique_ptr<ff_node>> workers;
     for (size_t i = 0; i < m_Threads; i++)
-        workers.push_back(std::make_unique<Fitter>(X, y, m_Trees));
+        workers.push_back(std::make_unique<Fitter>(data, m_Trees));
 
     ff_Farm<size_t> farm(std::move(workers), source);
     farm.remove_collector();

@@ -24,7 +24,7 @@ int main(int argc, const char** argv)
     DecisionTree tree(max_depth);
     Timer<milli> timer;
     timer.start();
-    tree.fit(data.X_train, data.y_train);
+    tree.fit(data);
     timer.stop("traininig");
 
     timer.start();

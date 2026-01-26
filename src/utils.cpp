@@ -110,21 +110,22 @@ DataSplit train_test_split(const std::vector<std::vector<float>>& X,
     std::vector<size_t> train_indices(indices.begin() + n_test, indices.end());
     std::vector<size_t> test_indices(indices.begin(), indices.begin() + n_test);
 
-    DataSplit data(n_samples - n_test, n_test);
+    std::vector<std::vector<float>> X_train(n_samples - n_test), X_test(n_test);
+    std::vector<uint8_t> y_train(n_samples - n_test), y_test(n_test);
 
     for (size_t i = 0; i < n_samples - n_test; i++)
     {
-        data.X_train[i] = X[train_indices[i]];
-        data.y_train[i] = y[train_indices[i]];
+        X_train[i] = X[train_indices[i]];
+        y_train[i] = y[train_indices[i]];
     }
 
     for (size_t i = 0; i < n_test; i++)
     {
-        data.X_test[i] = X[test_indices[i]];
-        data.y_test[i] = y[test_indices[i]];
+        X_test[i] = X[test_indices[i]];
+        y_test[i] = y[test_indices[i]];
     }
 
-    return data;
+    return DataSplit(X_train, X_test, y_train, y_test);
 }
 
 std::vector<size_t> bootstrap(size_t n_samples, uint8_t seed)

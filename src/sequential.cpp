@@ -5,11 +5,10 @@
 
 #include "counter.hpp"
 
-void RandomForest::seq_fit(const std::vector<std::vector<float>>& X,
-                           const std::vector<uint8_t>& y)
+void RandomForest::seq_fit(const DataSplit& data)
 {
     for (size_t i = 0; i < m_Trees.size(); i++)
-        m_Trees[i].fit(X, y);
+        m_Trees[i].fit(data);
 }
 
 std::vector<uint8_t> RandomForest::seq_predict(
