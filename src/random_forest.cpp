@@ -8,10 +8,17 @@ RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
                            size_t threads)
     : m_Backend(backend), m_Threads(threads)
 {
+    if (m_Backend == Backend::Sequential)
+        m_Threads = 1;
+
     if (m_Backend != Backend::MPI)
         m_Nodes = 1;
     else
-        MPI_Comm_size(MPI_COMM_WORLD, (int*)&m_Nodes);
+    {
+        int nodes;
+        MPI_Comm_size(MPI_COMM_WORLD, &nodes);
+        m_Nodes = nodes;
+    }
 
     size_t ntrees = estimators / m_Nodes;
     m_Trees.reserve(ntrees);
