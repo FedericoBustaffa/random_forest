@@ -5,12 +5,13 @@
 
 #include "counter.hpp"
 
-void RandomForest::omp_fit(const DataSplit& data)
+void RandomForest::omp_fit(const std::vector<std::vector<float>>& X,
+                           const std::vector<uint8_t>& y)
 {
 #pragma omp parallel for num_threads(m_Threads)
 
     for (size_t i = 0; i < m_Trees.size(); i++)
-        m_Trees[i].fit(data);
+        m_Trees[i].fit(X, y);
 }
 
 std::vector<uint8_t> RandomForest::omp_predict(

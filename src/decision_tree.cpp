@@ -18,11 +18,9 @@ DecisionTree::DecisionTree(size_t max_depth, bool bootstrap,
     }
 }
 
-void DecisionTree::fit(const DataSplit& data)
+void DecisionTree::fit(const std::vector<std::vector<float>>& X,
+                       const std::vector<uint8_t>& y)
 {
-    const auto& X = data.X_train;
-    const auto& y = data.y_train;
-
     std::vector<size_t> indices;
     if (m_Bootstrap)
         indices = bootstrap(y.size(), m_RandomState);
@@ -34,7 +32,7 @@ void DecisionTree::fit(const DataSplit& data)
 
     size_t n_labels = count_labels(y, indices);
 
-    grow(transpose(X), y, data.feature_types, indices, n_labels, 1);
+    grow(transpose(X), y, indices, n_labels, 1);
     m_Tree.shrink_to_fit();
 }
 
@@ -61,7 +59,6 @@ std::vector<uint8_t> DecisionTree::predict(
 
 int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
                            const std::vector<uint8_t>& y,
-                           const std::vector<FeatureType>& types,
                            std::vector<size_t>& indices, size_t n_labels,
                            size_t depth)
 {
@@ -145,8 +142,8 @@ int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
 
     int64_t idx = m_Tree.size();
     m_Tree.emplace_back(best_feature, best_threshold);
-    m_Tree[idx].left = grow(X, y, types, left, n_labels, depth + 1);
-    m_Tree[idx].right = grow(X, y, types, right, n_labels, depth + 1);
+    m_Tree[idx].left = grow(X, y, left, n_labels, depth + 1);
+    m_Tree[idx].right = grow(X, y, right, n_labels, depth + 1);
 
     return idx;
 }

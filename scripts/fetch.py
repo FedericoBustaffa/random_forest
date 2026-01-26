@@ -6,7 +6,22 @@ import pandas as pd
 from ucimlrepo import fetch_ucirepo
 
 
-def fetch(name: str, id: int):
+def kaggle_fetch(name):
+    if f"{name}.csv" in os.listdir("datasets"):
+        print(f"{name} dataset already fetched")
+        return
+
+    path_susy = kagglehub.dataset_download("janus137/supersymmetry-dataset")
+    df_susy = pd.read_csv(
+        path_susy + "/supersymmetry_dataset.csv", header=None, low_memory=False
+    )
+    df_susy = df_susy.iloc[:, 1:].assign(last_col=df_susy.iloc[:, 0])
+    df_susy = df_susy.iloc[1:].reset_index(drop=True)
+
+    df_susy.to_csv("datasets/susy.csv", header=False, index=False)
+
+
+def uci_fetch(name: str, id: int):
     if f"{name}.csv" in os.listdir("datasets"):
         print(f"{name} dataset already fetched")
         return
@@ -40,16 +55,7 @@ if __name__ == "__main__":
 
     if args.name is None:
         for name in datasets.keys():
-            fetch(name, datasets[name])
+            uci_fetch(name, datasets[name])
+        kaggle_fetch("susy")
     else:
-        fetch(args.name, datasets[args.name])
-
-    # SUSY
-    path_susy = kagglehub.dataset_download("janus137/supersymmetry-dataset")
-    df_susy = pd.read_csv(
-        path_susy + "/supersymmetry_dataset.csv", header=None, low_memory=False
-    )
-    df_susy = df_susy.iloc[:, 1:].assign(last_col=df_susy.iloc[:, 0])
-    df_susy = df_susy.iloc[1:].reset_index(drop=True)
-
-    df_susy.to_csv("datasets/susy.csv", header=False, index=False)
+        uci_fetch(args.name, datasets[args.name])

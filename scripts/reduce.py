@@ -43,7 +43,7 @@ def balance_and_reduce_csv(file_path, max_samples):
 
     # 4. Creazione del nuovo nome file
     base, ext = os.path.splitext(file_path)
-    new_path = f"{base}_reduced{ext}"
+    new_path = f"{base}_{args.samples}{ext}"
 
     # 5. Salvataggio
     df_final.to_csv(new_path, index=False, header=False)
