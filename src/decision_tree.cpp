@@ -126,24 +126,23 @@ void DecisionTree::fit(const std::vector<std::vector<float>>& X,
     m_Tree.shrink_to_fit();
 }
 
-uint8_t DecisionTree::predict_one(const std::vector<float>& x, int64_t i)
-{
-    const Node& node = m_Tree[i];
-    if (node.label != -1)
-        return node.label;
-
-    if (x[node.feature] < node.threshold)
-        return predict_one(x, node.left);
-    else
-        return predict_one(x, node.right);
-}
-
 std::vector<uint8_t> DecisionTree::predict(
     const std::vector<std::vector<float>>& X)
 {
     std::vector<uint8_t> labels(X.size());
     for (size_t i = 0; i < X.size(); i++)
-        labels[i] = predict_one(X[i], 0);
+    {
+        const std::vector<float>& x = X[i];
+        size_t j = 0;
+        while (!m_Tree[j].is_leaf())
+        {
+            if (x[m_Tree[j].feature_idx] < m_Tree[j].threshold)
+                j = m_Tree[j].left;
+            else
+                j = m_Tree[j].right;
+        }
+        labels[i] = m_Tree[j].label;
+    }
 
     return labels;
 }

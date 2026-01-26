@@ -27,16 +27,18 @@ public:
 private:
     struct Node
     {
-        Node(uint8_t feature, float threshold)
-            : feature(feature), threshold(threshold), label(-1)
+        Node(size_t feature_idx, float threshold)
+            : feature_idx(feature_idx), threshold(threshold)
         {
         }
 
-        Node(int label) : feature(0), threshold(0.0), label(label) {}
+        Node(int label) : label(label) {}
 
-        uint8_t feature;
-        float threshold;
-        int label;
+        inline bool is_leaf() const { return left == -1 && right == -1; }
+
+        size_t feature_idx = 0;
+        float threshold = 0.0;
+        uint8_t label = 0;
 
         int64_t left = -1;
         int64_t right = -1;
@@ -47,15 +49,14 @@ private: // tree private methods
                  const std::vector<uint8_t>& y, std::vector<size_t>& indices,
                  size_t n_labels, size_t depth);
 
-    uint8_t predict_one(const std::vector<float>& x, int64_t i);
-
     size_t compute_depth(int64_t i) const;
 
 private: // tree data members
-    std::vector<Node> m_Tree;
     size_t m_MaxDepth;
     bool m_Bootstrap;
     int64_t m_RandomState;
+
+    std::vector<Node> m_Tree;
 };
 
 #endif
