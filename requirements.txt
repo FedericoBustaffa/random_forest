@@ -1,4 +1,5 @@
 numpy
+requests
 matplotlib
 pandas
 scipy

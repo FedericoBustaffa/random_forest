@@ -14,21 +14,23 @@ The core logic and most of the low level optimizations are implemented in the
 decision tree, recursively built as a \verb|std::vector| of \verb|Node|, in
 order to better exploit cache locality for faster prediction.
 
-The tree is built with DFS layout, mostly for simplicity and to limit its
-dimension; in this way is fact possible to store it in a compact way.
+The tree nodes are disposed following the DFS visit order, that comes naturally
+from a recursive build. To improve prediction performance, several variants have
+been tested like:
 
-% keep?
-A BFS layout comes with the need for a conversion from the DFS layout and, if
-implemented as a balanced binary tree, with an higher memory consumption in
-order to store empty nodes.
+\begin{itemize}
+  \item \textbf{DFS with SOA}: keep the DFS layout but the tree is built following
+    the SOA model, in order to improve caching, expecially for faster indexing
+    of nodes.
+  \item \textbf{BFS}: after building the tree, a conversion to BFS layout
+    were performed, in order to perform better (at least on average) than the
+    DFS layout for prediction.
+\end{itemize}
 
-% maybe I should implement it :)
-On the other hand, a BFS layout puts the tree levels contiguously in memory,
-performing better (on average) than DFS, that instead puts complete paths from
-root to leaves contiguously. In this sense the DFS can be very fast or suffer
-from multiple cache misses if the right path is on the right of the tree.
-
-% if implement BFS layout probably add some SIMD considerations
+Both this variants didn't bring any improvement to the prediction phase,
+probably due to the fact that the DFS current tree is compact enough to fit in
+the cache. So in order to keep the code cleaner and do not add the cost of a BFS
+conversion the choice end up being a simple DFS layout.
 
 The training algorithm finds the optimal split by considering every feature, and
 for each of them computing an optimal split threshold using information gain and
