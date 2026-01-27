@@ -43,14 +43,12 @@ if __name__ == "__main__":
     if "results" not in os.listdir("."):
         os.mkdir("results")
 
-    # get file id
-    prefixed_files = filter(
-        lambda x: x.startswith(f"{args.prefix}"), os.listdir("results")
-    )
-    nfiles = len(list(prefixed_files))
-
-    # write results in CSV file
-    dataset = df["dataset"].iloc[0]
-    filename = f"results/{args.prefix}_{dataset}_{nfiles + 1}.csv"
-    df = df.drop(columns="dataset")
-    df.to_csv(filename, header=True, index=False)
+    if f"{args.prefix}.csv" not in os.listdir("results"):
+        # write results in CSV file
+        filename = f"results/{args.prefix}.csv"
+        df.to_csv(filename, header=True, index=False)
+    else:
+        # merge current data with existing results
+        old_df = pd.read_csv(f"results/{args.prefix}.csv")
+        new_df = pd.concat([old_df, df], ignore_index=True)
+        new_df.to_csv(f"results/{args.prefix}.csv", header=True, index=False)
