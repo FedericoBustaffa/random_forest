@@ -28,7 +28,7 @@ if __name__ == "__main__":
                 df[k].append(content[k])
 
         # delete consumed files
-        # os.remove(fp)
+        os.remove(fp)
 
     # build a DataFrame
     df = pd.DataFrame(df)
