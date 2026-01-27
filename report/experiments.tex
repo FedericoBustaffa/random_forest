@@ -38,7 +38,25 @@ amount of nodes as a state of the art implementation.
 The correctness test simply consisted in a comparison of accuracy and f1 score,
 on the same test split. 
 
-% tabella con accuracy, f1 score e depth
+\begin{table}[H]
+  \centering
+  \begin{tabular}{lllrrrr}
+    \toprule
+    Library & Depth & Dataset & Accuracy & F1 & Training & Prediction(ms) \\
+    \midrule
+    Proposed & 7 & Breast Cancer & 0.92 & 0.90 & 4.89 ms & 0.004 \\
+    Sklearn & 7 & Breast Cancer & 0.94 & 0.94 & 12.57 ms & 0.383 \\
+    Proposed & 32 & Magic & 0.83 & 0.81 & 0.22 s & 0.424 \\
+    Sklearn & 26 & Magic & 0.82 & 0.80 & 0.5 s & 0.987 \\
+    Proposed & 39 & SUSY 20k & 0.72 & 0.72 & 0.44 s & 0.479 \\
+    Sklearn & 38 & SUSY 20k & 0.72 & 0.72 & 0.98 s & 1.663 \\
+    Proposed & 45 & SUSY 100k & 0.71 & 0.71 & 3.24 s & 3.696 \\
+    Sklearn & 41 & SUSY 100k & 0.71 & 0.71 & 6.42 s & 7.540 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Comparison between the proposed implementation and Scikit-Learn}
+  \label{tab: tree_results}
+\end{table}
 
 For random forest, every version correctness is tested in order to ensure that
 parallelization does not corrupt the algorithm; of course little score
