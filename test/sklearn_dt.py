@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import time
 
 import pandas as pd
@@ -54,3 +55,12 @@ if __name__ == "__main__":
     }
 
     print(json.dumps(data, indent=2))
+
+    if args.log:
+        if "tmp" not in os.listdir("."):
+            os.mkdir("tmp")
+
+        nfiles = len(os.listdir("tmp"))
+        filepath = f"tmp/result_{nfiles}.json"
+        with open(filepath, "w") as fp:
+            json.dump(data, fp, indent=4)

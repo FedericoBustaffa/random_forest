@@ -38,11 +38,17 @@ int main(int argc, char** argv)
     float accuracy = accuracy_score(pred, data.y_test);
     float f1 = f1_score(pred, data.y_test);
 
-    Record record(args);
-    record.train_time = train_time;
-    record.predict_time = predict_time;
-    record.accuracy = accuracy;
-    record.f1 = f1;
+    std::vector<std::pair<std::string, std::string>> record;
+    record.emplace_back("estimators", stringify(args.estimators));
+    record.emplace_back("max_depth", stringify(args.max_depth));
+    record.emplace_back("backend", argv[3]);
+    record.emplace_back("threads", stringify(args.threads));
+    record.emplace_back("nodes", stringify(args.nodes));
+    record.emplace_back("dataset", args.dataset);
+    record.emplace_back("accuracy", stringify(accuracy));
+    record.emplace_back("f1", stringify(f1));
+    record.emplace_back("train_time", stringify(train_time));
+    record.emplace_back("predict_time", stringify(predict_time));
 
     print_record(record);
 

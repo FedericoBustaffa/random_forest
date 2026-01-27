@@ -1,11 +1,9 @@
-#include "utils.hpp"
+#include "args_parse.hpp"
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <mpi.h>
-
-#include "args_parse.hpp"
 
 Args parse_args(int argc, char** argv)
 {
@@ -22,15 +20,22 @@ Args parse_args(int argc, char** argv)
 
     args.estimators = std::stoull(argv[1]);
     args.max_depth = std::stoull(argv[2]);
-    args.backend = to_backend(argv[3]);
-    args.threads = std::stoul(argv[4]);
-    args.nodes = 1;
-    args.dataset = argv[5];
-    args.log = false;
 
+    std::string s = argv[3];
+    if (s == "seq")
+        args.backend = Backend::Sequential;
+    else if (s == "omp")
+        args.backend = Backend::OpenMP;
+    else if (s == "ff")
+        args.backend = Backend::FastFlow;
+    else if (s == "mpi")
+        args.backend = Backend::MPI;
+
+    args.threads = std::stoul(argv[4]);
     if (args.backend == Backend::Sequential)
         args.threads = 1;
 
+    args.nodes = 1;
     if (args.backend == Backend::MPI)
     {
         // initialize MPI if needed
@@ -42,6 +47,8 @@ Args parse_args(int argc, char** argv)
         args.nodes = nodes;
     }
 
+    args.dataset = argv[5];
+    args.log = false;
     if (argc == 7)
     {
         if (std::strcmp(argv[6], "log") == 0)

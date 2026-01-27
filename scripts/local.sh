@@ -32,5 +32,5 @@ for i in 32 64; do
     done
 done
 
-python scripts/merge.py local
+python scripts/merge.py results/local.csv
 

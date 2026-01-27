@@ -68,6 +68,6 @@ if __name__ == "__main__":
             os.mkdir("tmp")
 
         nfiles = len(os.listdir("tmp"))
-        filepath = f"tmp/forest_{nfiles}.json"
+        filepath = f"tmp/result_{nfiles}.json"
         with open(filepath, "w") as fp:
             json.dump(data, fp, indent=4)

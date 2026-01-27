@@ -139,20 +139,3 @@ std::vector<size_t> bootstrap(size_t n_samples, uint8_t seed)
 
     return indices;
 }
-
-Backend to_backend(const std::string& s)
-{
-    if (s == "seq")
-        return Backend::Sequential;
-
-    if (s == "omp")
-        return Backend::OpenMP;
-
-    if (s == "ff")
-        return Backend::FastFlow;
-
-    if (s == "mpi")
-        return Backend::MPI;
-
-    return Backend::Invalid;
-}

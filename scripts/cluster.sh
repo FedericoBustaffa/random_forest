@@ -6,4 +6,4 @@
 ./scripts/mpi.sh $1 $2
 ./scripts/sklearn.sh $1 $2
 
-python scripts/merge.py cluster
+python scripts/merge.py results/cluster.csv

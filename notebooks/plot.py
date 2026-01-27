@@ -5,8 +5,8 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Normalize
 
 
-def runtime_thread(df: pd.DataFrame):
-    df = df[df["backend"] != "mpi"]
+def runtime_thread(df):
+    df = df[df["backend"] == "mpi"]
     return df
 
 
