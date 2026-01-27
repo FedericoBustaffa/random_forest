@@ -46,6 +46,7 @@ if __name__ == "__main__":
     f1 = f1_score(y_test, test_pred, average="macro")
 
     data = {
+        "implementation": "sklearn",
         "depth": dt.get_depth(),
         "dataset": args.dataset,
         "accuracy": accuracy,
