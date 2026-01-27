@@ -51,8 +51,8 @@ if __name__ == "__main__":
         "dataset": args.dataset,
         "accuracy": accuracy,
         "f1": f1,
-        "train_time": train_time,
-        "predict_time": predict_time,
+        "train_time": train_time * 1000,
+        "predict_time": predict_time * 1000,
     }
 
     print(json.dumps(data, indent=2))
