@@ -29,5 +29,5 @@ if __name__ == "__main__":
     print(df)
 
     base, ext = os.path.splitext(args.path)
-    new_path = f"{base}_{args.samples}{ext}"
+    new_path = f"{base}{args.samples}{ext}"
     df.to_csv(new_path, index=False, header=False)

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
-trap 'echo "[interrupted]: killing children..."; kill 0; exit 1' INT TERM
+trap 'echo "[interrupted]: killing children"; kill 0; exit 1' INT TERM
 
 # sequential
 for i in 8 16 32 64 128 256; do
@@ -12,8 +12,8 @@ done
 
 
 # openmp
-for i in 8 16 32 64 128 256; do
-    for t in 1 2 4 8 16 32; do
+for i in 16 32 64 128 256; do
+    for t in 2 4 8 16 32; do
         for j in $(seq 1 5); do
             srun -N 1 -n 1 -c 32 ./build/rf.out $i 0 "omp" $t $1 "log"
         done
@@ -22,8 +22,8 @@ done
 
 
 # fastflow
-for i in 8 16 32 64 128 256; do
-    for t in 1 2 4 8 16 32; do
+for i in 16 32 64 128 256; do
+    for t in 2 4 8 16 32; do
         for j in $(seq 1 5); do
             srun -N 1 -n 1 -c 32 ./build/rf.out $i 0 "ff" $t $1 "log"
         done
