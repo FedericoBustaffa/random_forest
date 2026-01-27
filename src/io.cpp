@@ -82,7 +82,6 @@ void print_record(const Record& record)
 
 void write_json(const Record& record)
 {
-
     fs::path dir_path = "tmp";
     if (!fs::exists(dir_path))
         fs::create_directory(dir_path);
@@ -96,7 +95,7 @@ void write_json(const Record& record)
 
     std::stringstream ss;
     ss << dir_path.c_str() << "/";
-    ss << "result_" << std::setw(0) << std::setfill('0') << nfiles << ".json";
+    ss << "result_" << nfiles << ".json";
 
     std::ofstream out(ss.str());
 
