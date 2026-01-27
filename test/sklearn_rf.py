@@ -40,37 +40,34 @@ if __name__ == "__main__":
     rf.fit(X_train, y_train)
     end = time.perf_counter()
     train_time = end - start
-    print(f"train time: {train_time:.4f} s")
 
     start = time.perf_counter()
     test_pred = rf.predict(X_test)
     end = time.perf_counter()
     predict_time = end - start
-    print(f"predict time: {predict_time:.4f} s")
 
     accuracy = accuracy_score(y_test, test_pred)
     f1 = f1_score(y_test, test_pred, average="macro")
-    print(f"test accuracy: {accuracy:.2f}")
-    print(f"test f1: {f1:.2f}")
+
+    data = {
+        "estimators": args.estimators,
+        "max_depth": args.max_depth,
+        "backend": "joblib",
+        "threads": args.njobs,
+        "nodes": 1,
+        "dataset": args.dataset,
+        "accuracy": accuracy,
+        "f1": f1,
+        "train_time": train_time,
+        "predict_time": predict_time,
+    }
+    print(json.dumps(data, indent=2))
 
     if args.log:
-        data = {
-            "estimators": args.estimators,
-            "max_depth": args.max_depth,
-            "backend": "joblib",
-            "threads": args.njobs,
-            "nodes": 1,
-            "dataset": args.dataset,
-            "accuracy": accuracy,
-            "f1": f1,
-            "train_time": train_time,
-            "predict_time": predict_time,
-        }
-
         if "tmp" not in os.listdir("."):
             os.mkdir("tmp")
 
         nfiles = len(os.listdir("tmp"))
-        filepath = f"tmp/result_{nfiles}.json"
+        filepath = f"tmp/forest_{nfiles}.json"
         with open(filepath, "w") as fp:
             json.dump(data, fp, indent=4)
