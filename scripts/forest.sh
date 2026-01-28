@@ -14,7 +14,7 @@ run_seq() {
     for e in "${TREES[@]}"; do
         for j in $(seq 1 5); do
             srun -N 1 -n 1 -c 1 \
-                ./build/rf.out $e 0 "seq" 1 $1 log
+                ./build/rf.out $e 0 "seq" 1 "$DATASET" log
         done
     done
 }
