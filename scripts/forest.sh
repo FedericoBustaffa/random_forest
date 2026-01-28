@@ -58,8 +58,21 @@ run_mpi() {
 }
 
 
+run_sklearn() {
+    echo "--- Sklearn ---"
+    for e in "${TREES[@]}"; do
+        for t in 8 16 32; do
+            for j in $(seq 1 5); do
+                srun -N $n -n $n -c 32 \
+                    python ./test/sklearn_rf.py $e 0 $t "$DATASET" --log
+            done
+        done
+    done
+}
+
+
 if [[ $# -lt 1 ]]; then
-    echo "Usage: $0 DATASET [seq] [omp] [ff] [mpi]"
+    echo "Usage: $0 DATASET [seq] [omp] [ff] [mpi] [sklearn]"
     exit 1
 fi
 
@@ -71,6 +84,7 @@ if [[ $# -eq 0 ]]; then
     run_omp
     run_ff
     run_mpi
+    run_sklearn
 else
     for mode in "$@"; do
         case "$mode" in
@@ -78,6 +92,7 @@ else
             omp) run_omp ;;
             ff)  run_ff  ;;
             mpi) run_mpi ;;
+            sklearn) run_sklearn ;;
             *)
                 echo "Unknown mode: $mode"
                 exit 1 ;;
