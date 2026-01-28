@@ -91,6 +91,30 @@ discrepancies can be imputed to slightly different implementations.
   \label{tab: forest_comparison}
 \end{table}
 
+Results on SUSY dataset with 100.000 samples are not reported, since accuracy
+and F1 score were the same as the subset of 20.000 samples.
+
 \subsection{Shared Memory}
+
+For shared memory versions are reported absolute runtimes, speedup, efficiency
+and weak scaling, also compared with Scikit-Learn implementation that offers a
+single node multi-processing parallelization.
+
+Below are reported runtime results on Magic dataset
+
+% plot training and prediction runtime
+
+% description
+
+The speedup values for each version is computed with respect to the sequential
+version.
+
+% speedup plots
+
+Efficiency is obtained by dividing the speedup for the number of workers used.
+
+% efficiecy plots
+
+In the end weak scaling is obtained
 
 \subsection{Distributed Memory}
