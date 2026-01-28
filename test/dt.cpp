@@ -49,8 +49,8 @@ int main(int argc, const char** argv)
 
     std::vector<std::pair<std::string, std::string>> record;
     record.emplace_back("implementation", "proposed");
-    record.emplace_back("depth", stringify(tree.depth()));
     record.emplace_back("dataset", argv[2]);
+    record.emplace_back("depth", stringify(tree.depth()));
     record.emplace_back("accuracy", stringify(accuracy));
     record.emplace_back("f1", stringify(f1));
     record.emplace_back("train_time", stringify(train_time));

@@ -50,14 +50,14 @@ if __name__ == "__main__":
     f1 = f1_score(y_test, test_pred, average="macro")
 
     data = {
+        "dataset": args.dataset,
         "estimators": args.estimators,
         "max_depth": args.max_depth,
-        "backend": "joblib",
-        "threads": args.njobs,
-        "nodes": 1,
-        "dataset": args.dataset,
         "accuracy": accuracy,
         "f1": f1,
+        "backend": "joblib",
+        "nodes": 1,
+        "threads": args.njobs,
         "train_time": train_time * 1000,
         "predict_time": predict_time * 1000,
     }

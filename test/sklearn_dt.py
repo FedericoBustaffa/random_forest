@@ -47,8 +47,8 @@ if __name__ == "__main__":
 
     data = {
         "implementation": "sklearn",
-        "depth": dt.get_depth(),
         "dataset": args.dataset,
+        "depth": dt.get_depth(),
         "accuracy": accuracy,
         "f1": f1,
         "train_time": train_time * 1000,

@@ -21,10 +21,6 @@ Most tests done on the cluster look for performance, except an initial
 correctness check for both decision trees and random forest done by comparing
 results with Scikit-Learn.
 
-Aside from correctness, a useful comparison with Scikit-Learn was also about
-runtime, in order to have a performance goal to reach.
-
-
 \subsection{Correctness}
 
 In order to compare decision tree and random forest with Scikit-Learn
@@ -35,34 +31,68 @@ For the decision tree comparing the reached depth was also a way to see if the
 proposed implementation evaluates every split and produces roughly the same
 amount of nodes as a state of the art implementation.
 
-The correctness test simply consisted in a comparison of accuracy and f1 score,
-on the same test split. 
 
 \begin{table}[H]
   \centering
-  \begin{tabular}{lllrrrr}
+  \begin{tabular}{lll | rr | rr}
     \toprule
-    Library & Depth & Dataset & Accuracy & F1 & Training & Prediction(ms) \\
+    Algorithm & Depth & Dataset & Accuracy & F1 & Training & Prediction \\
     \midrule
-    Proposed & 7 & Breast Cancer & 0.92 & 0.90 & 4.89 ms & 0.004 \\
-    Sklearn & 7 & Breast Cancer & 0.94 & 0.94 & 12.57 ms & 0.383 \\
-    Proposed & 32 & Magic & 0.83 & 0.81 & 0.22 s & 0.424 \\
-    Sklearn & 26 & Magic & 0.82 & 0.80 & 0.5 s & 0.987 \\
-    Proposed & 39 & SUSY 20k & 0.72 & 0.72 & 0.44 s & 0.479 \\
-    Sklearn & 38 & SUSY 20k & 0.72 & 0.72 & 0.98 s & 1.663 \\
-    Proposed & 45 & SUSY 100k & 0.71 & 0.71 & 3.24 s & 3.696 \\
-    Sklearn & 41 & SUSY 100k & 0.71 & 0.71 & 6.42 s & 7.540 \\
+    Proposed & 7 & Breast Cancer & 0.92 & 0.90 & 4.89 ms & 0.004 ms \\
+    Sklearn & 7 & Breast Cancer & 0.94 & 0.94 & 12.57 ms & 0.383 ms \\
+    \midrule
+    Proposed & 32 & Magic & 0.83 & 0.81 & 0.22 s & 0.424 ms \\
+    Sklearn & 26 & Magic & 0.82 & 0.80 & 0.5 s & 0.987 ms \\
+    \midrule
+    Proposed & 39 & SUSY 20k & 0.72 & 0.72 & 0.44 s & 0.479 ms \\
+    Sklearn & 38 & SUSY 20k & 0.72 & 0.72 & 0.98 s & 1.663 ms \\
+    \midrule
+    Proposed & 45 & SUSY 100k & 0.71 & 0.71 & 3.24 s & 3.696 ms \\
+    Sklearn & 41 & SUSY 100k & 0.71 & 0.71 & 6.42 s & 7.540 ms \\
     \bottomrule
   \end{tabular}
-  \caption{Comparison between the proposed implementation and Scikit-Learn}
-  \label{tab: tree_results}
+  \caption{Comparison between the proposed decision tree implementation and
+  Scikit-Learn}
+  \label{tab: tree_comparison}
 \end{table}
+
+The correctness test simply consisted in a comparison of accuracy and f1 score,
+on the same test split. Aside from correctness, a useful comparison with
+Scikit-Learn was also about runtime, in order to have a performance goal to
+reach.
 
 For random forest, every version correctness is tested in order to ensure that
 parallelization does not corrupt the algorithm; of course little score
 discrepancies can be imputed to slightly different implementations.
 
-% tabella con accuracy, f1 score
+\begin{table}[H]
+  \centering
+  \begin{tabular}{llll | rr}
+    \toprule
+    Backend & Threads & Nodes & Dataset & Accuracy & F1 \\
+    \midrule
+    Sequential & 1 & 1 & Breast Cancer & 0.96 & 0.96 \\
+    OpenMP & 16 & 1 & Breast Cancer & 0.96 & 0.96 \\
+    FastFlow & 16 & 1 & Breast Cancer & 0.96 & 0.96 \\
+    MPI & 16 & 8 & Breast Cancer & 0.96 & 0.95 \\
+    Sklearn & 16 & 1 & Breast Cancer & 0.96 & 0.96 \\
+    \midrule
+    Sequential & 1 & 1 & Magic & 0.87 & 0.86 \\
+    OpenMP & 16 & 1 & Magic & 0.87 & 0.86 \\
+    FastFlow & 16 & 1 & Magic & 0.87 & 0.86 \\
+    MPI & 16 & 8 & Magic & 0.87 & 0.85 \\
+    Sklearn & 16 & 1 & Magic & 0.88 & 0.86 \\
+    \midrule
+    Sequential & 1 & 1 & SUSY 20k & 0.80 & 0.80 \\
+    OpenMP & 16 & 1 & SUSY 20k & 0.80 & 0.80 \\
+    FastFlow & 16 & 1 & SUSY 20k & 0.80 & 0.80 \\
+    MPI & 16 & 8 & SUSY 20k & 0.79 & 0.79 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Comparison between the proposed random forest implementation and
+  Scikit-Learn with 128 estimators}
+  \label{tab: forest_comparison}
+\end{table}
 
 \subsection{Shared Memory}
 

@@ -39,14 +39,14 @@ int main(int argc, char** argv)
     float f1 = f1_score(pred, data.y_test);
 
     std::vector<std::pair<std::string, std::string>> record;
+    record.emplace_back("dataset", args.dataset);
     record.emplace_back("estimators", stringify(args.estimators));
     record.emplace_back("max_depth", stringify(args.max_depth));
-    record.emplace_back("backend", argv[3]);
-    record.emplace_back("threads", stringify(args.threads));
-    record.emplace_back("nodes", stringify(args.nodes));
-    record.emplace_back("dataset", args.dataset);
     record.emplace_back("accuracy", stringify(accuracy));
     record.emplace_back("f1", stringify(f1));
+    record.emplace_back("backend", argv[3]);
+    record.emplace_back("nodes", stringify(args.nodes));
+    record.emplace_back("threads", stringify(args.threads));
     record.emplace_back("train_time", stringify(train_time));
     record.emplace_back("predict_time", stringify(predict_time));
 
