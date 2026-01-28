@@ -61,9 +61,9 @@ run_mpi() {
 run_sklearn() {
     echo "--- Sklearn ---"
     for e in "${TREES[@]}"; do
-        for t in 8 16 32; do
+        for t in 1 2 4 8 16 32; do
             for j in $(seq 1 5); do
-                srun -N $n -n $n -c 32 \
+                srun -N 1 -n 1 -c 32 \
                     python ./test/sklearn_rf.py $e 0 $t "$DATASET" --log
             done
         done
