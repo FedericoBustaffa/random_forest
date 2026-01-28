@@ -98,22 +98,61 @@ and F1 score were the same as the subset of 20.000 samples.
 
 For shared memory versions are reported absolute runtimes, speedup, efficiency
 and weak scaling, also compared with Scikit-Learn implementation that offers a
-single node multi-processing parallelization.
+single node multi-processing parallelization. Below are reported runtime results
+on Magic dataset
 
-Below are reported runtime results on Magic dataset
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/magic_runtime.svg}
+  \caption{Magic dataset training and prediction runtime varying the number of workers}
+  \label{fig: magic_runtime_worker}
+\end{figure}
 
-% plot training and prediction runtime
+% description
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/susy20k_runtime.svg}
+  \caption{SUSY dataset training and prediction runtime varying the number of workers}
+  \label{fig: susy_runtime_worker}
+\end{figure}
 
 % description
 
 The speedup values for each version is computed with respect to the sequential
 version.
 
-% speedup plots
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/magic_speedup.svg}
+  \caption{Magic dataset training and prediction speedup varying the number of workers}
+  \label{fig: magic_speedup}
+\end{figure}
+
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/susy20k_speedup.svg}
+  \caption{SUSY dataset training and prediction speedup varying the number of workers}
+  \label{fig: susy_speedup}
+\end{figure}
 
 Efficiency is obtained by dividing the speedup for the number of workers used.
 
-% efficiecy plots
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/susy20k_efficiency.svg}
+  \caption{SUSY dataset training and prediction efficiency varying the number of workers}
+  \label{fig: susy_efficiency}
+\end{figure}
+
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/magic_efficiency.svg}
+  \caption{Magic dataset training and prediction efficiency varying the number of workers}
+  \label{fig: magic_efficiency}
+\end{figure}
 
 In the end weak scaling is obtained
 
