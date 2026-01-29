@@ -96,64 +96,161 @@ and F1 score were the same as the subset of 20.000 samples.
 
 \subsection{Shared Memory}
 
-For shared memory versions are reported absolute runtimes, speedup, efficiency
-and weak scaling, also compared with Scikit-Learn implementation that offers a
-single node multi-processing parallelization. Below are reported runtime results
-on Magic dataset
+Shared memory versions were tested with an exponentially growing number of trees
+(from 8 to 256) and threads (from 1 to 32), taking the number of trees as a
+measure of the problem size. Below are reported the execution time plots on
+Magic and SUSY (20.000 samples) datasets, where executions denoted with a single
+thread represent the pure sequential version.
+
+% \begin{figure}[H]
+%   \centering
+%
+%   \begin{subfigure}{\linewidth}
+%     \centering
+%     \includesvg[width=\linewidth]{images/magic_runtime.svg}
+%   \end{subfigure}
+%
+%   \vspace{0.5cm}
+%
+%   \begin{subfigure}{\linewidth}
+%     \centering
+%     \includesvg[width=\linewidth]{images/susy_runtime.svg}
+%   \end{subfigure}
+%
+%   \caption{Training and prediction runtime varying the number of workers on the
+%   Magic and SUSY datasets.}
+%   \label{fig: runtime_workers}
+% \end{figure}
+
 
 \begin{figure}[H]
   \centering
   \includesvg[width=\linewidth]{images/magic_runtime.svg}
-  \caption{Magic dataset training and prediction runtime varying the number of workers}
-  \label{fig: magic_runtime_worker}
+  \caption{Training and prediction runtime on Magic dataset.}
+  \label{fig: magic_runtime_workers}
 \end{figure}
-
-% description
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=\linewidth]{images/susy20k_runtime.svg}
-  \caption{SUSY dataset training and prediction runtime varying the number of workers}
-  \label{fig: susy_runtime_worker}
+  \includesvg[width=\linewidth]{images/susy_runtime.svg}
+  \caption{Training and prediction runtime on SUSY dataset.}
+  \label{fig: susy_runtime_workers}
 \end{figure}
 
-% description
+As shown in the plots, both OpenMP and FastFlow version behave as expected with
+a gradually decreasing execution training time as the number of threads
+increases. For the prediction is possible to see how the OpenMP version keeps
+decreasing also for small workloads, while the FastFlow version, expecially with
+32 threads, gets worse than the 16 threads runs.
 
-The speedup values for each version is computed with respect to the sequential
-version.
+From those execution times the derived speedup values for each version are
+computed with respect to the sequential version.
+
+% \begin{figure}[H]
+%   \centering
+%
+%   \begin{subfigure}{\linewidth}
+%     \centering
+%     \includesvg[width=\linewidth]{images/magic_speedup.svg}
+%   \end{subfigure}
+%
+%   \begin{subfigure}{\linewidth}
+%     \centering
+%     \includesvg[width=\linewidth]{images/susy_speedup.svg}
+%   \end{subfigure}
+%
+%   \caption{Training and prediction speedup on Magic and SUSY datasets.}
+%   \label{fig: speedup}
+% \end{figure}
+
 
 \begin{figure}[H]
   \centering
   \includesvg[width=\linewidth]{images/magic_speedup.svg}
-  \caption{Magic dataset training and prediction speedup varying the number of workers}
+  \caption{Training and prediction speedup on Magic dataset.}
   \label{fig: magic_speedup}
 \end{figure}
 
-
 \begin{figure}[H]
   \centering
-  \includesvg[width=\linewidth]{images/susy20k_speedup.svg}
-  \caption{SUSY dataset training and prediction speedup varying the number of workers}
+  \includesvg[width=\linewidth]{images/susy_speedup.svg}
+  \caption{Training and prediction speedup on SUSY dataset.}
   \label{fig: susy_speedup}
 \end{figure}
 
-Efficiency is obtained by dividing the speedup for the number of workers used.
+As shown the OpenMP version is very close to the ideal speedup, expecially in
+training. For the FastFlow version instead was recorded an unexpected behavior,
+as plots show how runs with lower workloads benefit more of parallelism in
+training. The other interesting aspect is how with 32 threads there is a
+stronger grow in speedup with respect to the rest of the curve trend.
 
-\begin{figure}[H]
-  \centering
-  \includesvg[width=\linewidth]{images/susy20k_efficiency.svg}
-  \caption{SUSY dataset training and prediction efficiency varying the number of workers}
-  \label{fig: susy_efficiency}
-\end{figure}
-
+By comparing the obtained speedup with the amount of used resources it was
+computed the efficiency of both versions.
 
 \begin{figure}[H]
   \centering
   \includesvg[width=\linewidth]{images/magic_efficiency.svg}
-  \caption{Magic dataset training and prediction efficiency varying the number of workers}
+  \caption{Training and prediction efficiency on Magic dataset.}
   \label{fig: magic_efficiency}
 \end{figure}
 
-In the end weak scaling is obtained
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/susy_efficiency.svg}
+  \caption{Training and prediction efficiency on SUSY dataset.}
+  \label{fig: susy_efficiency}
+\end{figure}
+
+For efficiency is possible to see how OpenMP version is more stable and with
+much higher efficiency in both training and prediction phase. For FastFlow
+efficiency decreases faster, still reflecting the strange behavior pointed out
+for the speedup, showing an higher efficiency using 32 threads instead of 16.
+
+The last metric is the weak scaling, computed as relative speedup with respect
+to the previous configuration \emph{workers-estimators}. In this way is possible
+to have a normalized weak speedup value with ideal value 1.
+
+% \begin{figure}[H]
+%   \centering
+%   \includesvg[width=\linewidth]{images/magic_weakscaling.svg}
+%   \caption{Magic dataset training and prediction weak scaling varying the number
+%   of workers}
+%   \label{fig: magic_weak_scaling}
+% \end{figure}
+%
+%
+% \begin{figure}[H]
+%   \centering
+%   \includesvg[width=\linewidth]{images/susy_weakscaling.svg}
+%   \caption{Training and prediction weak scaling on SUSY dataset.}
+%   \label{fig: susy_weak_scaling}
+% \end{figure}
+
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/magic_weakscaling_norm.svg}
+  \caption{Training and prediction weak scaling on Magic dataset.}
+  \label{fig: susy_weak_scaling}
+\end{figure}
+
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/susy_weakscaling_norm.svg}
+  \caption{Training and prediction weak scaling on SUSY dataset.}
+  \label{fig: magic_weak_scaling}
+\end{figure}
+
+For the weak scaling is possible to see how again OpenMP obtain quite stable
+values for both training and prediction. FastFlow version instead has a much
+noisier curve, expecially in prediction phase, probably due to an excessive
+overhead for communication, that initally worsens perforamnce with respect to
+the sequential version. After the point the curve has a much standard trend.
 
 \subsection{Distributed Memory}
+
+For the distributed memory version with MPI and OpenMP the reported results
+consider a minimum of 8 threads per node, up to a maximum of 32, leaving the
+number of trees fixed to 128 for most of the metrics.
+

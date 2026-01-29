@@ -1,22 +1,26 @@
+import argparse
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 if __name__ == "__main__":
-    df = pd.read_csv("results/forest.csv")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("title", type=str, help="title of the plot")
+    parser.add_argument("dataset", type=str, help="name of the dataset")
+    parser.add_argument("output_file", type=str, help="filepath to save the plot")
+    args = parser.parse_args()
 
+    df = pd.read_csv("results/forest.csv")
     INPUT_COLS = ["dataset", "estimators", "max_depth", "backend", "nodes", "threads"]
     OUTPUT_COLS = ["accuracy", "f1", "train_time", "predict_time"]
-
     df = df.groupby(by=INPUT_COLS, as_index=False)[OUTPUT_COLS].mean()
 
-    # plot_shared_memory_runtime(df)
-
-    df = df[df["dataset"] == "magic"]
+    df = df[df["dataset"] == args.dataset]
     df = df[df["estimators"] >= 64]
     df = df[df["backend"] != "mpi"]
 
-    dataset = "SUSY 20k"
+    dataset = args.title
 
     assert isinstance(df, pd.DataFrame)
     estimators = df["estimators"].unique()
@@ -25,8 +29,8 @@ if __name__ == "__main__":
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.5), sharey=True, dpi=100)
 
-    ax1.set_title(f"{dataset} Speedup", fontsize=14)
-    ax2.set_title(f"{dataset} Speedup", fontsize=14)
+    ax1.set_title(f"{dataset} Training Efficiency", fontsize=14)
+    ax2.set_title(f"{dataset} Prediction Efficiency", fontsize=14)
 
     blues = plt.cm.Blues(np.linspace(0.4, 0.8, len(estimators)))
     reds = plt.cm.Reds(np.linspace(0.4, 0.8, len(estimators)))
@@ -44,8 +48,12 @@ if __name__ == "__main__":
         assert isinstance(ff, pd.DataFrame)
         ff = ff.sort_values(["threads"])
 
-        omp_su = [seq["train_time"] / t for t in omp["train_time"]]
-        ff_su = [seq["train_time"] / t for t in ff["train_time"]]
+        omp_su = [
+            seq["train_time"] / t / w for t, w in zip(omp["train_time"], omp["threads"])
+        ]
+        ff_su = [
+            (seq["train_time"] / t) / w for t, w in zip(ff["train_time"], ff["threads"])
+        ]
         ax1.plot(
             omp["threads"],
             omp_su,
@@ -61,8 +69,14 @@ if __name__ == "__main__":
             color=reds[i],
         )
 
-        omp_su = [seq["predict_time"] / t for t in omp["predict_time"]]
-        ff_su = [seq["predict_time"] / t for t in ff["predict_time"]]
+        omp_su = [
+            seq["predict_time"] / t / w
+            for t, w in zip(omp["predict_time"], omp["threads"])
+        ]
+        ff_su = [
+            (seq["predict_time"] / t) / w
+            for t, w in zip(ff["predict_time"], ff["threads"])
+        ]
         ax2.plot(
             omp["threads"],
             omp_su,
@@ -79,36 +93,20 @@ if __name__ == "__main__":
         )
 
     threads = [2, 4, 8, 16, 32]
-    ax1.plot(
-        threads,
-        threads,
-        "g--",
-        label="Ideal",
-    )
     ax1.set_xscale("log", base=2)
-    ax1.set_yscale("log", base=2)
     ax1.set_xlabel("Threads", fontsize=12)
-    ax1.set_ylabel("Speedup", fontsize=12)
+    ax1.set_ylabel("Efficiency", fontsize=12)
     ax1.set_xticks(threads, [str(t) for t in threads])
-    ax1.set_yticks(threads, [str(t) for t in threads])
     ax1.legend()
     ax1.grid()
 
-    ax2.plot(
-        threads,
-        threads,
-        "g--",
-        label="Ideal",
-    )
     ax2.set_xscale("log", base=2)
-    ax2.set_yscale("log", base=2)
     ax2.set_xlabel("Threads", fontsize=12)
     ax2.set_xticks(threads, [str(t) for t in threads])
-    ax2.set_yticks(threads, [str(t) for t in threads])
     ax2.legend()
     ax2.grid()
 
     plt.tight_layout()
 
-    plt.savefig(f"report/images/susy20k_speedup.svg", dpi=300)
+    plt.savefig(args.output_file, dpi=300)
     plt.show()
