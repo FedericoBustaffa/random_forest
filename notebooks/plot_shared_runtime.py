@@ -1,22 +1,26 @@
+import argparse
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 if __name__ == "__main__":
-    df = pd.read_csv("results/forest.csv")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("title", type=str, help="title of the plot")
+    parser.add_argument("dataset", type=str, help="name of the dataset")
+    parser.add_argument("output_file", type=str, help="filepath to save the plot")
+    args = parser.parse_args()
 
+    df = pd.read_csv("results/forest.csv")
     INPUT_COLS = ["dataset", "estimators", "max_depth", "backend", "nodes", "threads"]
     OUTPUT_COLS = ["accuracy", "f1", "train_time", "predict_time"]
-
     df = df.groupby(by=INPUT_COLS, as_index=False)[OUTPUT_COLS].mean()
 
-    # plot_shared_memory_runtime(df)
-
-    df = df[df["dataset"] == "susy20000"]
+    df = df[df["dataset"] == args.dataset]
     df = df[df["estimators"] >= 64]
     df = df[df["backend"] != "mpi"]
 
-    dataset = "SUSY 20k"
+    dataset = args.title
 
     assert isinstance(df, pd.DataFrame)
     estimators = df["estimators"].unique()
@@ -60,8 +64,8 @@ if __name__ == "__main__":
             color=reds[i],
         )
         # ax1.plot(
-        #     omp["threads"],
-        #     omp["train_time"] / 1000,
+        #     jl["threads"],
+        #     jl["train_time"] / 1000,
         #     marker="o",
         #     label=f"Sklearn {e} estimators",
         #     color=greens[i],
@@ -81,6 +85,13 @@ if __name__ == "__main__":
             label=f"FastFlow {e} estimators",
             color=reds[i],
         )
+        # ax2.plot(
+        #     jl["threads"],
+        #     jl["predict_time"],
+        #     marker="o",
+        #     label=f"Sklearn {e} estimators",
+        #     color=greens[i],
+        # )
 
     ax1.set_xscale("log", base=2)
     ax1.set_xlabel("Threads", fontsize=12)
@@ -99,5 +110,5 @@ if __name__ == "__main__":
 
     plt.tight_layout()
 
-    plt.savefig(f"report/images/{dataset.lower()}_runtime.svg", dpi=300)
+    plt.savefig(args.output_file, dpi=300)
     plt.show()
