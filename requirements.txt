@@ -6,5 +6,8 @@ pandas
 scipy
 scikit-learn
 ucimlrepo
+
+notebook
 ipykernel
+pyarrow
 pyqt6
