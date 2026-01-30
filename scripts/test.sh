@@ -27,5 +27,5 @@ srun --mpi=pmix -N "$NODES" -n "$NODES" -c 32 \
     ./build/rf.out "$TREES" 0 "mpi" "$THREADS" "$DATASET"
 
 echo "--- Sklearn ---"
-python ./test/sklearn_rf.py "$TREES" 0 "$THREADS" "$DATASET"
+srun -N 1 -n 1 -c 32 python ./test/sklearn_rf.py "$TREES" 0 "$THREADS" "$DATASET"
 
