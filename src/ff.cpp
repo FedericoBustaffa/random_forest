@@ -9,6 +9,7 @@
 
 using namespace ff;
 
+// Source node for farm: generates job IDs
 class Source : public ff_node_t<size_t>
 {
 public:
@@ -26,6 +27,7 @@ private:
     size_t n_jobs;
 };
 
+// Worker node: fits a single tree
 class Fitter : public ff_node_t<size_t>
 {
 public:
@@ -49,11 +51,13 @@ private:
     std::vector<DecisionTree>& trees;
 };
 
+// Fit all trees using FastFlow farm
 void RandomForest::ff_fit(const std::vector<std::vector<float>>& X,
                           const std::vector<uint8_t>& y)
 {
     Source source(m_Trees.size());
 
+    // create worker nodes
     std::vector<std::unique_ptr<ff_node>> workers;
     for (size_t i = 0; i < m_Threads; i++)
         workers.push_back(std::make_unique<Fitter>(X, y, m_Trees));
@@ -63,6 +67,7 @@ void RandomForest::ff_fit(const std::vector<std::vector<float>>& X,
     farm.run_and_wait_end();
 }
 
+// Worker node: predicts with a single tree
 class Predicter : public ff_node_t<size_t>
 {
 public:
@@ -87,6 +92,7 @@ private:
     std::vector<DecisionTree>& trees;
 };
 
+// Worker node: counts votes and computes majority
 class VoteCounter : public ff_node_t<size_t>
 {
 public:
@@ -98,12 +104,14 @@ public:
 
     size_t* svc(size_t* i) override
     {
+        // aggregate votes for this tree
         for (size_t j = 0; j < y.size(); j++)
         {
             const std::vector<uint8_t>& pred = y[j];
             votes[*i][pred[*i]]++;
         }
 
+        // compute majority class
         uint8_t value = 0;
         size_t counter = 0;
         for (size_t j = 0; j < votes[*i].size(); ++j)
@@ -127,13 +135,14 @@ private:
     std::vector<uint8_t>& prediction;
 };
 
+// Predict all samples using FastFlow farm
 std::vector<uint8_t> RandomForest::ff_predict(
     const std::vector<std::vector<float>>& X)
 {
-    // predict the same batch in parallel
+    // predict with all trees in parallel
     Source tree_source(m_Trees.size());
-
     std::vector<std::vector<uint8_t>> y(m_Trees.size());
+
     std::vector<std::unique_ptr<ff_node>> predicters;
     for (size_t i = 0; i < m_Threads; i++)
         predicters.push_back(std::make_unique<Predicter>(X, y, m_Trees));

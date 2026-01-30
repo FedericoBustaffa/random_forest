@@ -1,6 +1,6 @@
 \section{Experiments and Results}
 
-About the datasets used for testing phase, the choice went from little and
+For the testing phase three datasets have been used, starting from little and
 simple (to test correctness), to quite large datasets with many samples and
 features, in order to evaluate how well the algorithm scales:
 
@@ -17,10 +17,6 @@ features, in order to evaluate how well the algorithm scales:
     Telescope, and the other one of 100.000 samples.
 \end{itemize}
 
-Most tests done on the cluster look for performance, except an initial
-correctness check for both decision trees and random forest done by comparing
-results with Scikit-Learn.
-
 \subsection{Correctness}
 
 In order to compare decision tree and random forest with Scikit-Learn
@@ -31,19 +27,16 @@ For the decision tree comparing the reached depth was also a way to see if the
 proposed implementation evaluates every split and produces roughly the same
 amount of nodes as a state of the art implementation.
 
-
 \begin{table}[H]
   \centering
   \begin{tabular}{ll|rrrrr}
     \toprule
     Algorithm & Dataset & Depth & Accuracy & F1 & Training & Prediction \\
     \midrule
-    Sklearn & Breast Cancer & 7 & 0.95 & 0.94 & 12.57 ms & 0.37 ms \\
-    Proposed & Breast Cancer & 7 & 0.92 & 0.91 & 4.75 ms & 0.004 ms \\
+    % Sklearn & Breast Cancer & 7 & 0.95 & 0.94 & 12.57 ms & 0.37 ms \\
+    % Proposed & Breast Cancer & 7 & 0.92 & 0.91 & 4.75 ms & 0.004 ms \\
     Sklearn & Magic & 26 & 0.82 & 0.80 & 0.49 s & 1.00 ms \\
     Proposed & Magic & 32 & 0.83 & 0.82 & 0.22 s & 0.43 ms \\
-    Sklearn & SUSY 20k & 36 & 0.71 & 0.71 & 0.97 s & 1.67 ms \\
-    Proposed & SUSY 20k & 33 & 0.71 & 0.71 & 0.44 s & 0.49 ms \\
     Sklearn & SUSY 100k & 41 & 0.72 & 0.71 & 6.29 s & 6.82 ms \\
     Proposed & SUSY 100k & 45 & 0.71 & 0.71 & 3.17 s & 3.72 ms \\
     \bottomrule
@@ -53,36 +46,29 @@ amount of nodes as a state of the art implementation.
   \label{tab: tree_comparison}
 \end{table}
 
-The correctness test simply consisted in a comparison of accuracy and f1 score,
-on the same test split. Aside from correctness, a useful comparison with
-Scikit-Learn was also about runtime, in order to have a performance goal to
-reach.
+As shown in table \ref{tab: tree_comparison}, accuracy and F1 scores are very
+similar to Scikit-Learn and also the final tree depth is consistent, implying a
+similar number of nodes produced.
 
 For random forest, every version correctness is tested in order to ensure that
-parallelization does not corrupt the algorithm; of course little score
-discrepancies can be imputed to slightly different implementations.
+parallelization does not corrupt the algorithm.
 
 \begin{table}[H]
   \centering
   \begin{tabular}{llll | rr}
     \toprule
     Backend & Threads & Nodes & Dataset & Accuracy & F1 \\
-    \midrule
-    Sequential & 1 & 1 & Breast Cancer & 0.96 & 0.96 \\
-    OpenMP & 16 & 1 & Breast Cancer & 0.96 & 0.96 \\
-    FastFlow & 16 & 1 & Breast Cancer & 0.96 & 0.96 \\
-    MPI & 16 & 8 & Breast Cancer & 0.96 & 0.95 \\
-    Sklearn & 16 & 1 & Breast Cancer & 0.96 & 0.96 \\
-    \midrule
-    Sequential & 1 & 1 & Magic & 0.87 & 0.86 \\
-    OpenMP & 16 & 1 & Magic & 0.87 & 0.86 \\
-    FastFlow & 16 & 1 & Magic & 0.87 & 0.86 \\
-    MPI & 16 & 8 & Magic & 0.87 & 0.85 \\
-    Sklearn & 16 & 1 & Magic & 0.88 & 0.86 \\
+    % \midrule
+    % Sequential & 1 & 1 & Magic & 0.87 & 0.86 \\
+    % OpenMP & 16 & 1 & Magic & 0.87 & 0.86 \\
+    % FastFlow & 16 & 1 & Magic & 0.87 & 0.86 \\
+    % Sklearn & 16 & 1 & Magic & 0.88 & 0.86 \\
+    % MPI & 16 & 8 & Magic & 0.87 & 0.85 \\
     \midrule
     Sequential & 1 & 1 & SUSY 20k & 0.80 & 0.80 \\
     OpenMP & 16 & 1 & SUSY 20k & 0.80 & 0.80 \\
     FastFlow & 16 & 1 & SUSY 20k & 0.80 & 0.80 \\
+    Sklearn & 16 & 1 & SUSY 20k & 0.79 & 0.78 \\
     MPI & 16 & 8 & SUSY 20k & 0.79 & 0.79 \\
     \bottomrule
   \end{tabular}
@@ -90,9 +76,6 @@ discrepancies can be imputed to slightly different implementations.
   Scikit-Learn with 128 estimators}
   \label{tab: forest_comparison}
 \end{table}
-
-Results on SUSY dataset with 100.000 samples are not reported, since accuracy
-and F1 score were the same as the subset of 20.000 samples.
 
 \subsection{Shared Memory}
 
@@ -103,20 +86,24 @@ Magic and SUSY (20.000 samples) datasets, where executions denoted with a single
 thread represent the pure sequential version.
 
 \begin{figure}[H]
-  \centering
-  \includesvg[width=\linewidth]{images/shared_training_time.svg}
-  \caption{Training runtime on Magic and SUSY datasets}
-  \label{fig: training_time}
+  \begin{subfigure}{\linewidth}
+    \centering
+    \includesvg[width=\linewidth]{images/shared_training_time.svg}
+    % \caption{Training runtime on Magic and SUSY datasets}
+    \label{fig: training_time}
+  \end{subfigure}
+
+  \begin{subfigure}{\linewidth}
+    \centering
+    \includesvg[width=\linewidth]{images/shared_prediction_time.svg}
+    % \caption{Prediction runtime on Magic and SUSY datasets}
+    \label{fig: prediction_time}
+  \end{subfigure}
+    \caption{Training and prediction runtime on Magic and SUSY datasets}
+    \label{fig: time}
 \end{figure}
 
-\begin{figure}[H]
-  \centering
-  \includesvg[width=\linewidth]{images/shared_prediction_time.svg}
-  \caption{Prediction runtime on Magic and SUSY datasets}
-  \label{fig: prediction_time}
-\end{figure}
-
-As shown in the plots, both OpenMP and FastFlow version behave as expected with
+As shown in the plots, both OpenMP and FastFlow versions behave as expected with
 a gradually decreasing execution training time as the number of threads
 increases. For the prediction is possible to see how the OpenMP version keeps
 decreasing also for small workloads, while the FastFlow version, expecially with
@@ -127,26 +114,16 @@ computed with respect to the sequential version.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=\linewidth]{images/shared_training_speedup.svg}
-  \caption{Training speedup on Magic and SUSY datasets}
-  \label{fig: training_speedup}
+  \includesvg[width=\linewidth]{images/shared_speedup.svg}
+  \caption{Training and preidction speedup on Magic and SUSY datasets}
+  \label{fig: speedup}
 \end{figure}
 
-\begin{figure}[H]
-  \centering
-  \includesvg[width=\linewidth]{images/shared_training_speedup.svg}
-  \caption{Prediction speedup on Magic and SUSY datasets}
-  \label{fig: prediction_speedup}
-\end{figure}
-
-As shown the OpenMP version is very close to the ideal speedup, expecially in
-training. For the FastFlow version instead was recorded an unexpected behavior,
-as plots show how runs with lower workloads benefit more of parallelism in
-training. The other interesting aspect is how with 32 threads there is a
+In training the OpenMP version is very close to the ideal speedup, expecially
+in training. For the FastFlow version instead was recorded an unexpected
+behavior, as plots show how runs with lower workloads benefit more of
+parallelism. The other interesting aspect is how with 32 threads there is a
 stronger grow in speedup with respect to the rest of the curve trend.
-
-By comparing the obtained speedup with the amount of used resources it was
-computed the efficiency of both versions.
 
 \begin{figure}[H]
   \centering
@@ -157,19 +134,22 @@ computed the efficiency of both versions.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=\linewidth]{images/shared_training_efficiency.svg}
+  \includesvg[width=\linewidth]{images/shared_prediction_efficiency.svg}
   \caption{Prediction efficiency on Magic and SUSY datasets}
   \label{fig: prediction_efficiency}
 \end{figure}
 
-For efficiency is possible to see how OpenMP version is more stable and with
-much higher efficiency in both training and prediction phase. For FastFlow
-efficiency decreases faster, still reflecting the strange behavior pointed out
-for the speedup, showing an higher efficiency using 32 threads instead of 16.
+As shown in figures \ref{fig: training_efficiency} and \ref{fig:
+prediction_efficiency} OpenMP version has a better and more stable efficiency
+curve for both training and prediction. For the FastFlow version, efficiency
+decreases faster, still reflecting the strange behavior pointed out for the
+speedup, showing an higher efficiency using 32 threads with respect to runs with
+16.
 
 The last metric is the weak scaling, computed as relative speedup with respect
 to the previous configuration \emph{workers-estimators}. In this way is possible
-to have a normalized weak speedup value with ideal value 1.
+to have a normalized weak scaling value with ideal value 1 and comparable among
+different datasets.
 
 \begin{figure}[H]
   \centering
@@ -178,65 +158,54 @@ to have a normalized weak speedup value with ideal value 1.
   \label{fig: weak_scaling}
 \end{figure}
 
-
 For the weak scaling is possible to see how again OpenMP obtain quite stable
-values for both training and prediction. FastFlow version instead has a much
-noisier curve, expecially in prediction phase, probably due to an excessive
-overhead for communication, that initally worsens perforamnce with respect to
-the sequential version. After the point the curve has a much standard trend.
+values mostly between 0.9 and 1.0 for both training and prediction. The FastFlow
+version instead has a noisier curve, expecially in prediction phase when there
+is the step from sequential to parallel version.
 
 \subsection{Distributed Memory}
 
 For the distributed memory version with MPI and OpenMP the reported results
-consider only 16 and 32 threads per node, leaving the number of trees fixed to
-256 for most of the metrics.
-
-
-\begin{figure}[H]
-  \centering
-  \includesvg[width=\linewidth]{images/distributed_training_time.svg}
-  \caption{Training time on SUSY datasets}
-  \label{fig: distributed_training_time}
-\end{figure}
-
+consider only 8, 16 and 32 threads per node, leaving the number of trees fixed
+to 256 for most of the metrics. Every single node value is referred to the pure
+OpenMP version with the same amount of threads.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=\linewidth]{images/distributed_prediction_time.svg}
-  \caption{Prediction time on SUSY datasets}
-  \label{fig: distributed_prediction_time}
+  \includesvg[width=\linewidth]{images/distributed_runtime.svg}
+  \caption{Training and prediction distributed runtime on SUSY datasets}
+  \label{fig: distributed_time}
 \end{figure}
 
+The training phase has a very standard curve, while the prediction phase is
+noisy, with both increasing and decreasing values.
+
+The speedup for the distributed version is computed with respect to the pure
+OpenMP version with same amount of threads.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=\linewidth]{images/distributed_training_speedup.svg}
-  \caption{Training speedup on SUSY datasets}
-  \label{fig: distributed_training_speedup}
+  \includesvg[width=\linewidth]{images/distributed_speedup.svg}
+  \caption{Distributed speedup on SUSY datasets}
+  \label{fig: distributed_speedup}
 \end{figure}
 
+In figure \ref{fig: distributed_speedup} is shown how the training speedup is
+nearly optimal, while the prediction speedup is almost always below 1, denoting
+(at least for these simulations) a too high overhead.
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=\linewidth]{images/distributed_prediction_speedup.svg}
-  \caption{Prediction speedup on SUSY datasets}
-  \label{fig: distributed_prediction_speedup}
+  \includesvg[width=\linewidth]{images/distributed_efficiency.svg}
+  \caption{Distributed efficiency on SUSY datasets}
+  \label{fig: distributed_efficiency}
 \end{figure}
 
+Again the algorithm hits a nearly optimal efficiency for training, while for
+prediction reaches low values with also a very impredictable trend.
 
-\begin{figure}[H]
-  \centering
-  \includesvg[width=\linewidth]{images/distributed_training_efficiency.svg}
-  \caption{Training efficiency on SUSY datasets}
-  \label{fig: distributed_training_efficiency}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includesvg[width=\linewidth]{images/distributed_prediction_efficiency.svg}
-  \caption{Prediction efficiency on SUSY datasets}
-  \label{fig: distributed_prediction_efficiency}
-\end{figure}
+In the end the weak scaling is computed as for the shared versions, as a
+relative speedup to the previous \emph{nodes-estimators} configuration.
 
 \begin{figure}[H]
   \centering
@@ -244,3 +213,7 @@ consider only 16 and 32 threads per node, leaving the number of trees fixed to
   \caption{Training and prediction weak scaling on SUSY datasets}
   \label{fig: distributed_weak_scaling}
 \end{figure}
+
+While the training weak scaling is almost constant at 1, the prediction shows
+how there is decrease in performance passing on a multi-node paradigm. After the
+initial drop it stabilizes on those low performance.

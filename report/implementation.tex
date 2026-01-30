@@ -11,28 +11,9 @@ parallel version.
 \subsection{Decision Tree}
 
 The core logic and most of the low level optimizations are implemented in the
-decision tree, recursively built as a \verb|std::vector| of \verb|Node|, in
-order to better exploit cache locality for faster prediction.
-
-The tree nodes are disposed following the DFS visit order, that comes naturally
-from a recursive build. To improve prediction performance, some variant have
-been tested like:
-
-\begin{itemize}
-  \item \textbf{DFS with SOA}: keep the DFS layout but the tree is built following
-    the SOA model, in order to improve caching, expecially for faster indexing
-    of nodes.
-  \item \textbf{BFS}: after building the tree, a conversion to BFS layout
-    were performed, in order to perform better (at least on average) than the
-    DFS layout for prediction.
-\end{itemize}
-
-Both didn't bring any improvement to the prediction phase, probably due to the
-fact that the DFS tree is compact enough to do not cause many cache misses. So
-in order to keep the code cleaner and do not add the cost of a BFS conversion,
-the choice end up being a simple DFS layout. So in the end the main optimization
-to the preidiction phase was representing the tree as a compact array instead of
-a pointer-based data structure.
+decision tree, recursively built as a \verb|std::vector| of \verb|Node|,
+disposed following the DFS visit order, that comes naturally from a recursive
+build.
 
 The training algorithm finds the optimal split by considering every feature, and
 for each of them computing an optimal split threshold using information gain and
@@ -40,42 +21,17 @@ entropy as metrics:
 
 \begin{enumerate}
   \item Sort the feature by creating indices to redirect the indexing (dataset
-    is immutable).
+    vectors is immutable).
   \item If there is a change of class, the mid point between the previous and
     current feature value is examined as candidate threshold.
   \item If the candidate threshold has an higher information gain than the
     previous one, then it becomes the new best threshold candidate.
 \end{enumerate}
 
-In this phase, most of the optimizations and time improvements are due to a
-column-major memory layout, obtained by creating a transposed copy of the
-original \emph{samples} $\times$ \emph{features} matrix. In this way is possible
-to exploit cache locality while scanning every feature value, searching for an
-optimal split.
-
-Another key optimization comes by considering the following entropy and
-information gain formulations:
-
-\begin{align*}
-  \text{Entropy}(S) &= -\sum_{i=1}^n p_i \log_2(p_i) \\
-  \text{Gain}(S, A) &= \text{Entropy}(S) - \sum_{v \in \text{Values}(A)}
-  \frac{\#(Sv)}{\#(S)} \cdot \text{Entropy}(Sv)
-\end{align*}
-
-where $S$ is the consider set of samples, $A$ is the considered attribute (or
-feature) and $Sv$ is the subset of $S$ with attribute $A$ having value $v$. The
-first term of this formulation can be computed once for every feature and then
-reused every time there is the need to analyze a new candidate threshold.
-
-Another related optimization exploits the fact that the considered feature is
-sorted, therefore is possible to think that the loop "moves" a boundary along
-the considered feature axis, gradually dividing encountered points in
-\emph{left} and \emph{right} subsets. This allows to count each target class
-cardinality once at the beginning and consider all the points as belonging to
-the \emph{right} subset. The loop just update the counter by decreasing
-\emph{right} counters on the and increasing \emph{left} counters, avoiding to
-completely rescan the target column each time \verb|informationGain| and
-\verb|entropy| functions are invoked.
+In the end if the best split found is valid but with an information gain below
+$10^{-6}$ a leaf node is created regardless it's entropy value being excatly
+zero. Otherwise the algorithm proceeds with a recursive call on the children
+nodes.
 
 \subsection{Random Forest}
 
@@ -84,13 +40,20 @@ trees and train them sequentially, each on a bootstrap sampling of the original
 dataset.
 
 For the prediction phase each tree performs a batch prediction on the given
-input returning a vector of labels. The vector is then used to increased a
-counters matrix that has a \emph{sample} $\times$ \emph{label} layout. Each row
-of the matrix is a frequency vector of every possible label for an input
-pattern.
+input returning a vector of labels. The vector is then used to increase a matrix
+if counters that has a \emph{sample} $\times$ \emph{label} layout. Each row of
+the matrix is a frequency vector containing the votes distribution of each
+label predicted by all trees for a single input pattern.
 
 Once every tree has produced its prediction, the final prediction is computed by
 taking the most frequent class for each input pattern.
+
+Moving to the parallelization choices and design, only the forest is
+parallelized; this choice was made considering the usual number of estimators
+for the examined datasets and the total number of processors available on the
+cluster. Parallelizing trees involves a nested parallelization paradigm, more
+difficult to handle and possibly worse in performance due to overhead.
+
 
 \subsubsection{OpenMP}
 
@@ -98,17 +61,17 @@ The OpenMP version uses a static scheduling for both training and prediction
 phases, keeping basically the same logic of the sequential version.
 
 While the training phase uses a parallel for to parallelize each tree training,
-the prediction phase is splitted in two parallel steps. In the first step each
-tree produces its prediction and stores it in shared matrix with a \emph{tree}
-$\times$ \emph{sample} layout. There is no need of synchronization since the
-shared structure is projected for each tree to write its own cell.
+the prediction phase is splitted in two parallel steps:
 
-After producing predictions, the second parallel phase updates a matrix of
-counters, as before with a \emph{sample} $\times$ \emph{label} layout, and
-computes the majority vote for the final prediction.
+\begin{enumerate}
+  \item Each tree produces predictions over the batch and stores it in shared
+    matrix with a \emph{tree} $\times$ \emph{sample} layout.
+  \item Update the matrix of counters, parallelizing on the number of samples
+    and compute the majority vote for each row.
+\end{enumerate}
 
-Again no synchronization is needed due to the fact that every shared data
-structure is accessed exploiting the independence of each operation.
+For both phases no synchronization is needed, since every computation and data
+structure modification is completely independent.
 
 \subsubsection{FastFlow}
 
@@ -116,8 +79,8 @@ For the FastFlow version the main logic remains the same as the OpenMP version
 but instead of parallel for, the selected mechanism is the \verb|ff_Farm|.
 
 For the training part each worker has its own reference of the vector of trees,
-and the dataset. A \verb|Source| node only dispatches the index of the tree that
-the worker should train.
+and the dataset. A \verb|Source| node only dispatches the indices of the trees
+that the worker should train.
 
 The prediction part uses two independent farms that implement the exact same
 logic used for the OpenMP version, and again using a \verb|Source| node in
@@ -133,34 +96,15 @@ multiple nodes and low-latency shared memory. OpenMP was chosen over FastFlow
 because it better aligns with the data-parallel paradigm required by this task
 and modelled by the MPI implementation of the forest.
 
-About the actual implementation of MPI the choice was a minimal yet efficient
-architecture, where communications among processes are limited as much as
-possible.
-
-For the training phase the algorithm exploits the fact that the main program is
-replicated from start to finish and so there is no need for communication at
-all. Every process trains \emph{total\_trees} $/$ \emph{workers} decision trees
+Every process trains \emph{total\_trees} $/$ \emph{workers} decision trees
 obtaining the number of total processes by calling \verb|MPI_Comm_size|.
 
-For the prediction phase is required some a minimal communication among
-processes to ensure the correctness of the algorithm and it is structured in
-three parts:
+For the prediction phase is required a minimal communication among
+processes to ensure the correctness of the algorithm. The logic is almost
+identical with the OpenMP version, where every process parallelizes over its
+trees the prediction and fill a flattened matrix of counters as before.
 
-\begin{enumerate}
-  \item  Each process produces predictions using its trees and stores them in
-    flattened matrix. In particular every tree prediction over the batch of
-    samples is stored contiguously, followed by the prediction array of the next
-    tree.
-  \item A vector of counters with dimension \emph{samples} $\times$
-    \emph{labels} is used to count, for each sample the frequency of each
-    possible label with the previously produced predictions.
-  \item For the final part an \verb|MPI_Reduce| operation sums all the counters
-    coming from each process, obtaining one final counter object.
-  \item The counter can now be used to compute the majority vote for each sample
-    in order to produce the final prediction.
-\end{enumerate}
+Every process shares its vote counter matrix with an \verb|MPI_Reduce| towards
+MPI rank 0 process, summing all the votes. In the end only rank 0 perform a
+majority vote, producing the final prediction.
 
-This design was chosen considering that the code would be executed on an
-homogeneous cluster, and also assuming a fairly balanced workload among nodes.
-Of course moving to an eterogeneous architecture could result in a significant
-workload imbalance among nodes, that would require a dynamic scheduling policy.

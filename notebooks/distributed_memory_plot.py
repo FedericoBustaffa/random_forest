@@ -3,13 +3,69 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def runtime_2x2(df):
+    datasets = ["susy20000", "susy100000"]
+    dataset_titles = ["SUSY 20k", "SUSY 100k"]
+    metrics = [
+        ("train_time", "Training Time (s)", 1000),  # ms → s
+        ("predict_time", "Prediction Time (ms)", 1),
+    ]
+
+    threads = np.sort(df["threads"].unique().astype(int))
+    nodes = np.sort(df["nodes"].unique().astype(int))
+
+    fig, axes = plt.subplots(2, 2, figsize=(8, 6), sharex=True, dpi=200)
+
+    purples = mpl.colormaps["Purples"](np.linspace(0.4, 0.8, len(threads)))
+
+    for row, (metric, ylabel, scale) in enumerate(metrics):
+        for col, (dataset, title) in enumerate(zip(datasets, dataset_titles)):
+            ax = axes[row, col]
+            ax.set_title(f"{title} – {ylabel}")
+
+            for i, t in enumerate(threads):
+                mask = (df["threads"] == t) & (df["dataset"] == dataset)
+
+                ax.plot(
+                    nodes,
+                    df[mask][metric] / scale,
+                    marker=".",
+                    color=purples[i],
+                    label=f"{t} threads",
+                )
+
+            ax.grid()
+            ax.set_xscale("log", base=2)
+            ax.set_xticks(nodes, [str(n) for n in nodes])
+
+    # etichette comuni
+    axes[1, 0].set_xlabel("Nodes")
+    axes[1, 1].set_xlabel("Nodes")
+    axes[0, 0].set_ylabel("Time (s)")
+    axes[1, 0].set_ylabel("Time (ms)")
+
+    # legenda globale
+    handles, labels = axes[0, 0].get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=3,
+        frameon=False,
+    )
+
+    plt.tight_layout(rect=[0, 0.05, 1, 1])
+    plt.savefig("../report/images/distributed_runtime.svg", dpi=300)
+    plt.show()
+
+
 def training_runtime(df):
     datasets = ["susy20000", "susy100000"]
     threads = df["threads"].unique().astype(int)
     nodes = df["nodes"].unique().astype(int)
     nodes.sort()
 
-    _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
+    fig, axes = plt.subplots(1, 2, figsize=(8, 3.5), dpi=200)
     axes[0].set_title(f"SUSY 20k Training Time")
     axes[1].set_title(f"SUSY 100k Training Time")
 
@@ -22,13 +78,12 @@ def training_runtime(df):
             ax.plot(
                 nodes,
                 df[mask]["train_time"] / 1000,
-                marker="o",
+                marker=".",
                 color=purples[i],
                 label=f"{t} threads",
             )
 
             ax.grid()
-            ax.legend()
 
     axes[0].set_xlabel("Nodes")
     axes[0].set_ylabel("Time (sec)")
@@ -39,7 +94,16 @@ def training_runtime(df):
     axes[1].set_xlabel("Nodes")
     axes[1].set_xticks(nodes, [str(t) for t in nodes])
 
-    plt.tight_layout()
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=3,
+        frameon=False,
+    )
+
+    plt.tight_layout(rect=[0, 0.1, 1, 1])
     plt.savefig("../report/images/distributed_training_time.svg", dpi=300)
     plt.show()
 
@@ -50,7 +114,7 @@ def prediction_runtime(df):
     nodes = df["nodes"].unique().astype(int)
     nodes.sort()
 
-    _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
+    fig, axes = plt.subplots(1, 2, figsize=(8, 3.5), dpi=200)
     axes[0].set_title(f"SUSY 20k Prediction Time")
     axes[1].set_title(f"SUSY 100k Prediction Time")
     purples = mpl.colormaps["Purples"](np.linspace(0.4, 0.8, len(threads)))
@@ -62,13 +126,12 @@ def prediction_runtime(df):
             ax.plot(
                 nodes,
                 df[mask]["predict_time"],
-                marker="o",
+                marker=".",
                 color=purples[i],
                 label=f"{t} threads",
             )
 
             ax.grid()
-            ax.legend()
 
     axes[0].set_xlabel("Nodes")
     axes[0].set_ylabel("Time (ms)")
@@ -80,186 +143,154 @@ def prediction_runtime(df):
     axes[1].set_xlabel("Nodes")
     axes[1].set_xticks(nodes, [str(t) for t in nodes])
 
-    plt.tight_layout()
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=3,
+        frameon=False,
+    )
+
+    plt.tight_layout(rect=[0, 0.1, 1, 1])
     plt.savefig("../report/images/distributed_prediction_time.svg", dpi=300)
     plt.show()
 
 
-def training_speedup(df):
-    datasets = ["susy20000", "susy100000"]
-    threads = df["threads"].unique().astype(int)
-    nodes = df["nodes_mpi"].unique()
-    nodes = np.append(nodes, df["nodes_omp"].unique()).astype(int)
+def distributed_speedup(df):
+    datasets = {
+        "susy20000": "SUSY 20k",
+        "susy100000": "SUSY 100k",
+    }
+
+    threads = np.sort(df["threads"].unique().astype(int))
+    nodes = np.unique(
+        np.concatenate([df["nodes_mpi"].values, df["nodes_omp"].values])
+    ).astype(int)
     nodes.sort()
 
-    _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
-    axes[0].set_title(f"SUSY 20k Training Speedup")
-    axes[1].set_title(f"SUSY 100k Training Speedup")
-    purples = mpl.colormaps["Purples"](np.linspace(0.4, 0.8, len(threads)))
+    fig, axes = plt.subplots(1, 2, figsize=(8, 3.5), dpi=200)
 
-    axes[0].plot(nodes, nodes, "g--", label="Ideal")
-    axes[1].plot(nodes, nodes, "g--", label="Ideal")
+    purples = mpl.colormaps["Purples"](np.linspace(0.4, 0.85, len(threads)))
+    greens = mpl.colormaps["Greens"](np.linspace(0.4, 0.85, len(threads)))
 
-    for i, t in enumerate(threads):
-        for ax, d in zip(axes, datasets):
-            mask = (df["threads"] == t) & (df["dataset"] == d)
+    for ax, metric, title in zip(
+        axes,
+        ["train_speedup", "predict_speedup"],
+        ["Training Speedup", "Prediction Speedup"],
+    ):
+        # ideal line
+        ax.plot(nodes, nodes, "r--", label="Ideal")
 
-            ax.plot(
-                nodes,
-                np.insert(df[mask]["train_speedup"], 0, 1.0),
-                marker="o",
-                color=purples[i],
-                label=f"{t} threads",
-            )
+        c = 0
+        for d, dlabel in datasets.items():
+            cmap = purples if d == "susy20000" else greens
+            for i, t in enumerate(threads):
+                mask = (df["dataset"] == d) & (df["threads"] == t)
 
-            ax.grid()
-            ax.legend()
+                if mask.sum() == 0:
+                    continue
 
-    axes[0].set_xscale("log", base=2)
-    axes[0].set_yscale("log", base=2)
-    axes[0].set_xlabel("Nodes")
+                y = np.insert(df[mask][metric].values, 0, 1.0)
+
+                ax.plot(
+                    nodes,
+                    y,
+                    marker=".",
+                    color=cmap[i],
+                    label=f"{dlabel} – {t} threads",
+                )
+                c += 1
+
+        ax.set_xscale("log", base=2)
+        ax.set_yscale("log", base=2)
+        ax.set_xticks(nodes, nodes)
+        ax.set_yticks(nodes, nodes)
+        ax.set_xlabel("Nodes")
+        ax.set_title(title)
+        ax.grid()
+
     axes[0].set_ylabel("Speedup")
-    axes[0].set_xticks(nodes, [str(t) for t in nodes])
-    axes[0].set_yticks(nodes, [str(t) for t in nodes])
 
-    axes[1].set_xscale("log", base=2)
-    axes[1].set_yscale("log", base=2)
-    axes[1].set_xlabel("Nodes")
-    axes[1].set_xticks(nodes, [str(t) for t in nodes])
-    axes[1].set_yticks(nodes, [str(t) for t in nodes])
+    # legenda comune (una sola)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=3,
+        frameon=False,
+    )
 
-    plt.tight_layout()
-    plt.savefig("../report/images/distributed_training_speedup.svg", dpi=300)
+    plt.tight_layout(rect=[0, 0.1, 1, 1])
+    plt.savefig("../report/images/distributed_speedup.svg", dpi=300)
     plt.show()
 
 
-def prediction_speedup(df):
-    datasets = ["susy20000", "susy100000"]
-    threads = df["threads"].unique().astype(int)
-    nodes = df["nodes_mpi"].unique()
-    nodes = np.append(nodes, df["nodes_omp"].unique()).astype(int)
+def distributed_efficiency(df):
+    datasets = {
+        "susy20000": "SUSY 20k",
+        "susy100000": "SUSY 100k",
+    }
+
+    threads = np.sort(df["threads"].unique().astype(int))
+    nodes = np.unique(
+        np.concatenate([df["nodes_mpi"].values, df["nodes_omp"].values])
+    ).astype(int)
     nodes.sort()
 
-    _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
-    axes[0].set_title(f"SUSY 20k Prediction Speedup")
-    axes[1].set_title(f"SUSY 100k Prediction Speedup")
-    purples = mpl.colormaps["Purples"](np.linspace(0.4, 0.8, len(threads)))
+    fig, axes = plt.subplots(1, 2, figsize=(8, 3.5), dpi=200)
 
-    axes[0].plot(nodes, nodes, "g--", label="Ideal")
-    axes[1].plot(nodes, nodes, "g--", label="Ideal")
+    purples = mpl.colormaps["Purples"](np.linspace(0.4, 0.85, len(threads)))
+    greens = mpl.colormaps["Greens"](np.linspace(0.4, 0.85, len(threads)))
 
-    for i, t in enumerate(threads):
-        for ax, d in zip(axes, datasets):
-            mask = (df["threads"] == t) & (df["dataset"] == d)
+    for ax, metric, title in zip(
+        axes,
+        ["train_efficiency", "predict_efficiency"],
+        ["Training Efficiency", "Prediction Efficiency"],
+    ):
+        c = 0
+        for d, dlabel in datasets.items():
+            cmap = purples if d == "susy20000" else greens
+            for i, t in enumerate(threads):
+                mask = (df["dataset"] == d) & (df["threads"] == t)
 
-            ax.plot(
-                nodes,
-                np.insert(df[mask]["predict_speedup"], 0, 1.0),
-                marker="o",
-                color=purples[i],
-                label=f"{t} threads",
-            )
+                if mask.sum() == 0:
+                    continue
 
-            ax.grid()
-            ax.legend()
+                y = np.insert(df[mask][metric].values, 0, 1.0)
 
-    axes[0].set_xscale("log", base=2)
-    axes[0].set_yscale("log", base=2)
-    axes[0].set_xlabel("Nodes")
-    axes[0].set_ylabel("Speedup")
-    axes[0].set_xticks(nodes, [str(t) for t in nodes])
-    # axes[0].set_yticks(nodes, [str(t) for t in nodes])
+                ax.plot(
+                    nodes,
+                    y,
+                    marker=".",
+                    color=cmap[i],
+                    label=f"{dlabel} – {t} threads",
+                )
+                c += 1
 
-    axes[1].set_xscale("log", base=2)
-    axes[1].set_yscale("log", base=2)
-    axes[1].set_xlabel("Nodes")
-    axes[1].set_xticks(nodes, [str(t) for t in nodes])
-    # axes[1].set_yticks(nodes, [str(t) for t in nodes])
+        ax.set_xscale("log", base=2)
+        # ax.set_yscale("log", base=2)
+        ax.set_xticks(nodes, nodes)
+        # ax.set_yticks(nodes, nodes)
+        ax.set_xlabel("Nodes")
+        ax.set_title(title)
+        ax.grid()
 
-    plt.tight_layout()
-    plt.savefig("../report/images/distributed_prediction_speedup.svg", dpi=300)
-    plt.show()
-
-
-def prediction_efficiency(df):
-    datasets = ["susy20000", "susy100000"]
-    threads = df["threads"].unique().astype(int)
-    nodes = df["nodes_mpi"].unique()
-    nodes = np.append(nodes, df["nodes_omp"].unique()).astype(int)
-    nodes.sort()
-
-    _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
-    axes[0].set_title(f"SUSY 20k Prediction Efficiency")
-    axes[1].set_title(f"SUSY 100k Prediction Efficiency")
-    purples = mpl.colormaps["Purples"](np.linspace(0.4, 0.8, len(threads)))
-
-    for i, t in enumerate(threads):
-        for ax, d in zip(axes, datasets):
-            mask = (df["threads"] == t) & (df["dataset"] == d)
-
-            ax.plot(
-                nodes,
-                np.insert(df[mask]["predict_efficiency"], 0, 1.0),
-                marker="o",
-                color=purples[i],
-                label=f"{t} threads",
-            )
-
-            ax.grid()
-            ax.legend()
-
-    axes[0].set_xlabel("Nodes")
     axes[0].set_ylabel("Efficiency")
-    axes[0].set_xscale("log", base=2)
-    axes[0].set_xticks(nodes, [str(t) for t in nodes])
 
-    axes[1].set_xscale("log", base=2)
-    axes[1].set_xlabel("Nodes")
-    axes[1].set_xticks(nodes, [str(t) for t in nodes])
+    # legenda comune (una sola)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=3,
+        frameon=False,
+    )
 
-    plt.tight_layout()
-    plt.savefig("../report/images/distributed_prediction_efficiency.svg", dpi=300)
-    plt.show()
-
-
-def training_efficiency(df):
-    datasets = ["susy20000", "susy100000"]
-    threads = df["threads"].unique().astype(int)
-    nodes = df["nodes_mpi"].unique()
-    nodes = np.append(nodes, df["nodes_omp"].unique()).astype(int)
-    nodes.sort()
-
-    _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
-    axes[0].set_title(f"SUSY 20k Training Efficiency")
-    axes[1].set_title(f"SUSY 100k Training Efficiency")
-    purples = mpl.colormaps["Purples"](np.linspace(0.4, 0.8, len(threads)))
-
-    for i, t in enumerate(threads):
-        for ax, d in zip(axes, datasets):
-            mask = (df["threads"] == t) & (df["dataset"] == d)
-
-            ax.plot(
-                nodes,
-                np.insert(df[mask]["train_efficiency"], 0, 1.0),
-                marker="o",
-                color=purples[i],
-                label=f"{t} threads",
-            )
-
-            ax.grid()
-            ax.legend()
-
-    axes[0].set_xlabel("Nodes")
-    axes[0].set_ylabel("Efficiency")
-    axes[0].set_xscale("log", base=2)
-    axes[0].set_xticks(nodes, [str(t) for t in nodes])
-
-    axes[1].set_xscale("log", base=2)
-    axes[1].set_xlabel("Nodes")
-    axes[1].set_xticks(nodes, [str(t) for t in nodes])
-
-    plt.tight_layout()
-    plt.savefig("../report/images/distributed_training_efficiency.svg", dpi=300)
+    plt.tight_layout(rect=[0, 0.1, 1, 1])
+    plt.savefig("../report/images/distributed_efficiency.svg", dpi=300)
     plt.show()
 
 
@@ -288,7 +319,7 @@ def weak_scaling_of(df, dataset, label, field, ax, cmap):
         ax.plot(
             nodes,
             values,
-            marker="o",
+            marker=".",
             color=cmap[i],
             label=f"{label} {t} threads",
         )
@@ -303,9 +334,9 @@ def weak_scaling(df):
     nodes = df["nodes"].unique().astype(int)
     estimators = df["estimators"].unique().astype(int)
 
-    _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
-    axes[0].set_title(f"SUSY Training Weak Scaling")
-    axes[1].set_title(f"SUSY Prediction Weak Scaling")
+    _, axes = plt.subplots(1, 2, figsize=(8, 3.5), sharey=True, dpi=200)
+    axes[0].set_title(f"Training Weak Scaling")
+    axes[1].set_title(f"Prediction Weak Scaling")
     purples = mpl.colormaps["Purples"](np.linspace(0.4, 0.8, len(threads)))
     yellows = mpl.colormaps["Greens"](np.linspace(0.4, 0.8, len(threads)))
 
@@ -315,19 +346,28 @@ def weak_scaling(df):
     weak_scaling_of(df, "susy100000", "SUSY 100k", "predict_time", axes[1], yellows)
 
     axes[0].set_xscale("log", base=2)
-    axes[0].set_xlabel("Nodes-Estimators", fontsize=12)
-    axes[0].set_ylabel("Relative Speedup", fontsize=12)
+    axes[0].set_xlabel("Nodes-Estimators")
+    axes[0].set_ylabel("Relative Speedup")
     axes[0].set_xticks(nodes, [f"{t}-{e}" for t, e in zip(nodes, estimators)])
-    axes[0].legend()
     axes[0].grid()
 
     axes[1].set_xscale("log", base=2)
-    axes[1].set_xlabel("Nodes-Estimators", fontsize=12)
+    axes[1].set_xlabel("Nodes-Estimators")
     axes[1].set_xticks(nodes, [f"{t}-{e}" for t, e in zip(nodes, estimators)])
-    axes[1].legend()
     axes[1].grid()
 
-    plt.tight_layout()
+    # legenda unica di figura
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig = plt.gcf()
+    fig.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=4,
+        frameon=False,
+    )
+
+    plt.tight_layout(rect=[0, 0.12, 1, 1])
     plt.savefig("report/images/distributed_weak_scaling.svg")
     plt.show()
 
@@ -337,7 +377,7 @@ if __name__ == "__main__":
 
     df = pd.read_csv("results/forest.csv")
     df = df[(df["backend"] == "mpi") | (df["backend"] == "omp")]
-    df = df[(df["threads"] >= 16)]
+    df = df[(df["threads"] >= 8)]
     df = df[(df["estimators"] >= 32)]
     df = df[(df["dataset"] == "susy100000") | (df["dataset"] == "susy20000")]
     df = df[

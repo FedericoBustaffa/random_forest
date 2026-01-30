@@ -88,4 +88,70 @@ prediction time of a single tree is very low.
 
 \subsection{Optimizations}
 
+The core logic and most of the low level optimizations are implemented in the
+decision tree, recursively built as a \verb|std::vector| of \verb|Node|, in
+order to better exploit cache locality for faster prediction.
 
+To improve prediction performance, some variant of DFS layout have been tested
+like:
+
+\begin{itemize}
+  \item \textbf{DFS with SOA}: keep the DFS layout but the tree is built following
+    the SOA model, in order to improve caching, expecially for faster indexing
+    of nodes.
+  \item \textbf{BFS}: after building the tree, a conversion to BFS layout
+    were performed, in order to perform better (at least on average) than the
+    DFS layout for prediction.
+\end{itemize}
+
+Both didn't improve the prediction phase, probably due to the
+fact that the DFS tree is compact enough to not cause many cache misses.
+
+In training phase, most of the optimizations and time improvements are due to a
+column-major memory layout of the dataset, obtained by creating a transposed
+copy of the original \emph{samples} $\times$ \emph{features} matrix. Of course
+this helps a lot the iterative process on every feature column.
+
+Another key optimization relies on a careful reformulation of entropy and
+information gain:
+
+\begin{align*}
+  \text{Entropy}(S) &= -\sum_{i=1}^n p_i \log_2(p_i) \\
+  \text{Gain}(S, A) &= \text{Entropy}(S) - \sum_{v \in \text{Values}(A)}
+  \frac{|S_v|}{|S|} \cdot \text{Entropy}(S_v)
+\end{align*}
+
+where $S$ denotes the current set of samples, $A$ the considered feature, and
+$S_v \subseteq S$ the subset of samples whose feature $A$ takes value $v$.
+
+When searching for the optimal split on a numerical feature, candidate
+thresholds are evaluated by partitioning $S$ into two subsets, typically
+referred to as \emph{left} and \emph{right}. In this scenario, the entropy of the
+parent set $\text{Entropy}(S)$ is independent of the threshold and can therefore
+be computed once per feature and reused for all candidate splits.
+
+A further optimization exploits the fact that samples are sorted according to
+the considered feature. Instead of recomputing class distributions from scratch
+for each candidate threshold, the split point can be interpreted as a boundary
+that progressively moves along the sorted feature axis. Initially, all samples
+belong to the \emph{right} subset, while the \emph{left} subset is empty.
+
+By maintaining two class-count vectors, one for the left subset and one for the
+right subset, the algorithm updates these counters incrementally as the boundary
+moves: when a sample crosses the boundary, its class count is decreased from the
+right subset and increased in the left subset. This prefix-based strategy allows
+the entropy of both subsets to be computed in constant time per threshold, using
+the updated class counts.
+
+As a result, the information gain for all candidate thresholds of a feature can
+be evaluated in linear time with respect to the number of samples, avoiding
+repeated scans of the target column and significantly reducing the overall
+computational cost of split evaluation.
+
+About the actual implementation of MPI the choice was a minimal yet efficient
+architecture, where communications among processes are limited as much as
+possible.
+
+For the training phase the algorithm exploits the fact that the main program is
+replicated from start to finish and so there is no need for communication. Every
+process trains its subset of trees with bootstrap sampling.

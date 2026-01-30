@@ -16,13 +16,3 @@ samples are correctly classified. It must be said, however, that splits are
 based on the best information gain; this should reduce the overall number of
 splits, also making them more significant.
 
-The random forest just uses a set of tree, each trained on a bootstrap of the
-training set. The final prediction is based on a simple majority vote for each
-sample.
-
-Moving to the parallelization choices and design, only the forest is
-parallelized; this choice was made considering the usual number of estimators
-for the examined datasets and the total number of processors available on the
-cluster. Parallelizing trees involves a nested parallelization paradigm, more
-difficult to handle and possibly worse in performance due to overhead.
-

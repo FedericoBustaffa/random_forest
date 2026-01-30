@@ -5,21 +5,24 @@
 #include <cstddef>
 #include <cstdint>
 
+// Fit all trees using MPI backend
 void RandomForest::mpi_fit(const std::vector<std::vector<float>>& X,
                            const std::vector<uint8_t>& y)
 {
     int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank); // get MPI rank
 
+    // fit each tree in parallel using OpenMP
 #pragma omp parallel for num_threads(m_Threads)
     for (size_t i = 0; i < m_Trees.size(); i++)
         m_Trees[i].fit(X, y);
 }
 
+// Predict with all trees using MPI backend
 std::vector<uint8_t> RandomForest::mpi_predict(
     const std::vector<std::vector<float>>& X)
 {
-    // predict the same batch in parallel
+    // predict all trees in parallel (local batch)
     std::vector<uint8_t> y(X.size() * m_Trees.size());
 #pragma omp parallel for num_threads(m_Threads)
     for (size_t i = 0; i < m_Trees.size(); i++)
@@ -29,7 +32,7 @@ std::vector<uint8_t> RandomForest::mpi_predict(
             y[j * m_Trees.size() + i] = single[j];
     }
 
-    // count votes
+    // count votes locally
     std::vector<uint64_t> counters(X.size() * m_Labels);
 #pragma omp parallel for num_threads(m_Threads)
     for (size_t i = 0; i < X.size(); i++)
@@ -42,6 +45,7 @@ std::vector<uint8_t> RandomForest::mpi_predict(
         }
     }
 
+    // reduce votes across all MPI nodes to rank 0
     std::vector<uint64_t> buffer(X.size() * m_Labels);
     MPI_Reduce(counters.data(), buffer.data(), counters.size(), MPI_UINT64_T,
                MPI_SUM, 0, MPI_COMM_WORLD);
@@ -49,6 +53,7 @@ std::vector<uint8_t> RandomForest::mpi_predict(
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+    // only rank 0 computes final majority vote
     if (rank == 0)
     {
         std::vector<uint8_t> prediction(X.size());
@@ -57,10 +62,11 @@ std::vector<uint8_t> RandomForest::mpi_predict(
         {
             size_t best = 0;
             size_t row = i * m_Labels;
+
             for (size_t j = 1; j < m_Labels; j++)
             {
                 if (buffer[row + j] > buffer[row + best])
-                    best = j;
+                    best = j; // find majority label
             }
 
             prediction[i] = best;
@@ -69,5 +75,5 @@ std::vector<uint8_t> RandomForest::mpi_predict(
         return prediction;
     }
 
-    return {};
+    return {}; // other ranks return empty vector
 }

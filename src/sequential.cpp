@@ -8,6 +8,7 @@
 void RandomForest::seq_fit(const std::vector<std::vector<float>>& X,
                            const std::vector<uint8_t>& y)
 {
+    // Fit each tree sequentially
     for (size_t i = 0; i < m_Trees.size(); i++)
         m_Trees[i].fit(X, y);
 }
@@ -15,7 +16,10 @@ void RandomForest::seq_fit(const std::vector<std::vector<float>>& X,
 std::vector<uint8_t> RandomForest::seq_predict(
     const std::vector<std::vector<float>>& X)
 {
+    // Initialize counters for majority vote
     std::vector<Counter> counters(X.size(), m_Labels);
+
+    // Predict with each tree and update counters
     for (size_t i = 0; i < m_Trees.size(); i++)
     {
         std::vector<uint8_t> pred = m_Trees[i].predict(X);
@@ -23,6 +27,7 @@ std::vector<uint8_t> RandomForest::seq_predict(
             counters[j][pred[j]]++;
     }
 
+    // Compute final prediction by majority vote
     std::vector<uint8_t> prediction;
     for (size_t i = 0; i < counters.size(); i++)
     {
