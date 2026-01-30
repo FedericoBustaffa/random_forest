@@ -188,6 +188,59 @@ the sequential version. After the point the curve has a much standard trend.
 \subsection{Distributed Memory}
 
 For the distributed memory version with MPI and OpenMP the reported results
-consider a minimum of 8 threads per node, up to a maximum of 32, leaving the
-number of trees fixed to 256 for most of the metrics.
+consider only 16 and 32 threads per node, leaving the number of trees fixed to
+256 for most of the metrics.
 
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/distributed_training_time.svg}
+  \caption{Training time on SUSY datasets}
+  \label{fig: distributed_training_time}
+\end{figure}
+
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/distributed_prediction_time.svg}
+  \caption{Prediction time on SUSY datasets}
+  \label{fig: distributed_prediction_time}
+\end{figure}
+
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/distributed_training_speedup.svg}
+  \caption{Training speedup on SUSY datasets}
+  \label{fig: distributed_training_speedup}
+\end{figure}
+
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/distributed_prediction_speedup.svg}
+  \caption{Prediction speedup on SUSY datasets}
+  \label{fig: distributed_prediction_speedup}
+\end{figure}
+
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/distributed_training_efficiency.svg}
+  \caption{Training efficiency on SUSY datasets}
+  \label{fig: distributed_training_efficiency}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/distributed_prediction_efficiency.svg}
+  \caption{Prediction efficiency on SUSY datasets}
+  \label{fig: distributed_prediction_efficiency}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includesvg[width=\linewidth]{images/distributed_weak_scaling.svg}
+  \caption{Training and prediction weak scaling on SUSY datasets}
+  \label{fig: distributed_weak_scaling}
+\end{figure}

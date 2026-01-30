@@ -5,8 +5,8 @@ import numpy as np
 
 def training_runtime(df):
     datasets = ["susy20000", "susy100000"]
-    threads = df["threads"].unique()
-    nodes = df["nodes"].unique()
+    threads = df["threads"].unique().astype(int)
+    nodes = df["nodes"].unique().astype(int)
     nodes.sort()
 
     _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
@@ -35,8 +35,8 @@ def training_runtime(df):
     axes[0].set_xscale("log", base=2)
     axes[0].set_xticks(nodes, [str(t) for t in nodes])
 
-    axes[1].set_xlabel("Nodes")
     axes[1].set_xscale("log", base=2)
+    axes[1].set_xlabel("Nodes")
     axes[1].set_xticks(nodes, [str(t) for t in nodes])
 
     plt.tight_layout()
@@ -46,8 +46,8 @@ def training_runtime(df):
 
 def prediction_runtime(df):
     datasets = ["susy20000", "susy100000"]
-    threads = df["threads"].unique()
-    nodes = df["nodes"].unique()
+    threads = df["threads"].unique().astype(int)
+    nodes = df["nodes"].unique().astype(int)
     nodes.sort()
 
     _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
@@ -75,8 +75,9 @@ def prediction_runtime(df):
     axes[0].set_xscale("log", base=2)
     axes[0].set_xticks(nodes, [str(t) for t in nodes])
 
-    axes[1].set_xlabel("Nodes")
     axes[1].set_xscale("log", base=2)
+    axes[1].set_xlabel("Nodes")
+    axes[1].set_xlabel("Nodes")
     axes[1].set_xticks(nodes, [str(t) for t in nodes])
 
     plt.tight_layout()
@@ -86,8 +87,10 @@ def prediction_runtime(df):
 
 def training_speedup(df):
     datasets = ["susy20000", "susy100000"]
-    threads = df["threads"].unique()
+    threads = df["threads"].unique().astype(int)
     nodes = df["nodes_mpi"].unique()
+    nodes = np.append(nodes, df["nodes_omp"].unique()).astype(int)
+    nodes.sort()
 
     _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
     axes[0].set_title(f"SUSY 20k Training Speedup")
@@ -103,7 +106,7 @@ def training_speedup(df):
 
             ax.plot(
                 nodes,
-                df[mask]["train_speedup"],
+                np.insert(df[mask]["train_speedup"], 0, 1.0),
                 marker="o",
                 color=purples[i],
                 label=f"{t} threads",
@@ -112,16 +115,16 @@ def training_speedup(df):
             ax.grid()
             ax.legend()
 
-    axes[0].set_xlabel("Nodes")
     axes[0].set_xscale("log", base=2)
     axes[0].set_yscale("log", base=2)
+    axes[0].set_xlabel("Nodes")
     axes[0].set_ylabel("Speedup")
     axes[0].set_xticks(nodes, [str(t) for t in nodes])
     axes[0].set_yticks(nodes, [str(t) for t in nodes])
 
-    axes[1].set_xlabel("Nodes")
     axes[1].set_xscale("log", base=2)
     axes[1].set_yscale("log", base=2)
+    axes[1].set_xlabel("Nodes")
     axes[1].set_xticks(nodes, [str(t) for t in nodes])
     axes[1].set_yticks(nodes, [str(t) for t in nodes])
 
@@ -132,8 +135,10 @@ def training_speedup(df):
 
 def prediction_speedup(df):
     datasets = ["susy20000", "susy100000"]
-    threads = df["threads"].unique()
+    threads = df["threads"].unique().astype(int)
     nodes = df["nodes_mpi"].unique()
+    nodes = np.append(nodes, df["nodes_omp"].unique()).astype(int)
+    nodes.sort()
 
     _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
     axes[0].set_title(f"SUSY 20k Prediction Speedup")
@@ -149,7 +154,7 @@ def prediction_speedup(df):
 
             ax.plot(
                 nodes,
-                df[mask]["predict_speedup"],
+                np.insert(df[mask]["predict_speedup"], 0, 1.0),
                 marker="o",
                 color=purples[i],
                 label=f"{t} threads",
@@ -158,16 +163,16 @@ def prediction_speedup(df):
             ax.grid()
             ax.legend()
 
-    axes[0].set_xlabel("Nodes")
     axes[0].set_xscale("log", base=2)
     axes[0].set_yscale("log", base=2)
+    axes[0].set_xlabel("Nodes")
     axes[0].set_ylabel("Speedup")
     axes[0].set_xticks(nodes, [str(t) for t in nodes])
     # axes[0].set_yticks(nodes, [str(t) for t in nodes])
 
-    axes[1].set_xlabel("Nodes")
     axes[1].set_xscale("log", base=2)
     axes[1].set_yscale("log", base=2)
+    axes[1].set_xlabel("Nodes")
     axes[1].set_xticks(nodes, [str(t) for t in nodes])
     # axes[1].set_yticks(nodes, [str(t) for t in nodes])
 
@@ -178,8 +183,10 @@ def prediction_speedup(df):
 
 def prediction_efficiency(df):
     datasets = ["susy20000", "susy100000"]
-    threads = df["threads"].unique()
+    threads = df["threads"].unique().astype(int)
     nodes = df["nodes_mpi"].unique()
+    nodes = np.append(nodes, df["nodes_omp"].unique()).astype(int)
+    nodes.sort()
 
     _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
     axes[0].set_title(f"SUSY 20k Prediction Efficiency")
@@ -192,7 +199,7 @@ def prediction_efficiency(df):
 
             ax.plot(
                 nodes,
-                df[mask]["predict_efficiency"],
+                np.insert(df[mask]["predict_efficiency"], 0, 1.0),
                 marker="o",
                 color=purples[i],
                 label=f"{t} threads",
@@ -202,12 +209,12 @@ def prediction_efficiency(df):
             ax.legend()
 
     axes[0].set_xlabel("Nodes")
-    axes[0].set_xscale("log", base=2)
     axes[0].set_ylabel("Efficiency")
+    axes[0].set_xscale("log", base=2)
     axes[0].set_xticks(nodes, [str(t) for t in nodes])
 
-    axes[1].set_xlabel("Nodes")
     axes[1].set_xscale("log", base=2)
+    axes[1].set_xlabel("Nodes")
     axes[1].set_xticks(nodes, [str(t) for t in nodes])
 
     plt.tight_layout()
@@ -217,8 +224,10 @@ def prediction_efficiency(df):
 
 def training_efficiency(df):
     datasets = ["susy20000", "susy100000"]
-    threads = df["threads"].unique()
+    threads = df["threads"].unique().astype(int)
     nodes = df["nodes_mpi"].unique()
+    nodes = np.append(nodes, df["nodes_omp"].unique()).astype(int)
+    nodes.sort()
 
     _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
     axes[0].set_title(f"SUSY 20k Training Efficiency")
@@ -231,7 +240,7 @@ def training_efficiency(df):
 
             ax.plot(
                 nodes,
-                df[mask]["train_efficiency"],
+                np.insert(df[mask]["train_efficiency"], 0, 1.0),
                 marker="o",
                 color=purples[i],
                 label=f"{t} threads",
@@ -241,12 +250,12 @@ def training_efficiency(df):
             ax.legend()
 
     axes[0].set_xlabel("Nodes")
-    axes[0].set_xscale("log", base=2)
     axes[0].set_ylabel("Efficiency")
+    axes[0].set_xscale("log", base=2)
     axes[0].set_xticks(nodes, [str(t) for t in nodes])
 
-    axes[1].set_xlabel("Nodes")
     axes[1].set_xscale("log", base=2)
+    axes[1].set_xlabel("Nodes")
     axes[1].set_xticks(nodes, [str(t) for t in nodes])
 
     plt.tight_layout()
@@ -254,139 +263,92 @@ def training_efficiency(df):
     plt.show()
 
 
-def weak_scaling_of(df, estimators, threads, dataset, backend, metric):
-    ws = []
-    for e, t in zip(estimators, threads):
-        mask = (df["backend"] == backend) | (df["backend"] == "seq")
-        mask = mask & (df["estimators"] == e)
-        mask = mask & (df["threads"] == t)
-        mask = mask & (df["dataset"] == dataset)
-        ws.append(df[mask][metric].iloc[0])
+def weak_scaling_of(df, dataset, label, field, ax, cmap):
+    estimators = df["estimators"].unique().astype(int)
+    estimators.sort()
 
-    ws = [ws[i - 1] / ws[i] for i in range(1, len(estimators), 1)]
-    ws.insert(0, 1.0)
+    nodes = df["nodes"].unique().astype(int)
+    nodes.sort()
 
-    return ws
+    threads = df["threads"].unique().astype(int)
+    threads.sort()
+    values = []
+    for i, t in enumerate(threads):
+        for e, n in zip(estimators, nodes):
+            mask = (
+                (df["dataset"] == dataset)
+                & (df["threads"] == t)
+                & (df["estimators"] == e)
+                & (df["nodes"] == n)
+            )
+            values.append(df[mask][field].iloc[0])
+        values = [values[i - 1] / values[i] for i in range(1, len(values))]
+        values.insert(0, 1)
+
+        ax.plot(
+            nodes,
+            values,
+            marker="o",
+            color=cmap[i],
+            label=f"{label} {t} threads",
+        )
+        values.clear()
 
 
 def weak_scaling(df):
-    tmp = df.sort_values(by=["estimators", "threads"])
+    datasets = ["susy20000", "susy100000"]
 
-    estimators = tmp["estimators"].unique()
-    threads = tmp["threads"].unique()
+    df = df[(df["backend"] == "omp") | (df["backend"] == "mpi")]
+    threads = df["threads"].unique().astype(int)
+    nodes = df["nodes"].unique().astype(int)
+    estimators = df["estimators"].unique().astype(int)
 
     _, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, dpi=200)
-    axes[0].set_title(f"Training Weak Scaling")
-    axes[1].set_title(f"Prediction Weak Scaling")
+    axes[0].set_title(f"SUSY Training Weak Scaling")
+    axes[1].set_title(f"SUSY Prediction Weak Scaling")
+    purples = mpl.colormaps["Purples"](np.linspace(0.4, 0.8, len(threads)))
+    yellows = mpl.colormaps["Greens"](np.linspace(0.4, 0.8, len(threads)))
 
-    blues = mpl.colormaps["Blues"](np.linspace(0.4, 0.8, 2))
-    reds = mpl.colormaps["Reds"](np.linspace(0.4, 0.8, 2))
-
-    omp_magic_train = weak_scaling_of(
-        df, estimators, threads, "susy100000", "omp", "train_time"
-    )
-    ff_magic_train = weak_scaling_of(
-        df, estimators, threads, "susy100000", "ff", "train_time"
-    )
-    omp_susy_train = weak_scaling_of(
-        df, estimators, threads, "susy20000", "omp", "train_time"
-    )
-    ff_susy_train = weak_scaling_of(
-        df, estimators, threads, "susy20000", "ff", "train_time"
-    )
-
-    omp_magic_predict = weak_scaling_of(
-        df, estimators, threads, "susy100000", "omp", "predict_time"
-    )
-    ff_magic_predict = weak_scaling_of(
-        df, estimators, threads, "susy100000", "ff", "predict_time"
-    )
-    omp_susy_predict = weak_scaling_of(
-        df, estimators, threads, "susy20000", "omp", "predict_time"
-    )
-    ff_susy_predict = weak_scaling_of(
-        df, estimators, threads, "susy20000", "ff", "predict_time"
-    )
-
-    axes[0].plot(
-        threads,
-        omp_magic_train,
-        marker="o",
-        label=f"OpenMP susy100000",
-        color=blues[0],
-    )
-
-    axes[0].plot(
-        threads,
-        ff_magic_train,
-        marker="o",
-        label=f"FastFlow susy100000",
-        color=reds[0],
-    )
-
-    axes[0].plot(
-        threads,
-        omp_susy_train,
-        marker="o",
-        label=f"OpenMP SUSY",
-        color=blues[1],
-    )
-
-    axes[0].plot(
-        threads,
-        ff_susy_train,
-        marker="o",
-        label=f"FastFlow SUSY",
-        color=reds[1],
-    )
+    weak_scaling_of(df, "susy20000", "SUSY 20k", "train_time", axes[0], purples)
+    weak_scaling_of(df, "susy100000", "SUSY 100k", "train_time", axes[0], yellows)
+    weak_scaling_of(df, "susy20000", "SUSY 20k", "predict_time", axes[1], purples)
+    weak_scaling_of(df, "susy100000", "SUSY 100k", "predict_time", axes[1], yellows)
 
     axes[0].set_xscale("log", base=2)
-    axes[0].set_xlabel("Threads-Estimators", fontsize=12)
+    axes[0].set_xlabel("Nodes-Estimators", fontsize=12)
     axes[0].set_ylabel("Relative Speedup", fontsize=12)
-    threads = [1, 2, 4, 8, 16, 32]
-    axes[0].set_xticks(threads, [f"{t}-{t * 8}" for t in threads])
+    axes[0].set_xticks(nodes, [f"{t}-{e}" for t, e in zip(nodes, estimators)])
     axes[0].legend()
     axes[0].grid()
 
-    axes[1].plot(
-        threads,
-        omp_magic_predict,
-        marker="o",
-        label=f"OpenMP susy100000",
-        color=blues[0],
-    )
-
-    axes[1].plot(
-        threads,
-        ff_magic_predict,
-        marker="o",
-        label=f"FastFlow susy100000",
-        color=reds[0],
-    )
-
-    axes[1].plot(
-        threads,
-        omp_susy_predict,
-        marker="o",
-        label=f"OpenMP SUSY",
-        color=blues[1],
-    )
-
-    axes[1].plot(
-        threads,
-        ff_susy_predict,
-        marker="o",
-        label=f"FastFlow SUSY",
-        color=reds[1],
-    )
-
     axes[1].set_xscale("log", base=2)
-    axes[1].set_xlabel("Threads-Estimators", fontsize=12)
-    axes[1].set_xticks(threads, [f"{t}-{t * 8}" for t in threads])
+    axes[1].set_xlabel("Nodes-Estimators", fontsize=12)
+    axes[1].set_xticks(nodes, [f"{t}-{e}" for t, e in zip(nodes, estimators)])
     axes[1].legend()
     axes[1].grid()
 
     plt.tight_layout()
-
-    plt.savefig("../report/images/distributed_weak_scaling.svg", dpi=300)
+    plt.savefig("report/images/distributed_weak_scaling.svg")
     plt.show()
+
+
+if __name__ == "__main__":
+    import pandas as pd
+
+    df = pd.read_csv("results/forest.csv")
+    df = df[(df["backend"] == "mpi") | (df["backend"] == "omp")]
+    df = df[(df["threads"] >= 16)]
+    df = df[(df["estimators"] >= 32)]
+    df = df[(df["dataset"] == "susy100000") | (df["dataset"] == "susy20000")]
+    df = df[
+        (df["nodes"] == 1)
+        | (df["nodes"] == 2)
+        | (df["nodes"] == 4)
+        | (df["nodes"] == 8)
+    ]
+    INPUT_COLS = ["dataset", "estimators", "max_depth", "backend", "nodes", "threads"]
+    OUTPUT_COLS = ["train_time", "predict_time"]
+    df = df.groupby(by=INPUT_COLS, as_index=False)[OUTPUT_COLS].mean()
+    df = df.sort_values(by=["dataset", "nodes", "threads"])
+
+    weak_scaling(df)
