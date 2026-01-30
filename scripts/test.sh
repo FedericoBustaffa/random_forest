@@ -20,12 +20,12 @@ echo "--- OpenMP ---"
 srun -N 1 -n 1 -c 32 ./build/rf.out "$TREES" 0 "omp" "$THREADS" "$DATASET"
 
 echo "--- FastFlow ---"
-srun -N 1 -n 1 -c 32 ./build/rf.out $e 0 "ff" "$THREADS" "$DATASET"
+srun -N 1 -n 1 -c 32 ./build/rf.out "$TREES" 0 "ff" "$THREADS" "$DATASET"
 
 echo "--- MPI ---"
 srun --mpi=pmix -N "$NODES" -n "$NODES" -c 32 \
     ./build/rf.out "$TREES" 0 "mpi" "$THREADS" "$DATASET"
 
 echo "--- Sklearn ---"
-python ./test/sklearn_rf.py "$TREE" 0 "$THREADS" "$DATASET"
+python ./test/sklearn_rf.py "$TREES" 0 "$THREADS" "$DATASET"
 
