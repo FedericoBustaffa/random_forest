@@ -23,7 +23,7 @@ run_omp() {
     echo "--- OpenMP ---"
     for e in "${TREES[@]}"; do
         for t in "${THREADS[@]}"; do
-            for j in $(seq 1 $REPS); do
+            for j in $(seq 1 5); do
                 srun -N 1 -n 1 -c 32 \
                     ./build/rf.out $e 0 "omp" $t "$DATASET" log
             done
