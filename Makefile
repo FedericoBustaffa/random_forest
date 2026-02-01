@@ -14,7 +14,7 @@ OPTFLAGS = -O3 -march=native -DNDEBUG
 DEPSFLAGS = -MMD -MP
 
 # include directories
-INCLUDES = -I./include/ -I./fastflow/
+INCLUDES = -I./include/ -I${HOME}/fastflow/
 
 # specify preprocessor definitions
 DEFINES = 

@@ -11,6 +11,7 @@ DecisionTree::DecisionTree(size_t max_depth, bool bootstrap,
                            int64_t random_state)
     : m_MaxDepth(max_depth), m_Bootstrap(bootstrap), m_RandomState(random_state)
 {
+    // Initialize random state if not provided
     if (random_state == -1)
     {
         std::random_device rd;
@@ -22,6 +23,8 @@ void DecisionTree::fit(const std::vector<std::vector<float>>& X,
                        const std::vector<uint8_t>& y)
 {
     std::vector<size_t> indices;
+
+    // Select indices according to bootstrap or full dataset
     if (m_Bootstrap)
         indices = bootstrap(y.size(), m_RandomState);
     else
@@ -32,6 +35,7 @@ void DecisionTree::fit(const std::vector<std::vector<float>>& X,
 
     size_t n_labels = count_labels(y, indices);
 
+    // Build the tree recursively
     grow(transpose(X), y, indices, n_labels, 1);
     m_Tree.shrink_to_fit();
 }
@@ -40,10 +44,13 @@ std::vector<uint8_t> DecisionTree::predict(
     const std::vector<std::vector<float>>& X)
 {
     std::vector<uint8_t> labels(X.size());
+
+    // Traverse the tree for each sample
     for (size_t i = 0; i < X.size(); i++)
     {
         const std::vector<float>& x = X[i];
         size_t j = 0;
+
         while (!m_Tree[j].is_leaf())
         {
             if (x[m_Tree[j].feature_idx] < m_Tree[j].threshold)
@@ -51,6 +58,7 @@ std::vector<uint8_t> DecisionTree::predict(
             else
                 j = m_Tree[j].right;
         }
+
         labels[i] = m_Tree[j].label;
     }
 
@@ -62,6 +70,7 @@ int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
                            std::vector<size_t>& indices, size_t n_labels,
                            size_t depth)
 {
+    // Stop condition: max depth reached
     if (m_MaxDepth != 0 && depth == m_MaxDepth)
     {
         m_Tree.emplace_back(majority(y, indices));
@@ -76,21 +85,20 @@ int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
     float best_gain = -1;
     size_t best_feature = 0;
 
-    // compute only once
+    // Compute parent entropy once
     float parent_entropy = entropy(y, indices);
 
     for (size_t i = 0; i < n_features; i++)
     {
-
         Counter left_counters(n_labels);
         Counter right_counters(n_labels);
 
-        // order with indices
+        // Sort indices by current feature
         std::vector<size_t> order = argsort(X[i], indices);
         for (size_t j = 0; j < indices.size(); j++)
             right_counters[y[indices[order[j]]]]++;
 
-        // candidate thresholds
+        // Consider candidate thresholds
         float prev_label = y[indices[order[0]]];
         for (size_t j = 1; j < indices.size(); j++)
         {
@@ -101,32 +109,40 @@ int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
             float prev_feature = X[i][indices[order[j - 1]]];
             float curr_feature = X[i][indices[order[j]]];
 
+            // Skip equal feature values
             if (prev_feature == curr_feature)
                 continue;
 
             uint8_t curr_label = y[indices[order[j]]];
             if (prev_label != curr_label)
             {
+                // Candidate threshold between two feature values
                 float threshold = (prev_feature + curr_feature) * 0.5;
+
+                // Compute information gain
                 float gain = informationGain(parent_entropy, left_counters,
                                              right_counters);
+
                 if (gain > best_gain)
                 {
                     best_gain = gain;
                     best_threshold = threshold;
                     best_feature = i;
                 }
+
                 prev_label = curr_label;
             }
         }
     }
 
+    // If no significant gain, create leaf node
     if (best_gain <= 1e-6)
     {
         m_Tree.emplace_back(majority(y, indices));
         return m_Tree.size() - 1;
     }
 
+    // Partition samples into left and right subsets
     std::vector<size_t> left;
     std::vector<size_t> right;
     left.reserve(indices.size());
@@ -140,6 +156,7 @@ int64_t DecisionTree::grow(const std::vector<std::vector<float>>& X,
             right.push_back(indices[i]);
     }
 
+    // Create internal node and recurse
     int64_t idx = m_Tree.size();
     m_Tree.emplace_back(best_feature, best_threshold);
     m_Tree[idx].left = grow(X, y, left, n_labels, depth + 1);
@@ -154,6 +171,8 @@ size_t DecisionTree::compute_depth(int64_t i) const
         return 0;
 
     const Node& node = m_Tree[i];
+
+    // Compute depth recursively
     return 1 + std::max(compute_depth(node.left), compute_depth(node.right));
 }
 

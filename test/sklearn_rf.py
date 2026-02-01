@@ -1,4 +1,6 @@
 import argparse
+import json
+import os
 import time
 
 import pandas as pd
@@ -10,8 +12,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("estimators", type=int, help="number of estimators")
     parser.add_argument("max_depth", type=int, help="max depth of trees")
-    parser.add_argument("dataset", type=str, help="dataset filepath")
     parser.add_argument("njobs", type=int, help="number of parallel processes")
+    parser.add_argument("dataset", type=str, help="dataset filepath")
+    parser.add_argument(
+        "--log", action="store_true", help="flag to log results in a file"
+    )
     args = parser.parse_args()
     max_depth = args.max_depth if args.max_depth > 0 else None
 
@@ -34,24 +39,35 @@ if __name__ == "__main__":
     start = time.perf_counter()
     rf.fit(X_train, y_train)
     end = time.perf_counter()
-    print(f"train time: {end - start:.4f} s")
-
-    start = time.perf_counter()
-    train_pred = rf.predict(X_train)
-    end = time.perf_counter()
-    print(f"train predict time: {end - start:.4f} s")
-
-    train_accuracy = accuracy_score(y_train, train_pred)
-    train_f1 = f1_score(y_train, train_pred, average="macro")
-    print(f"train accuracy: {train_accuracy:.2f}")
-    print(f"train f1: {train_f1:.2f}")
+    train_time = end - start
 
     start = time.perf_counter()
     test_pred = rf.predict(X_test)
     end = time.perf_counter()
-    print(f"test predict time: {end - start:.4f} s")
+    predict_time = end - start
 
-    test_accuracy = accuracy_score(y_test, test_pred)
-    test_f1 = f1_score(y_test, test_pred, average="macro")
-    print(f"test accuracy: {test_accuracy:.2f}")
-    print(f"test f1: {test_f1:.2f}")
+    accuracy = accuracy_score(y_test, test_pred)
+    f1 = f1_score(y_test, test_pred, average="macro")
+
+    data = {
+        "dataset": args.dataset,
+        "estimators": args.estimators,
+        "max_depth": args.max_depth,
+        "accuracy": accuracy,
+        "f1": f1,
+        "backend": "joblib",
+        "nodes": 1,
+        "threads": args.njobs,
+        "train_time": train_time * 1000,
+        "predict_time": predict_time * 1000,
+    }
+    print(json.dumps(data, indent=2))
+
+    if args.log:
+        if "tmp" not in os.listdir("."):
+            os.mkdir("tmp")
+
+        nfiles = len(os.listdir("tmp"))
+        filepath = f"tmp/result_{nfiles}.json"
+        with open(filepath, "w") as fp:
+            json.dump(data, fp, indent=4)

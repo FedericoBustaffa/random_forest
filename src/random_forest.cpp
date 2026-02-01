@@ -8,11 +8,17 @@ RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
                            size_t threads)
     : m_Backend(backend), m_Threads(threads)
 {
-    if (m_Backend != Backend::MPI)
-        m_Nodes = 1;
-    else
-        MPI_Comm_size(MPI_COMM_WORLD, (int*)&m_Nodes);
+    m_Nodes = 1;
 
+    // Determine number of MPI nodes if using MPI backend
+    if (m_Backend == Backend::MPI)
+    {
+        int nodes;
+        MPI_Comm_size(MPI_COMM_WORLD, &nodes);
+        m_Nodes = nodes;
+    }
+
+    // Initialize trees for this process/node
     size_t ntrees = estimators / m_Nodes;
     m_Trees.reserve(ntrees);
     for (size_t i = 0; i < ntrees; i++)
@@ -22,10 +28,10 @@ RandomForest::RandomForest(size_t estimators, size_t max_depth, Backend backend,
 void RandomForest::fit(const std::vector<std::vector<float>>& X,
                        const std::vector<uint8_t>& y)
 {
-    // save the possible number of labels/classes
+    // Count number of unique labels/classes
     m_Labels = count_labels(y);
 
-    // fit based on the chosen backend
+    // Fit trees based on chosen backend
     switch (m_Backend)
     {
     case Backend::Sequential:
@@ -52,6 +58,7 @@ void RandomForest::fit(const std::vector<std::vector<float>>& X,
 std::vector<uint8_t> RandomForest::predict(
     const std::vector<std::vector<float>>& X)
 {
+    // Dispatch prediction based on backend
     switch (m_Backend)
     {
     case Backend::Sequential:
@@ -74,6 +81,8 @@ std::vector<uint8_t> RandomForest::predict(
 std::vector<size_t> RandomForest::depths() const
 {
     std::vector<size_t> out(m_Trees.size());
+
+    // Compute depth for each tree
     for (size_t i = 0; i < m_Trees.size(); i++)
         out[i] = m_Trees[i].depth();
 

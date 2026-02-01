@@ -1,5 +1,6 @@
 #include "io.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <mpi.h>
@@ -52,37 +53,40 @@ DataFrame read_csv(const std::string& filepath)
     return DataFrame(content, rows, cols);
 }
 
-void print_stats(const Record& record)
+void print_fields(
+    const std::vector<std::pair<std::string, std::string>>& record)
 {
-    std::printf("estimators: %lu\n", record.estimators);
-    std::printf("max_depth %lu\n", record.max_depth);
-    std::printf("backend: %s\n", record.backend.c_str());
-    std::printf("threads: %lu\n", record.threads);
-    std::printf("nodes: %lu\n", record.nodes);
-    std::printf("dataset: %s\n", record.dataset.c_str());
-    std::printf("training time: %.2f ms\n", record.train_time);
-    std::printf("prediction time: %.2f ms \n", record.predict_time);
-    std::printf("accuracy: %.2f\n", record.accuracy);
-    std::printf("f1 score: %.2f\n", record.f1);
+    for (const auto& field : record)
+        std::printf("%s: %s\n", field.first.c_str(), field.second.c_str());
 }
 
-void print_record(const Record& record)
+void print_record(
+    const std::vector<std::pair<std::string, std::string>>& record)
 {
-    if (record.backend == "mpi")
+    auto it = std::find_if(record.begin(), record.end(),
+                           [](const auto& p) { return p.first == "backend"; });
+
+    if (it != record.end() && it->second == "mpi")
     {
         int rank;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
         if (rank == 0)
-            print_stats(record);
+            print_fields(record);
     }
     else
-        print_stats(record);
+        print_fields(record);
 }
 
-void write_json(const Record& record)
+bool is_number(const std::string& s)
 {
+    char* end = nullptr;
+    std::strtod(s.c_str(), &end);
+    return end && *end == '\0';
+}
 
+void write_json(const std::vector<std::pair<std::string, std::string>>& record)
+{
     fs::path dir_path = "tmp";
     if (!fs::exists(dir_path))
         fs::create_directory(dir_path);
@@ -96,27 +100,35 @@ void write_json(const Record& record)
 
     std::stringstream ss;
     ss << dir_path.c_str() << "/";
-    ss << "result_" << std::setw(0) << std::setfill('0') << nfiles << ".json";
+    ss << "result_" << nfiles << ".json";
 
     std::ofstream out(ss.str());
-
     out << "{\n";
-    out << "\t\"estimators\": " << record.estimators << ",\n";
-    out << "\t\"max_depth\": " << record.max_depth << ",\n";
-    out << "\t\"backend\": " << '\"' << record.backend << '\"' << ",\n";
-    out << "\t\"threads\": " << record.threads << ",\n";
-    out << "\t\"nodes\": " << record.nodes << ",\n";
-    out << "\t\"dataset\": " << '\"' << record.dataset << '\"' << ",\n";
-    out << "\t\"accuracy\": " << record.accuracy << ",\n";
-    out << "\t\"f1\": " << record.f1 << ",\n";
-    out << "\t\"train_time\": " << record.train_time << ",\n";
-    out << "\t\"predict_time\": " << record.predict_time << "\n";
+
+    size_t n = record.size();
+    size_t i = 0;
+    for (const auto& field : record)
+    {
+        if (is_number(field.second))
+            out << "    \"" << field.first << "\": " << field.second;
+        else
+            out << "    \"" << field.first << "\": \"" << field.second << "\"";
+
+        if (i != n - 1)
+            out << ",";
+
+        out << "\n";
+        i++;
+    }
     out << "}\n";
 }
 
-void to_json(const Record& record)
+void to_json(const std::vector<std::pair<std::string, std::string>>& record)
 {
-    if (record.backend == "mpi")
+    auto it = std::find_if(record.begin(), record.end(),
+                           [](const auto& p) { return p.first == "backend"; });
+
+    if (it != record.end() && it->second == "mpi")
     {
         int rank;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -125,5 +137,7 @@ void to_json(const Record& record)
             write_json(record);
     }
     else
+    {
         write_json(record);
+    }
 }

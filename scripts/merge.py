@@ -6,7 +6,7 @@ import pandas as pd
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("prefix", type=str, help="prefix for the resulting file")
+    parser.add_argument("filepath", type=str, help="filepath to aggregate results")
     args = parser.parse_args()
 
     # read the first file to infer the parameters
@@ -33,24 +33,15 @@ if __name__ == "__main__":
     # build a DataFrame
     df = pd.DataFrame(df)
 
-    # mean multiple runs with same parameters
-    param_cols = df.columns.to_list()[:6]
-    res_cols = df.columns.to_list()[6:]
-    df = df.groupby(by=param_cols, as_index=False)[res_cols].mean()
-    assert isinstance(df, pd.DataFrame)
-
     # if not present create a "results" directory
     if "results" not in os.listdir("."):
         os.mkdir("results")
 
-    # get file id
-    prefixed_files = filter(
-        lambda x: x.startswith(f"{args.prefix}"), os.listdir("results")
-    )
-    nfiles = len(list(prefixed_files))
-
-    # write results in CSV file
-    dataset = df["dataset"].iloc[0]
-    filename = f"results/{args.prefix}_{dataset}_{nfiles + 1}.csv"
-    df = df.drop(columns="dataset")
-    df.to_csv(filename, header=True, index=False)
+    if args.filepath.split("/")[1] not in os.listdir("results"):
+        # write results in CSV file
+        df.to_csv(args.filepath, header=True, index=False)
+    else:
+        # merge current data with existing results
+        old_df = pd.read_csv(args.filepath)
+        new_df = pd.concat([old_df, df], ignore_index=True)
+        new_df.to_csv(args.filepath, header=True, index=False)

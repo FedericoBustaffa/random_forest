@@ -5,7 +5,16 @@
 marginparwidth=1.75cm]{geometry}
 \usepackage{mathtools, amsmath, amssymb, amsthm}
 \usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{svg}
 \usepackage[hidelinks]{hyperref}
+\usepackage{subcaption}
+
+
+\renewcommand{\O}{\mathcal{O}}
 
 \title{SPM Course 2024/2025: Project 2}
 \author{Federico Bustaffa}
@@ -17,9 +26,9 @@ marginparwidth=1.75cm]{geometry}
 \tableofcontents
 
 \input{introduction}
-\input{implementation}
-\input{experiments}
-\input{cost_model}
+\include{implementation}
+\include{experiments}
+\include{cost_model}
 
 \bibliographystyle{plain}
 \bibliography{datasets}

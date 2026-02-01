@@ -3,10 +3,8 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <string>
 #include <vector>
 
-#include "backend.hpp"
 #include "counter.hpp"
 #include "datasplit.hpp"
 
@@ -32,7 +30,5 @@ DataSplit train_test_split(const std::vector<std::vector<float>>& X,
                            int seed = -1);
 
 std::vector<size_t> bootstrap(size_t n_samples, uint8_t seed);
-
-Backend to_backend(const std::string& s);
 
 #endif
